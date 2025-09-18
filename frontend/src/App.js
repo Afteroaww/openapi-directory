@@ -926,47 +926,100 @@ const ControllerDashboard = () => {
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle>Weryfikacja pozwoleń</CardTitle>
-                  <CardDescription>Skanuj lub wprowadź kod QR z pozwolenia</CardDescription>
+                  <CardDescription>Wybierz metodę weryfikacji pozwolenia</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="space-y-6">
-                    <div>
-                      <Button 
-                        onClick={startQRScan} 
-                        disabled={scanning}
-                        className="w-full bg-blue-600 hover:bg-blue-700 mb-4"
+                    {/* Method Selection */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <Button
+                        variant={verificationMethod === 'qr' ? 'default' : 'outline'}
+                        onClick={() => setVerificationMethod('qr')}
+                        className="h-auto p-4 flex flex-col items-center"
                       >
-                        <Camera className="h-4 w-4 mr-2" />
-                        {scanning ? 'Skanowanie...' : 'Skanuj kod QR kamerą'}
+                        <QrCode className="h-6 w-6 mb-2" />
+                        <span className="text-sm">Kod QR</span>
                       </Button>
-                      
-                      <div id="qr-scanner-container" className="text-center">
-                        {/* QR Scanner will be inserted here */}
-                      </div>
+                      <Button
+                        variant={verificationMethod === 'order' ? 'default' : 'outline'}
+                        onClick={() => setVerificationMethod('order')}
+                        className="h-auto p-4 flex flex-col items-center"
+                      >
+                        <FileText className="h-6 w-6 mb-2" />
+                        <span className="text-sm">Nr zamówienia</span>
+                      </Button>
                     </div>
 
-                    <div className="text-center text-gray-500">lub</div>
+                    {verificationMethod === 'qr' && (
+                      <div className="space-y-4">
+                        <div>
+                          <Button 
+                            onClick={startQRScan} 
+                            disabled={scanning}
+                            className="w-full bg-blue-600 hover:bg-blue-700 mb-4"
+                          >
+                            <Camera className="h-4 w-4 mr-2" />
+                            {scanning ? 'Skanowanie...' : 'Skanuj kod QR kamerą'}
+                          </Button>
+                          
+                          <div id="qr-scanner-container" className="text-center">
+                            {/* QR Scanner will be inserted here */}
+                          </div>
+                        </div>
 
-                    <form onSubmit={handleVerification}>
-                      <div className="mb-4">
-                        <Label htmlFor="qr-data">Dane z kodu QR</Label>
-                        <Input
-                          id="qr-data"
-                          value={qrData}
-                          onChange={(e) => setQrData(e.target.value)}
-                          placeholder="PERMIT:xxxxx:NAME:xxxxx:VERIFIED"
-                          className="mt-1"
-                        />
+                        <div className="text-center text-gray-500">lub</div>
+
+                        <form onSubmit={handleVerification}>
+                          <div className="mb-4">
+                            <Label htmlFor="qr-data">Dane z kodu QR</Label>
+                            <Input
+                              id="qr-data"
+                              value={qrData}
+                              onChange={(e) => setQrData(e.target.value)}
+                              placeholder="PERMIT:xxxxx:NAME:xxxxx:VERIFIED"
+                              className="mt-1"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                              Wpisz lub zeskanuj zawartość kodu QR
+                            </p>
+                          </div>
+
+                          <Button 
+                            type="submit" 
+                            disabled={loading || !qrData.trim()}
+                            className="w-full bg-blue-600 hover:bg-blue-700"
+                          >
+                            {loading ? 'Weryfikowanie...' : 'Weryfikuj przez QR'}
+                          </Button>
+                        </form>
                       </div>
+                    )}
 
-                      <Button 
-                        type="submit" 
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700"
-                      >
-                        {loading ? 'Weryfikowanie...' : 'Weryfikuj pozwolenie'}
-                      </Button>
-                    </form>
+                    {verificationMethod === 'order' && (
+                      <form onSubmit={handleVerification} className="space-y-4">
+                        <div>
+                          <Label htmlFor="order-id">Numer zamówienia</Label>
+                          <Input
+                            id="order-id"
+                            value={orderId}
+                            onChange={(e) => setOrderId(e.target.value)}
+                            placeholder="FP1758229546"
+                            className="mt-1"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Numer zamówienia znajdziesz na stronie sukcesu po zakupie pozwolenia
+                          </p>
+                        </div>
+
+                        <Button 
+                          type="submit" 
+                          disabled={loading || !orderId.trim()}
+                          className="w-full bg-emerald-600 hover:bg-emerald-700"
+                        >
+                          {loading ? 'Weryfikowanie...' : 'Weryfikuj przez zamówienie'}
+                        </Button>
+                      </form>
+                    )}
 
                     {verificationResult && (
                       <div className={`p-4 rounded-lg ${
@@ -991,11 +1044,32 @@ const ControllerDashboard = () => {
                           {verificationResult.message}
                         </p>
 
-                        {verificationResult.valid && verificationResult.permit && (
+                        {verificationResult.valid && (
                           <div className="mt-3 text-sm text-emerald-700">
-                            <p><strong>Posiadacz:</strong> {verificationResult.permit.customer_info.full_name}</p>
-                            <p><strong>Typ:</strong> {verificationResult.permit.description}</p>
-                            <p><strong>Ważne do:</strong> {new Date(verificationResult.expiry_date).toLocaleDateString('pl-PL')}</p>
+                            <p><strong>Posiadacz:</strong> {verificationResult.customer?.full_name}</p>
+                            <p><strong>Email:</strong> {verificationResult.customer?.email}</p>
+                            {verificationResult.order_id && (
+                              <p><strong>Nr zamówienia:</strong> {verificationResult.order_id}</p>
+                            )}
+                            
+                            {verificationResult.permits && (
+                              <div className="mt-2">
+                                <p><strong>Aktywne pozwolenia ({verificationResult.permits.length}):</strong></p>
+                                {verificationResult.permits.map((permit, index) => (
+                                  <div key={index} className="ml-2 mt-1 text-xs">
+                                    • {permit.description} - ważne do {new Date(permit.expiry_date).toLocaleDateString('pl-PL')} 
+                                    ({permit.days_remaining} dni pozostało)
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {verificationResult.permit && (
+                              <div className="mt-2">
+                                <p><strong>Typ:</strong> {verificationResult.permit.description}</p>
+                                <p><strong>Ważne do:</strong> {new Date(verificationResult.expiry_date).toLocaleDateString('pl-PL')}</p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1005,11 +1079,18 @@ const ControllerDashboard = () => {
                       onClick={() => {
                         setVerificationResult(null);
                         setQrData('');
+                        setOrderId('');
+                        // Clear scanner if active
+                        const qrContainer = document.getElementById('qr-scanner-container');
+                        if (qrContainer) {
+                          qrContainer.innerHTML = '';
+                        }
+                        setScanning(false);
                       }}
                       variant="outline"
                       className="w-full"
                     >
-                      Wyczyść
+                      Wyczyść i rozpocznij nowo
                     </Button>
                   </div>
                 </CardContent>
