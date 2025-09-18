@@ -499,28 +499,48 @@ const ClientDashboard = () => {
                   <CardContent className="p-6">
                     <div className="space-y-4">
                       {permitTypes.map((permit) => (
-                        <div key={permit.type} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <div 
+                          key={permit.type} 
+                          className={`border rounded-lg p-4 transition-colors cursor-pointer touch-manipulation ${
+                            selectedPermits.includes(permit.type) 
+                              ? 'bg-emerald-50 border-emerald-300' 
+                              : 'hover:bg-gray-50 border-gray-200'
+                          }`}
+                          onClick={() => handlePermitSelection(permit.type, !selectedPermits.includes(permit.type))}
+                        >
                           <div className="flex items-start justify-between">
-                            <div className="flex items-start space-x-3">
+                            <div className="flex items-start space-x-4">
+                              {/* Mobile-friendly checkbox */}
                               <div className="flex items-center mt-1">
-                                <Checkbox
-                                  id={permit.type}
-                                  checked={selectedPermits.includes(permit.type)}
-                                  onCheckedChange={(checked) => handlePermitSelection(permit.type, checked)}
-                                />
+                                <div className={`
+                                  w-6 h-6 rounded border-2 flex items-center justify-center cursor-pointer touch-manipulation
+                                  ${selectedPermits.includes(permit.type) 
+                                    ? 'bg-emerald-600 border-emerald-600' 
+                                    : 'border-gray-300 bg-white'
+                                  }
+                                `}>
+                                  {selectedPermits.includes(permit.type) && (
+                                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex-1">
-                                <Label htmlFor={permit.type} className="text-base font-medium cursor-pointer">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                   {permit.name}
-                                </Label>
-                                <p className="text-sm text-gray-600 mt-1">{permit.description}</p>
-                                <p className="text-xs text-gray-500 mt-1">
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-1">{permit.description}</p>
+                                <p className="text-xs text-gray-500">
                                   Ważność: {permit.validity_days} {permit.validity_days === 1 ? 'dzień' : permit.validity_days < 5 ? 'dni' : 'dni'}
                                 </p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-bold text-emerald-600 text-lg">{permit.price} PLN</p>
+                            <div className="text-right ml-4">
+                              <p className="text-2xl font-bold text-emerald-600">{permit.price} PLN</p>
+                              {selectedPermits.includes(permit.type) && (
+                                <p className="text-xs text-emerald-600 font-medium mt-1">✓ Wybrane</p>
+                              )}
                             </div>
                           </div>
                         </div>
