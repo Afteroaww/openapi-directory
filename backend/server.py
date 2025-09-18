@@ -97,6 +97,7 @@ class CustomerInfo(BaseModel):
 
 class PermitRequest(BaseModel):
     permit_types: List[PermitType]
+    owner_code: Optional[str] = None
 
 class FishingPermit(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
