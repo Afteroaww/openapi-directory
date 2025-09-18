@@ -832,13 +832,15 @@ async def purchase_permits(
         # Create payment in Przelewy24
         payment_description = f"Pozwolenia na połów ryb - Zamówienie {order_id}"
         
-        try:
-            payment_result = await create_p24_payment(
-                order_id=order_id,
-                amount_pln=total_amount,
-                description=payment_description,
-                email=current_user["email"]
-            )
+        # Check if P24 is properly configured
+        if P24_MERCHANT_ID and P24_MERCHANT_ID != "YOUR_MERCHANT_ID" and P24_CRC_KEY and P24_CRC_KEY != "YOUR_CRC_KEY":
+            try:
+                payment_result = await create_p24_payment(
+                    order_id=order_id,
+                    amount_pln=total_amount,
+                    description=payment_description,
+                    email=current_user["email"]
+                )
             
             # Store payment info
             await db.payments.insert_one({
