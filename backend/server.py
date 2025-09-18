@@ -856,25 +856,25 @@ async def purchase_permits(
                     email=current_user["email"]
                 )
             
-            # Store payment info
-            await db.payments.insert_one({
-                "order_id": order_id,
-                "session_id": payment_result["session_id"],
-                "amount": total_amount,
-                "status": "created",
-                "created_at": datetime.now(timezone.utc).isoformat(),
-                "payment_url": payment_result["payment_url"]
-            })
-            
-            return {
-                "success": True,
-                "order_id": order_id,
-                "total_amount": total_amount,
-                "payment_url": payment_result["payment_url"],
-                "message": "Przekierowanie do płatności...",
-                "requires_payment": True
-            }
-            
+                # Store payment info
+                await db.payments.insert_one({
+                    "order_id": order_id,
+                    "session_id": payment_result["session_id"],
+                    "amount": total_amount,
+                    "status": "created",
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "payment_url": payment_result["payment_url"]
+                })
+                
+                return {
+                    "success": True,
+                    "order_id": order_id,
+                    "total_amount": total_amount,
+                    "payment_url": payment_result["payment_url"],
+                    "message": "Przekierowanie do płatności...",
+                    "requires_payment": True
+                }
+                
             except HTTPException as e:
                 # If payment creation fails, fallback to mock success for development
                 logging.warning(f"P24 payment creation failed: {e.detail}. Using mock payment.")
