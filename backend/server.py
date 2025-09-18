@@ -529,6 +529,116 @@ async def get_permit_types():
         ]
     }
 
+@api_router.get("/regulations")
+async def get_fishing_regulations():
+    """Get fishing regulations and data processing agreement"""
+    return {
+        "fishing_regulations": {
+            "title": "REGULAMIN ŁOWISKA JEZIORO WIELISZEW",
+            "content": """
+## REGULAMIN ŁOWISKA JEZIORO WIELISZEW
+
+### I. POSTANOWIENIA OGÓLNE
+1. Niniejszy regulamin określa zasady połowu ryb w jeziorze Wieliszew.
+2. Każdy wędkarz zobowiązany jest do posiadania ważnego pozwolenia oraz przestrzegania niniejszego regulaminu.
+3. Połów dozwolony jest wyłącznie na wędkę w godzinach od świtu do zmierzchu.
+
+### II. DOZWOLONE GATUNKI RYB I WYMIARY OCHRONNE
+**Ryby drapieżne:**
+- **Szczupak**: min. 50 cm (zalecane wypuszczanie ryb powyżej 70 cm)
+- **Sandacz**: min. 45 cm (zalecane wypuszczanie ryb powyżej 60 cm)  
+- **Okoń**: min. 15 cm (zalecane wypuszczanie dużych osobników powyżej 35 cm)
+- **Som**: min. 70 cm (OBOWIĄZKOWE wypuszczanie ryb powyżej 100 cm)
+
+**Ryby białe:**
+- **Karp**: min. 35 cm (OBOWIĄZKOWE wypuszczanie wszystkich karpi - tylko C&R)
+- **Amur**: min. 40 cm (zalecane wypuszczanie)
+- **Lin**: min. 25 cm (zalecane wypuszczanie)
+- **Leszcz**: min. 25 cm
+- **Płoć**: min. 15 cm
+
+### III. ZASADY WĘDKARSTWA SPORTOWEGO (CATCH & RELEASE)
+1. **OBOWIĄZKOWE WYPUSZCZANIE:**
+   - Wszystkich karpi (bez względu na rozmiar)
+   - Somów powyżej 100 cm
+   - Szczupaków powyżej 80 cm (trofeje)
+
+2. **ZALECANE WYPUSZCZANIE:**
+   - Wszystkich ryb drapieżnych większych niż wymiar minimalny
+   - Dużych okazów ryb białych
+
+3. **ZASADY PRAWIDŁOWEGO WYPUSZCZANIA:**
+   - Używanie podbieraka z gumową siatką
+   - Minimalizowanie czasu trzymania ryby poza wodą
+   - Unikanie dotykania skrzeli i oczu
+   - Delikatne trzymanie ryby do zdjęcia
+   - Wypuszczanie w spokojnym miejscu
+
+### IV. OGRANICZENIA I ZAKAZY
+1. **Limity połowowe:**
+   - Szczupak: max 2 sztuki/dzień
+   - Sandacz: max 3 sztuki/dzień
+   - Ryby białe: max 5 kg/dzień (bez karpi)
+
+2. **ZAKAZY:**
+   - Połów karpii na zabój (tylko C&R)
+   - Używanie żywców
+   - Wędkowanie z łodzi w okresie tarła (15.02-15.05)
+   - Karmienie ryb poza karmieniem punktowym
+   - Pozostawianie śmieci nad jeziorem
+
+### V. SPRZĘT I PRZYNĘTY
+1. **Dozwolone:**
+   - Wędki spinningowe i gruntowe
+   - Sztuczne przynęty i dobłki
+   - Robaki, kukurydza, pellet
+
+2. **Zabronione:**
+   - Żywe ryby jako przynęta
+   - Sieci, włok, elektryczność
+   - Materiały wybuchowe
+
+### VI. KARY I SANKCJE
+1. Za nieprzestrzeganie regulaminu grozi:
+   - Utrata pozwolenia bez zwrotu opłaty
+   - Zakaz wstępu na łowisko
+   - Kara finansowa do 500 PLN
+
+### VII. OCHRONA ŚRODOWISKA
+1. Obowiązuje zasada "nie pozostaw śladu"
+2. Wszystkie śmieci należy zabrać ze sobą
+3. Szacunek dla przyrody i innych wędkarzy
+
+**Regulamin obowiązuje od 01.01.2025r.**
+**Zarząd Łowiska Jezioro Wieliszew**
+            """
+        },
+        "data_processing_agreement": {
+            "title": "ZGODA NA PRZETWARZANIE DANYCH OSOBOWYCH",
+            "content": """
+## INFORMACJA O PRZETWARZANIU DANYCH OSOBOWYCH
+
+**Administrator danych**: Zarząd Łowiska Jezioro Wieliszew, ul. Wieliszewska 1, 05-135 Wieliszew
+
+**Cel przetwarzania**: 
+- Sprzedaż pozwoleń na połów ryb
+- Kontrola przestrzegania regulaminu łowiska
+- Prowadzenie ewidencji wędkarzy
+- Komunikacja z klientami
+
+**Podstawa prawna**: Wykonanie umowy (art. 6 ust. 1 lit. b RODO)
+
+**Okres przechowywania**: 3 lata od wygaśnięcia pozwolenia
+
+**Prawa**: Masz prawo do dostępu, sprostowania, usunięcia i ograniczenia przetwarzania swoich danych.
+
+**Kontakt**: wieliszew.lowisko@gmail.com, tel. +48 123 456 789
+
+Wyrażam zgodę na przetwarzanie moich danych osobowych w celach związanych z uzyskaniem pozwolenia na połów ryb.
+            """
+        }
+    }
+
 @api_router.post("/permits/purchase")
 async def purchase_permits(
     permit_request: PermitRequest,
