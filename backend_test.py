@@ -994,7 +994,7 @@ class FishingPermitsAPITester:
             "Upload Catch Without Auth", 
             "POST", 
             "fishing/upload-catch", 
-            401, 
+            403,  # FastAPI returns 403 for missing auth
             data=test_data
         )
         
