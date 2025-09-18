@@ -262,6 +262,96 @@ def calculate_expiry_date(permit_type: PermitType, issue_date: datetime) -> date
     validity_days = PERMIT_VALIDITY[permit_type]
     return issue_date + timedelta(days=validity_days)
 
+def generate_p24_sign(data: dict) -> str:
+    """Generate Przelewy24 signature"""
+    if not P24_CRC_KEY:
+        raise ValueError("P24_CRC_KEY not configured")
+    
+    # Create sign string according to P24 documentation
+    sign_string = f"{data['sessionId']}|{data['merchantId']}|{data['amount']}|{data['currency']}|{P24_CRC_KEY}"
+    return hashlib.md5(sign_string.encode('utf-8')).hexdigest()
+
+def verify_p24_sign(data: dict, received_sign: str) -> bool:
+    """Verify Przelewy24 signature"""
+    if not P24_CRC_KEY:
+        return False
+    
+    expected_sign = generate_p24_sign(data)
+    return expected_sign.lower() == received_sign.lower()
+
+async def create_p24_payment(order_id: str, amount_pln: float, description: str, email: str) -> dict:
+    """Create payment in Przelewy24"""
+    if not all([P24_MERCHANT_ID, P24_CRC_KEY]):
+        raise ValueError("Przelewy24 not properly configured")
+    
+    amount_grosze = int(amount_pln * 100)  # Convert PLN to grosze
+    
+    session_id = f"{order_id}_{int(datetime.now().timestamp())}"
+    
+    payment_data = {
+        "sessionId": session_id,
+        "merchantId": int(P24_MERCHANT_ID),
+        "posId": int(P24_POS_ID or P24_MERCHANT_ID),
+        "amount": amount_grosze,
+        "currency": "PLN",
+        "description": description,
+        "email": email,
+        "country": "PL",
+        "language": "pl",
+        "urlReturn": f"https://fishing-fees.preview.emergentagent.com/payment-success?orderId={order_id}",
+        "urlStatus": f"https://fishing-fees.preview.emergentagent.com/api/payment/webhook",
+        "encoding": "UTF-8"
+    }
+    
+    # Generate signature
+    payment_data["sign"] = generate_p24_sign(payment_data)
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": f"Basic {P24_API_KEY}" if P24_API_KEY else None
+            }
+            
+            # Remove None authorization if API key not set
+            if not P24_API_KEY:
+                del headers["Authorization"]
+            
+            response = await client.post(
+                f"{P24_API_URL}/trnRegister",
+                data=payment_data,
+                headers=headers,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                response_text = response.text
+                if "error=" in response_text:
+                    error_code = response_text.split("error=")[1].split("&")[0]
+                    raise HTTPException(status_code=400, detail=f"P24 Error: {error_code}")
+                
+                if "token=" in response_text:
+                    token = response_text.split("token=")[1].split("&")[0]
+                    payment_url = f"{P24_API_URL}/trnRequest/{token}"
+                    
+                    return {
+                        "session_id": session_id,
+                        "token": token,
+                        "payment_url": payment_url,
+                        "status": "created"
+                    }
+                else:
+                    raise HTTPException(status_code=400, detail="No token received from P24")
+            else:
+                logging.error(f"P24 API error: {response.status_code} - {response.text}")
+                raise HTTPException(status_code=400, detail="Payment creation failed")
+                
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=408, detail="Payment service timeout")
+    except Exception as e:
+        logging.error(f"P24 payment creation error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Payment service error")
+
 # Database operations
 async def get_user_by_email(email: str):
     """Get user by email"""
