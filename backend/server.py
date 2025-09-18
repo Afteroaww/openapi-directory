@@ -145,7 +145,7 @@ async def get_permits_by_order(order_id: str):
 
 async def verify_permit_qr(permit_id: str):
     """Verify permit by ID"""
-    permit = await db.fishing_permits.find_one({"id": permit_id})
+    permit = await db.fishing_permits.find_one({"id": permit_id}, {"_id": 0})
     if not permit:
         return {"valid": False, "message": "Permit not found"}
     
