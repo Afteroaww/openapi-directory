@@ -349,10 +349,22 @@ const ClientDashboard = () => {
 
     setLoading(true);
     
+    if (!regulationsAccepted) {
+      alert('Musisz zaakceptować regulamin łowiska');
+      return;
+    }
+
+    if (!dataProcessingAccepted) {
+      alert('Musisz zaakceptować zgodę na przetwarzanie danych');
+      return;
+    }
+
     try {
       const response = await axios.post(`${API}/permits/purchase`, {
         permit_types: selectedPermits,
-        owner_code: ownerCode.trim() || undefined
+        owner_code: ownerCode.trim() || undefined,
+        regulations_accepted: regulationsAccepted,
+        data_processing_accepted: dataProcessingAccepted
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
