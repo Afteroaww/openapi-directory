@@ -496,10 +496,33 @@ const ClientDashboard = () => {
                     </div>
 
                     {selectedPermits.length > 0 && (
-                      <div className="mt-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium text-emerald-800">Łączna kwota:</span>
-                          <span className="text-2xl font-bold text-emerald-600">{calculateTotal()} PLN</span>
+                      <div className="mt-6 space-y-4">
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <Label htmlFor="owner-code" className="text-sm font-medium text-blue-800">
+                            Kod współwłaściciela (opcjonalnie)
+                          </Label>
+                          <Input
+                            id="owner-code"
+                            value={ownerCode}
+                            onChange={(e) => setOwnerCode(e.target.value)}
+                            placeholder="Wprowadź kod dla zniżki właścicielskiej"
+                            className="mt-1"
+                          />
+                          <p className="text-xs text-blue-600 mt-1">
+                            Współwłaściciele jeziora: roczne pozwolenie za 50 PLN
+                          </p>
+                        </div>
+                        
+                        <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium text-emerald-800">Łączna kwota:</span>
+                            <span className="text-2xl font-bold text-emerald-600">{calculateTotal()} PLN</span>
+                          </div>
+                          {ownerCode.trim() === 'WLASCICIELWIELISZEW' && selectedPermits.includes('yearly') && (
+                            <p className="text-sm text-emerald-700 mt-2">
+                              ✅ Zastosowano zniżkę współwłaściciela dla pozwolenia rocznego (300 PLN → 50 PLN)
+                            </p>
+                          )}
                         </div>
                       </div>
                     )}
