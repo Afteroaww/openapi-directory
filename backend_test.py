@@ -550,48 +550,42 @@ class FishingPermitsAPITester:
         
         return success, response
 
-    def test_get_order_permits(self):
-        """Test getting permits by order ID"""
-        if not self.purchase_result:
-            print("❌ No purchase result available for order test")
-            return False, {}
-        
-        order_id = self.purchase_result['order_id']
-        
-        success, response = self.run_test(
-            "Get Order Permits", 
-            "GET", 
-            f"permits/order/{order_id}", 
-            200
-        )
-        
-        if success and response:
-            if 'permits' in response and len(response['permits']) > 0:
-                print(f"   ✅ Found {len(response['permits'])} permits for order")
-                return True, response
-            else:
-                print(f"   ❌ No permits found for order")
-                return False, response
-        
-        return success, response
-
 def main():
-    print("🎣 Starting Fishing Permits API Tests")
-    print("=" * 50)
+    print("🎣 Starting Fishing Permits API Tests (Role-Based System)")
+    print("=" * 60)
     
     tester = FishingPermitsAPITester()
     
-    # Run all tests
+    # Run all tests in order
     tests = [
+        # Basic API tests
         tester.test_api_root,
         tester.test_get_permit_types,
-        tester.test_purchase_permits,
+        
+        # Authentication tests
+        tester.test_register_client,
+        tester.test_register_controller,
+        tester.test_register_invalid_controller_code,
+        tester.test_login_client,
+        tester.test_get_current_user,
+        
+        # Client functionality tests
+        tester.test_purchase_permits_client,
         tester.test_purchase_multiple_permits,
         tester.test_purchase_validation_errors,
-        tester.test_verify_permit,
+        tester.test_get_my_permits,
+        
+        # Authorization tests
+        tester.test_purchase_unauthorized,
+        tester.test_purchase_controller_forbidden,
+        tester.test_verify_unauthorized,
+        tester.test_verify_client_forbidden,
+        
+        # Controller functionality tests
+        tester.test_verify_permit_controller,
         tester.test_verify_invalid_permit,
         tester.test_verify_malformed_qr,
-        tester.test_get_order_permits
+        tester.test_get_verification_history,
     ]
     
     for test in tests:
@@ -601,7 +595,7 @@ def main():
             print(f"❌ Test {test.__name__} failed with exception: {str(e)}")
     
     # Print final results
-    print("\n" + "=" * 50)
+    print("\n" + "=" * 60)
     print(f"📊 FINAL RESULTS")
     print(f"Tests run: {tester.tests_run}")
     print(f"Tests passed: {tester.tests_passed}")
