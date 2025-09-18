@@ -129,7 +129,7 @@ class FishingPermitsAPITester:
             "email": f"controller{timestamp}@test.com",
             "full_name": "Anna Kontroler",
             "password": "TestPass123!",
-            "controller_code": "kontroler jezioro Wieliszew"
+            "controller_code": "JEZIOROWIELISZEW"  # Updated to correct code
         }
         
         success, response = self.run_test(
