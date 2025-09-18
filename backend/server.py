@@ -390,11 +390,17 @@ async def register(user_data: UserCreate):
         # Remove password from response
         user_response = {k: v for k, v in user.items() if k != "hashed_password"}
         
+        # Simple response without complex user object
         return {
             "success": True,
             "access_token": access_token,
             "token_type": "bearer",
-            "user": user_response,
+            "user": {
+                "id": user_id,
+                "email": user_data.email,
+                "full_name": user_data.full_name,
+                "role": role.value
+            },
             "message": f"Registration successful as {role.value}"
         }
         
