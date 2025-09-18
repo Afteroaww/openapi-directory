@@ -56,6 +56,13 @@ class FishingPermitsAPITester:
             print(f"❌ Failed - Error: {str(e)}")
             return False, {}
 
+    def get_auth_headers(self, token):
+        """Get authorization headers with token"""
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}'
+        }
+
     def test_api_root(self):
         """Test API root endpoint"""
         return self.run_test("API Root", "GET", "", 200)
