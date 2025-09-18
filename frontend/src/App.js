@@ -317,6 +317,7 @@ const ClientDashboard = () => {
   };
 
   const handlePermitSelection = (permitType, checked) => {
+    console.log('Permit selection:', permitType, checked); // Debug log
     if (checked) {
       setSelectedPermits(prev => [...prev, permitType]);
     } else {
