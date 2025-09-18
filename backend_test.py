@@ -152,6 +152,80 @@ class FishingPermitsAPITester:
         
         return success, response
 
+    def test_client_upgrade_to_controller(self):
+        """Test upgrading existing client to controller with special code"""
+        # First register as client
+        timestamp = int(datetime.now().timestamp())
+        client_email = f"upgrade_test{timestamp}@test.com"
+        
+        client_data = {
+            "email": client_email,
+            "full_name": "Test Upgrade User",
+            "password": "TestPass123!"
+        }
+        
+        print(f"\n🔄 Testing Client to Controller Upgrade Flow")
+        
+        # Step 1: Register as client
+        success, response = self.run_test(
+            "Step 1: Register as Client", 
+            "POST", 
+            "auth/register", 
+            200, 
+            data=client_data
+        )
+        
+        if not success:
+            return False, {}
+        
+        # Step 2: Try to register same email as controller without code (should fail)
+        controller_data_no_code = {
+            "email": client_email,
+            "full_name": "Test Upgrade User",
+            "password": "TestPass123!"
+        }
+        
+        success, response = self.run_test(
+            "Step 2: Try Register Same Email Without Code (Should Fail)", 
+            "POST", 
+            "auth/register", 
+            400, 
+            data=controller_data_no_code
+        )
+        
+        if not success:
+            print("   ❌ Expected 400 error for duplicate email without code")
+            return False, {}
+        
+        # Step 3: Register same email as controller with correct code (should upgrade)
+        controller_data_with_code = {
+            "email": client_email,
+            "full_name": "Test Upgrade User",
+            "password": "TestPass123!",
+            "controller_code": "JEZIOROWIELISZEW"
+        }
+        
+        success, response = self.run_test(
+            "Step 3: Upgrade Client to Controller with Code", 
+            "POST", 
+            "auth/register", 
+            200, 
+            data=controller_data_with_code
+        )
+        
+        if success and response:
+            if (response.get('success') and 
+                response.get('access_token') and 
+                response.get('user', {}).get('role') == 'controller'):
+                print(f"   ✅ Client successfully upgraded to controller")
+                print(f"   ✅ Message: {response.get('message', 'No message')}")
+                return True, response
+            else:
+                print(f"   ❌ Upgrade failed: {response}")
+                return False, response
+        
+        return success, response
+
     def test_register_invalid_controller_code(self):
         """Test controller registration with invalid code"""
         timestamp = int(datetime.now().timestamp())
