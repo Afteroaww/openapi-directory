@@ -580,7 +580,9 @@ class FishingPermitsAPITester:
             return False, {}
         
         test_data = {
-            "permit_types": ["daily", "monthly"]
+            "permit_types": ["daily", "monthly"],
+            "regulations_accepted": True,
+            "data_processing_accepted": True
         }
         
         headers = self.get_auth_headers(self.client_token)
