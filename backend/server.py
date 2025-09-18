@@ -147,6 +147,19 @@ class VerificationLog(BaseModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     location: Optional[str] = "Jezioro Wieliszew"
 
+class PaymentRequest(BaseModel):
+    order_id: str
+    amount: int  # Amount in grosze (Polish cents)
+    description: str
+    email: str
+    
+class PaymentStatus(BaseModel):
+    order_id: str
+    status: str
+    p24_session_id: Optional[str] = None
+    p24_order_id: Optional[str] = None
+    payment_url: Optional[str] = None
+
 # Configuration - Updated prices
 PERMIT_PRICES = {
     PermitType.DAILY: 20.00,    # Updated from 25.00
