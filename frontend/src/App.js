@@ -733,10 +733,12 @@ const ControllerDashboard = () => {
   const { user, token, logout } = useAuth();
   const [verificationResult, setVerificationResult] = useState(null);
   const [qrData, setQrData] = useState('');
+  const [orderId, setOrderId] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('scan');
   const [verificationHistory, setVerificationHistory] = useState([]);
   const [scanning, setScanning] = useState(false);
+  const [verificationMethod, setVerificationMethod] = useState('qr'); // 'qr' or 'order'
 
   useEffect(() => {
     if (activeTab === 'history') {
