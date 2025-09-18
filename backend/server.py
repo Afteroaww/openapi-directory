@@ -141,6 +141,11 @@ PERMIT_PRICES = {
     PermitType.YEARLY: 300.00   # Updated from 500.00
 }
 
+# Special prices for owners
+OWNER_PRICES = {
+    PermitType.YEARLY: 50.00   # Special price for lake owners
+}
+
 PERMIT_VALIDITY = {
     PermitType.DAILY: 1,
     PermitType.MONTHLY: 30,
