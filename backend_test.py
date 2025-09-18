@@ -1011,10 +1011,17 @@ class FishingPermitsAPITester:
             print("❌ No client token available for catch upload test")
             return False, {}
         
-        # For API testing, we expect 400 error since we can't send actual file
-        # This tests that the endpoint exists and requires authentication
+        # Create a fake image file for testing
+        import io
+        fake_image = io.BytesIO(b"fake image content for testing")
+        fake_image.name = "test_fish.jpg"
+        
         test_data = {
             "notes": "Test catch from API test - ETAP 1"
+        }
+        
+        files = {
+            "image": ("test_fish.jpg", fake_image, "image/jpeg")
         }
         
         headers = self.get_auth_headers(self.client_token)
@@ -1022,18 +1029,21 @@ class FishingPermitsAPITester:
             "Upload Fish Catch (Client) - ETAP 1", 
             "POST", 
             "fishing/upload-catch", 
-            400,  # Expect 400 because no image file provided
+            200,  # Should succeed with fake image
             data=test_data,
-            headers=headers
+            headers=headers,
+            files=files
         )
         
         if success and response:
-            if 'Image file is required' in response.get('detail', ''):
-                print(f"   ✅ Endpoint correctly requires image file")
-                print(f"   ✅ Authentication working (got past auth check)")
+            if response.get('success') and response.get('catch_id'):
+                print(f"   ✅ Catch uploaded successfully - ID: {response['catch_id']}")
+                print(f"   ✅ Message: {response.get('message', 'No message')}")
+                # Store catch ID for later tests
+                self.uploaded_catch_id = response['catch_id']
                 return True, response
             else:
-                print(f"   ❌ Unexpected error message: {response.get('detail')}")
+                print(f"   ❌ Catch upload failed: {response}")
                 return False, response
         
         return success, response
