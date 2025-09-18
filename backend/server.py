@@ -391,6 +391,7 @@ async def register(user_data: UserCreate):
         user_response = {k: v for k, v in user.items() if k != "hashed_password"}
         
         return {
+            "success": True,
             "access_token": access_token,
             "token_type": "bearer",
             "user": user_response,
