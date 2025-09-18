@@ -394,8 +394,12 @@ class FishingPermitsAPITester:
         
         return success, {}
 
-    def test_verify_permit(self):
-        """Test permit verification"""
+    def test_verify_permit_controller(self):
+        """Test permit verification by controller"""
+        if not self.controller_token:
+            print("❌ No controller token available for verification test")
+            return False, {}
+        
         if not self.purchase_result or not self.purchase_result.get('permits'):
             print("❌ No purchase result available for verification test")
             return False, {}
@@ -403,19 +407,21 @@ class FishingPermitsAPITester:
         # Extract QR data from purchase result
         permit = self.purchase_result['permits'][0]
         permit_id = permit['id']
-        customer_name = permit['customer']['full_name']
+        customer_name = permit['customer_info']['full_name']
         qr_data = f"PERMIT:{permit_id}:NAME:{customer_name}:VERIFIED"
         
         test_data = {
             "qr_data": qr_data
         }
         
+        headers = self.get_auth_headers(self.controller_token)
         success, response = self.run_test(
-            "Verify Valid Permit", 
+            "Verify Valid Permit (Controller)", 
             "POST", 
             "permits/verify", 
             200, 
-            data=test_data
+            data=test_data,
+            headers=headers
         )
         
         if success and response:
@@ -429,18 +435,62 @@ class FishingPermitsAPITester:
         
         return success, response
 
+    def test_verify_unauthorized(self):
+        """Test verification without authentication"""
+        test_data = {
+            "qr_data": "PERMIT:test:NAME:Test:VERIFIED"
+        }
+        
+        success, response = self.run_test(
+            "Verify Without Auth", 
+            "POST", 
+            "permits/verify", 
+            401, 
+            data=test_data
+        )
+        
+        return success, response
+
+    def test_verify_client_forbidden(self):
+        """Test that client cannot verify permits"""
+        if not self.client_token:
+            print("❌ No client token available for forbidden test")
+            return False, {}
+        
+        test_data = {
+            "qr_data": "PERMIT:test:NAME:Test:VERIFIED"
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Verify as Client (Should Fail)", 
+            "POST", 
+            "permits/verify", 
+            403, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
     def test_verify_invalid_permit(self):
         """Test verification with invalid QR data"""
+        if not self.controller_token:
+            print("❌ No controller token available for invalid verification test")
+            return False, {}
+        
         test_data = {
             "qr_data": "PERMIT:invalid-id:NAME:Test:VERIFIED"
         }
         
+        headers = self.get_auth_headers(self.controller_token)
         success, response = self.run_test(
             "Verify Invalid Permit", 
             "POST", 
             "permits/verify", 
             200, 
-            data=test_data
+            data=test_data,
+            headers=headers
         )
         
         if success and response:
@@ -455,17 +505,48 @@ class FishingPermitsAPITester:
 
     def test_verify_malformed_qr(self):
         """Test verification with malformed QR data"""
+        if not self.controller_token:
+            print("❌ No controller token available for malformed QR test")
+            return False, {}
+        
         test_data = {
             "qr_data": "INVALID_FORMAT"
         }
         
+        headers = self.get_auth_headers(self.controller_token)
         success, response = self.run_test(
             "Verify Malformed QR", 
             "POST", 
             "permits/verify", 
             400, 
-            data=test_data
+            data=test_data,
+            headers=headers
         )
+        
+        return success, response
+
+    def test_get_verification_history(self):
+        """Test getting verification history for controller"""
+        if not self.controller_token:
+            print("❌ No controller token available for verification history test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Get Verification History", 
+            "GET", 
+            "controller/verification-history", 
+            200, 
+            headers=headers
+        )
+        
+        if success and response:
+            if 'logs' in response:
+                print(f"   ✅ Found {len(response['logs'])} verification logs")
+                return True, response
+            else:
+                print(f"   ❌ Missing logs field in response")
+                return False, response
         
         return success, response
 
