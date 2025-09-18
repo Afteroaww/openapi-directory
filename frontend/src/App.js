@@ -574,13 +574,92 @@ const ClientDashboard = () => {
                         </p>
                       </div>
 
+                      {selectedPermits.length > 0 && (
+                        <div className="space-y-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <h3 className="font-medium text-yellow-800 flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            Wymagane akceptacje
+                          </h3>
+                          
+                          <div className="space-y-3">
+                            <div className="flex items-start space-x-3">
+                              <Checkbox
+                                id="regulations"
+                                checked={regulationsAccepted}
+                                onCheckedChange={setRegulationsAccepted}
+                                className="mt-1"
+                              />
+                              <div className="flex-1">
+                                <Label htmlFor="regulations" className="text-sm cursor-pointer">
+                                  Akceptuję regulamin łowiska *
+                                </Label>
+                                <div className="mt-1">
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button variant="link" className="h-auto p-0 text-blue-600 text-xs">
+                                        Przeczytaj regulamin łowiska
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                                      <DialogHeader>
+                                        <DialogTitle>Regulamin Łowiska Jezioro Wieliszew</DialogTitle>
+                                      </DialogHeader>
+                                      <div className="mt-4 text-sm whitespace-pre-line">
+                                        {regulationsData?.fishing_regulations?.content}
+                                      </div>
+                                    </DialogContent>
+                                  </Dialog>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-start space-x-3">
+                              <Checkbox
+                                id="data-processing"
+                                checked={dataProcessingAccepted}
+                                onCheckedChange={setDataProcessingAccepted}
+                                className="mt-1"
+                              />
+                              <div className="flex-1">
+                                <Label htmlFor="data-processing" className="text-sm cursor-pointer">
+                                  Wyrażam zgodę na przetwarzanie danych osobowych *
+                                </Label>
+                                <div className="mt-1">
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button variant="link" className="h-auto p-0 text-blue-600 text-xs">
+                                        Przeczytaj informację o danych osobowych
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                                      <DialogHeader>
+                                        <DialogTitle>Przetwarzanie Danych Osobowych</DialogTitle>
+                                      </DialogHeader>
+                                      <div className="mt-4 text-sm whitespace-pre-line">
+                                        {regulationsData?.data_processing_agreement?.content}
+                                      </div>
+                                    </DialogContent>
+                                  </Dialog>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <Button 
                         type="submit" 
-                        disabled={loading || selectedPermits.length === 0}
+                        disabled={loading || selectedPermits.length === 0 || !regulationsAccepted || !dataProcessingAccepted}
                         className="w-full bg-emerald-600 hover:bg-emerald-700 text-lg py-3"
                       >
                         {loading ? 'Przetwarzanie...' : `Kup pozwolenia (${calculateTotal()} PLN)`}
                       </Button>
+                      
+                      {selectedPermits.length > 0 && (!regulationsAccepted || !dataProcessingAccepted) && (
+                        <p className="text-xs text-gray-500 text-center">
+                          Musisz zaakceptować regulamin i zgodę na dane, aby kontynuować
+                        </p>
+                      )}
                     </form>
                   </CardContent>
                 </Card>
