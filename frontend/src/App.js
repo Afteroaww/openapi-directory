@@ -651,37 +651,88 @@ const ControllerDashboard = () => {
         return;
       }
 
+      // Request camera permission first
+      try {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+      } catch (permError) {
+        alert('Brak dostępu do kamery. Sprawdź uprawnienia w przeglądarce.');
+        setScanning(false);
+        return;
+      }
+
+      const qrContainer = document.getElementById('qr-scanner-container');
+      qrContainer.innerHTML = '';
+      
+      // Create video element
       const video = document.createElement('video');
       video.style.width = '100%';
       video.style.maxWidth = '400px';
+      video.style.height = '300px';
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
       
-      const qrContainer = document.getElementById('qr-scanner-container');
-      qrContainer.innerHTML = '';
       qrContainer.appendChild(video);
 
-      const qrScanner = new QrScanner(video, result => {
-        setQrData(result.data);
-        qrScanner.stop();
-        setScanning(false);
-        qrContainer.innerHTML = '<p class="text-center text-green-600">Kod QR zeskanowany!</p>';
-      });
+      // Add instructions
+      const instructions = document.createElement('p');
+      instructions.textContent = 'Skieruj kamerę na kod QR';
+      instructions.className = 'text-center text-gray-600 mt-2';
+      qrContainer.appendChild(instructions);
 
-      await qrScanner.start();
-      
-      // Add stop button
-      const stopButton = document.createElement('button');
-      stopButton.textContent = 'Zatrzymaj skanowanie';
-      stopButton.className = 'mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600';
-      stopButton.onclick = () => {
-        qrScanner.stop();
+      // Initialize QR scanner
+      const qrScanner = new QrScanner(
+        video, 
+        result => {
+          console.log('QR Code detected:', result.data);
+          setQrData(result.data);
+          qrScanner.stop();
+          setScanning(false);
+          qrContainer.innerHTML = '<p class="text-center text-green-600 font-semibold">✅ Kod QR zeskanowany pomyślnie!</p>';
+          
+          // Auto-verify after successful scan
+          setTimeout(() => {
+            const form = document.querySelector('form');
+            if (form) {
+              form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            }
+          }, 1000);
+        },
+        {
+          onDecodeError: error => {
+            console.log('QR decode error:', error);
+            // Don't show error for every frame, just continue scanning
+          },
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+          preferredCamera: 'environment' // Use back camera on mobile
+        }
+      );
+
+      try {
+        await qrScanner.start();
+        console.log('QR Scanner started successfully');
+        
+        // Add stop button
+        const stopButton = document.createElement('button');
+        stopButton.textContent = '❌ Zatrzymaj skanowanie';
+        stopButton.className = 'mt-4 w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 font-medium';
+        stopButton.onclick = () => {
+          qrScanner.stop();
+          setScanning(false);
+          qrContainer.innerHTML = '';
+        };
+        qrContainer.appendChild(stopButton);
+        
+      } catch (startError) {
+        console.error('Failed to start QR scanner:', startError);
+        alert('Nie udało się uruchomić skanera. Spróbuj ponownie lub wprowadź kod ręcznie.');
         setScanning(false);
         qrContainer.innerHTML = '';
-      };
-      qrContainer.appendChild(stopButton);
+      }
 
     } catch (error) {
-      console.error('QR Scanner error:', error);
-      alert('Błąd podczas uruchamiania skanera QR');
+      console.error('QR Scanner initialization error:', error);
+      alert('Błąd podczas inicjalizacji skanera QR: ' + error.message);
       setScanning(false);
     }
   };
