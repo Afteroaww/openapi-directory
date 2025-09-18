@@ -1026,6 +1026,17 @@ def main():
         tester.test_verify_invalid_permit,
         tester.test_verify_malformed_qr,
         tester.test_get_verification_history,
+        
+        # NEW: Order verification tests
+        tester.test_verify_by_order_valid,
+        tester.test_verify_by_order_invalid,
+        tester.test_verify_by_order_empty,
+        tester.test_verify_by_order_unauthorized,
+        tester.test_verify_by_order_client_forbidden,
+        
+        # NEW: Owner discount tests
+        tester.test_purchase_yearly_with_owner_code,
+        tester.test_verify_specific_order_id,
     ]
     
     for test in tests:
