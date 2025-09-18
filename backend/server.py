@@ -242,7 +242,11 @@ async def get_user_by_id(user_id: str):
 
 async def create_user(user_data: dict):
     """Create new user"""
-    await db.users.insert_one(user_data)
+    # Remove any _id field before inserting
+    if '_id' in user_data:
+        del user_data['_id']
+    result = await db.users.insert_one(user_data)
+    return result
 
 async def update_user_login(user_id: str):
     """Update user last login"""
