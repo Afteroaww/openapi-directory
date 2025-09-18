@@ -45,6 +45,14 @@ security = HTTPBearer()
 CONTROLLER_CODE = "JEZIOROWIELISZEW"
 OWNER_DISCOUNT_CODE = "WLASCICIELWIELISZEW"
 
+# Przelewy24 Configuration
+P24_MERCHANT_ID = os.environ.get('P24_MERCHANT_ID')
+P24_POS_ID = os.environ.get('P24_POS_ID', P24_MERCHANT_ID)
+P24_CRC_KEY = os.environ.get('P24_CRC_KEY')
+P24_API_KEY = os.environ.get('P24_API_KEY')
+P24_SANDBOX = os.environ.get('P24_SANDBOX', 'true').lower() == 'true'
+P24_API_URL = os.environ.get('P24_API_URL', 'https://sandbox.przelewy24.pl' if P24_SANDBOX else 'https://secure.przelewy24.pl')
+
 # Create the main app
 app = FastAPI(title="Fishing Permits API", version="2.0.0")
 api_router = APIRouter(prefix="/api")
