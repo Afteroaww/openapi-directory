@@ -21,6 +21,9 @@ import jwt
 from passlib.context import CryptContext
 from passlib.hash import bcrypt
 from bson import ObjectId
+import httpx
+import hashlib
+import urllib.parse
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
