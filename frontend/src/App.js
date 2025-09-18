@@ -2,7 +2,7 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import './App.css';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import QrScanner from 'qr-scanner';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
