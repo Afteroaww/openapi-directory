@@ -372,12 +372,18 @@ const ClientDashboard = () => {
       });
 
       if (response.data.success) {
-        setPurchaseResult(response.data);
-        setActiveTab('success');
-        setSelectedPermits([]);
-        setOwnerCode('');
-        setRegulationsAccepted(false);
-        setDataProcessingAccepted(false);
+        if (response.data.requires_payment && response.data.payment_url) {
+          // Redirect to payment
+          window.location.href = response.data.payment_url;
+        } else {
+          // Mock payment success or immediate success
+          setPurchaseResult(response.data);
+          setActiveTab('success');
+          setSelectedPermits([]);
+          setOwnerCode('');
+          setRegulationsAccepted(false);
+          setDataProcessingAccepted(false);
+        }
       }
     } catch (error) {
       console.error('Purchase error:', error);
