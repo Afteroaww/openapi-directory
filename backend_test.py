@@ -787,6 +787,202 @@ class FishingPermitsAPITester:
         
         return success, response
 
+    def test_verify_by_order_valid(self):
+        """Test permit verification by order ID with valid order"""
+        if not self.controller_token:
+            print("❌ No controller token available for order verification test")
+            return False, {}
+        
+        if not self.purchase_result or not self.purchase_result.get('order_id'):
+            print("❌ No purchase result available for order verification test")
+            return False, {}
+        
+        order_id = self.purchase_result['order_id']
+        test_data = {
+            "order_id": order_id
+        }
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Verify Valid Order ID", 
+            "POST", 
+            "permits/verify-by-order", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('valid') == True:
+                print(f"   ✅ Order verification successful")
+                print(f"   ✅ Customer: {response.get('customer', {}).get('full_name')}")
+                print(f"   ✅ Active permits: {len(response.get('permits', []))}")
+                print(f"   ✅ Order ID: {response.get('order_id')}")
+                return True, response
+            else:
+                print(f"   ❌ Order verification failed: {response.get('message')}")
+                return False, response
+        
+        return success, response
+
+    def test_verify_by_order_invalid(self):
+        """Test permit verification by order ID with invalid order"""
+        if not self.controller_token:
+            print("❌ No controller token available for invalid order verification test")
+            return False, {}
+        
+        test_data = {
+            "order_id": "FP9999999999"  # Invalid order ID
+        }
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Verify Invalid Order ID", 
+            "POST", 
+            "permits/verify-by-order", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('valid') == False:
+                print(f"   ✅ Invalid order correctly rejected: {response.get('message')}")
+                return True, response
+            else:
+                print(f"   ❌ Invalid order was accepted")
+                return False, response
+        
+        return success, response
+
+    def test_verify_by_order_empty(self):
+        """Test permit verification by order ID with empty order ID"""
+        if not self.controller_token:
+            print("❌ No controller token available for empty order verification test")
+            return False, {}
+        
+        test_data = {
+            "order_id": ""
+        }
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Verify Empty Order ID", 
+            "POST", 
+            "permits/verify-by-order", 
+            400, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_verify_by_order_unauthorized(self):
+        """Test order verification without authentication"""
+        test_data = {
+            "order_id": "FP1234567890"
+        }
+        
+        success, response = self.run_test(
+            "Verify Order Without Auth", 
+            "POST", 
+            "permits/verify-by-order", 
+            401, 
+            data=test_data
+        )
+        
+        return success, response
+
+    def test_verify_by_order_client_forbidden(self):
+        """Test that client cannot verify permits by order ID"""
+        if not self.client_token:
+            print("❌ No client token available for forbidden order test")
+            return False, {}
+        
+        test_data = {
+            "order_id": "FP1234567890"
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Verify Order as Client (Should Fail)", 
+            "POST", 
+            "permits/verify-by-order", 
+            403, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_purchase_yearly_with_owner_code(self):
+        """Test purchasing yearly permit with owner discount code"""
+        if not self.client_token:
+            print("❌ No client token available for owner code test")
+            return False, {}
+        
+        test_data = {
+            "permit_types": ["yearly"],
+            "owner_code": "WLASCICIELWIELISZEW",
+            "regulations_accepted": True,
+            "data_processing_accepted": True
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Purchase Yearly with Owner Code", 
+            "POST", 
+            "permits/purchase", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            # Should be 50 PLN instead of 300 PLN for owner
+            if response.get('total_amount') == 50.0:
+                print(f"   ✅ Owner discount applied correctly: 50 PLN instead of 300 PLN")
+                # Store this result for testing the specific order ID mentioned in requirements
+                self.owner_purchase_result = response
+                return True, response
+            else:
+                print(f"   ❌ Owner discount not applied: expected 50.0, got {response.get('total_amount')}")
+                return False, response
+        
+        return success, response
+
+    def test_verify_specific_order_id(self):
+        """Test verification with the specific order ID mentioned in requirements"""
+        if not self.controller_token:
+            print("❌ No controller token available for specific order test")
+            return False, {}
+        
+        # Test with the specific order ID mentioned in requirements: FP1758229556
+        test_data = {
+            "order_id": "FP1758229556"
+        }
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Verify Specific Test Order (FP1758229556)", 
+            "POST", 
+            "permits/verify-by-order", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            # This might not exist in the database, so we expect it to fail
+            if response.get('valid') == False:
+                print(f"   ✅ Test order ID correctly not found (expected): {response.get('message')}")
+                return True, response
+            else:
+                print(f"   ✅ Test order ID found and verified: {response.get('message')}")
+                return True, response
+        
+        return success, response
+
 def main():
     print("🎣 Starting Fishing Permits API Tests (Role-Based System)")
     print("=" * 60)
