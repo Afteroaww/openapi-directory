@@ -242,6 +242,45 @@ button[role="checkbox"][data-state="checked"] {
   font-weight: bold;
 }
 
+/* Touch-friendly elements */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Better mobile tap targets */
+.mobile-tap-target {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px;
+}
+
+/* Mobile checkbox improvements */
+.mobile-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 2px solid #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-checkbox.checked {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.mobile-checkbox svg {
+  width: 16px;
+  height: 16px;
+  color: white;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .container {
@@ -258,6 +297,43 @@ button[role="checkbox"][data-state="checked"] {
   
   .text-xl {
     font-size: 1.125rem;
+  }
+  
+  /* Mobile-specific permit cards */
+  .permit-card-mobile {
+    padding: 20px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    min-height: 120px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .permit-card-mobile:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Bigger text on mobile */
+  .mobile-permit-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .mobile-permit-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  
+  /* Better button spacing on mobile */
+  .mobile-button {
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 12px 24px;
+    touch-action: manipulation;
   }
 }
 
