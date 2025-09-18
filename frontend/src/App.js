@@ -278,6 +278,9 @@ const ClientDashboard = () => {
   const [showRegulations, setShowRegulations] = useState(false);
   const [showDataAgreement, setShowDataAgreement] = useState(false);
   const [regulationsData, setRegulationsData] = useState(null);
+  const [myCatches, setMyCatches] = useState([]);
+  const [uploadingCatch, setUploadingCatch] = useState(false);
+  const [catchImage, setCatchImage] = useState(null);
 
   useEffect(() => {
     fetchPermitTypes();
