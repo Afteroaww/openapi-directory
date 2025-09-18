@@ -374,6 +374,8 @@ const ClientDashboard = () => {
         setActiveTab('success');
         setSelectedPermits([]);
         setOwnerCode('');
+        setRegulationsAccepted(false);
+        setDataProcessingAccepted(false);
       }
     } catch (error) {
       console.error('Purchase error:', error);
