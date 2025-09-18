@@ -272,6 +272,11 @@ const ClientDashboard = () => {
   const [myPermits, setMyPermits] = useState([]);
   const [activeTab, setActiveTab] = useState('buy');
   const [ownerCode, setOwnerCode] = useState('');
+  const [regulationsAccepted, setRegulationsAccepted] = useState(false);
+  const [dataProcessingAccepted, setDataProcessingAccepted] = useState(false);
+  const [showRegulations, setShowRegulations] = useState(false);
+  const [showDataAgreement, setShowDataAgreement] = useState(false);
+  const [regulationsData, setRegulationsData] = useState(null);
 
   useEffect(() => {
     fetchPermitTypes();
