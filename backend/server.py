@@ -147,6 +147,20 @@ class VerificationLog(BaseModel):
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     location: Optional[str] = "Jezioro Wieliszew"
 
+class FishCatch(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_name: str
+    image_url: str
+    species: Optional[str] = None  # Gatunek ryby
+    length_cm: Optional[float] = None  # Długość w cm
+    released: Optional[bool] = None  # Czy wypuszczona
+    points: int = 0
+    status: str = "pending"  # pending, approved, rejected
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    month_year: str = Field(default_factory=lambda: datetime.now().strftime('%Y-%m'))
+    notes: Optional[str] = None
+
 class PaymentRequest(BaseModel):
     order_id: str
     amount: int  # Amount in grosze (Polish cents)
