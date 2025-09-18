@@ -76,18 +76,152 @@ class FishingPermitsAPITester:
             if 'permit_types' in response:
                 permit_types = response['permit_types']
                 expected_types = ['daily', 'monthly', 'yearly']
-                expected_prices = {'daily': 25.0, 'monthly': 150.0, 'yearly': 500.0}
+                # Updated prices according to the new system
+                expected_prices = {'daily': 20.0, 'monthly': 60.0, 'yearly': 300.0}
                 
                 print(f"   Found {len(permit_types)} permit types")
                 for permit in permit_types:
                     if permit['type'] in expected_types and permit['price'] == expected_prices[permit['type']]:
                         print(f"   ✅ {permit['type']}: {permit['price']} PLN - OK")
                     else:
-                        print(f"   ❌ {permit['type']}: {permit['price']} PLN - Unexpected")
+                        print(f"   ❌ {permit['type']}: {permit['price']} PLN - Expected {expected_prices.get(permit['type'], 'unknown')}")
                         return False, response
                 return True, response
             else:
                 print("   ❌ Missing 'permit_types' in response")
+                return False, response
+        
+        return success, response
+
+    def test_register_client(self):
+        """Test client registration"""
+        timestamp = int(datetime.now().timestamp())
+        test_data = {
+            "email": f"client{timestamp}@test.com",
+            "full_name": "Jan Kowalski",
+            "password": "TestPass123!"
+        }
+        
+        success, response = self.run_test(
+            "Register Client", 
+            "POST", 
+            "auth/register", 
+            200, 
+            data=test_data
+        )
+        
+        if success and response:
+            if response.get('success') and response.get('access_token'):
+                self.client_token = response['access_token']
+                self.client_user = response.get('user', {})
+                print(f"   ✅ Client registered successfully - Role: {self.client_user.get('role')}")
+                return True, response
+            else:
+                print(f"   ❌ Registration failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_register_controller(self):
+        """Test controller registration with special code"""
+        timestamp = int(datetime.now().timestamp())
+        test_data = {
+            "email": f"controller{timestamp}@test.com",
+            "full_name": "Anna Kontroler",
+            "password": "TestPass123!",
+            "controller_code": "kontroler jezioro Wieliszew"
+        }
+        
+        success, response = self.run_test(
+            "Register Controller", 
+            "POST", 
+            "auth/register", 
+            200, 
+            data=test_data
+        )
+        
+        if success and response:
+            if response.get('success') and response.get('access_token'):
+                self.controller_token = response['access_token']
+                self.controller_user = response.get('user', {})
+                print(f"   ✅ Controller registered successfully - Role: {self.controller_user.get('role')}")
+                return True, response
+            else:
+                print(f"   ❌ Controller registration failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_register_invalid_controller_code(self):
+        """Test controller registration with invalid code"""
+        timestamp = int(datetime.now().timestamp())
+        test_data = {
+            "email": f"invalid{timestamp}@test.com",
+            "full_name": "Invalid Controller",
+            "password": "TestPass123!",
+            "controller_code": "wrong code"
+        }
+        
+        success, response = self.run_test(
+            "Register Invalid Controller Code", 
+            "POST", 
+            "auth/register", 
+            400, 
+            data=test_data
+        )
+        
+        return success, response
+
+    def test_login_client(self):
+        """Test client login"""
+        if not self.client_user:
+            print("❌ No client user available for login test")
+            return False, {}
+        
+        test_data = {
+            "email": self.client_user['email'],
+            "password": "TestPass123!"
+        }
+        
+        success, response = self.run_test(
+            "Login Client", 
+            "POST", 
+            "auth/login", 
+            200, 
+            data=test_data
+        )
+        
+        if success and response:
+            if response.get('access_token'):
+                print(f"   ✅ Client login successful")
+                return True, response
+            else:
+                print(f"   ❌ Login failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_get_current_user(self):
+        """Test getting current user info"""
+        if not self.client_token:
+            print("❌ No client token available for user info test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Get Current User Info", 
+            "GET", 
+            "auth/me", 
+            200, 
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('role') == 'client':
+                print(f"   ✅ User info retrieved - Role: {response.get('role')}")
+                return True, response
+            else:
+                print(f"   ❌ Incorrect user role: {response.get('role')}")
                 return False, response
         
         return success, response
