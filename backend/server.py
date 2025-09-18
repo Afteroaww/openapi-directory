@@ -539,6 +539,12 @@ async def purchase_permits(
         if not permit_request.permit_types:
             raise HTTPException(status_code=400, detail="At least one permit type must be selected")
         
+        if not permit_request.regulations_accepted:
+            raise HTTPException(status_code=400, detail="You must accept the fishing regulations")
+            
+        if not permit_request.data_processing_accepted:
+            raise HTTPException(status_code=400, detail="You must accept data processing agreement")
+        
         # Calculate total amount and create permits
         permits = []
         total_amount = 0.0
