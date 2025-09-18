@@ -1236,6 +1236,9 @@ def main():
         # NEW: Owner discount tests
         tester.test_purchase_yearly_with_owner_code,
         tester.test_verify_specific_order_id,
+        
+        # NEW: ETAP 1 - Fishing catch & release endpoints
+        tester.test_fishing_endpoints_comprehensive,
     ]
     
     for test in tests:
