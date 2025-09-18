@@ -8,7 +8,12 @@ class FishingPermitsAPITester:
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
+        self.client_token = None
+        self.controller_token = None
+        self.admin_token = None
         self.purchase_result = None
+        self.client_user = None
+        self.controller_user = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
         """Run a single API test"""
