@@ -1039,7 +1039,7 @@ class FishingPermitsAPITester:
             "Get My Catches Without Auth", 
             "GET", 
             "fishing/my-catches", 
-            401
+            403  # FastAPI returns 403 for missing auth
         )
         
         return success, response
