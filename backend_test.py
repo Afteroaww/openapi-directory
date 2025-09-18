@@ -342,24 +342,26 @@ class FishingPermitsAPITester:
 
     def test_purchase_multiple_permits(self):
         """Test purchasing multiple permits"""
+        if not self.client_token:
+            print("❌ No client token available for multiple permits test")
+            return False, {}
+        
         test_data = {
-            "customer": {
-                "full_name": "Anna Nowak",
-                "email": "anna.nowak@test.com"
-            },
             "permit_types": ["daily", "monthly"]
         }
         
+        headers = self.get_auth_headers(self.client_token)
         success, response = self.run_test(
             "Purchase Multiple Permits", 
             "POST", 
             "permits/purchase", 
             200, 
-            data=test_data
+            data=test_data,
+            headers=headers
         )
         
         if success and response:
-            expected_total = 25.0 + 150.0  # daily + monthly
+            expected_total = 20.0 + 60.0  # daily + monthly (updated prices)
             if response.get('total_amount') == expected_total:
                 print(f"   ✅ Multiple permits total correct: {expected_total} PLN")
                 return True, response
@@ -371,41 +373,26 @@ class FishingPermitsAPITester:
 
     def test_purchase_validation_errors(self):
         """Test purchase validation errors"""
-        # Test missing customer data
-        test_data_no_customer = {
-            "customer": {
-                "full_name": "",
-                "email": ""
-            },
-            "permit_types": ["daily"]
-        }
-        
-        success, _ = self.run_test(
-            "Purchase with Missing Customer Data", 
-            "POST", 
-            "permits/purchase", 
-            400, 
-            data=test_data_no_customer
-        )
+        if not self.client_token:
+            print("❌ No client token available for validation test")
+            return False, {}
         
         # Test missing permit types
         test_data_no_permits = {
-            "customer": {
-                "full_name": "Test User",
-                "email": "test@test.com"
-            },
             "permit_types": []
         }
         
-        success2, _ = self.run_test(
+        headers = self.get_auth_headers(self.client_token)
+        success, _ = self.run_test(
             "Purchase with No Permit Types", 
             "POST", 
             "permits/purchase", 
             400, 
-            data=test_data_no_permits
+            data=test_data_no_permits,
+            headers=headers
         )
         
-        return success and success2, {}
+        return success, {}
 
     def test_verify_permit(self):
         """Test permit verification"""
