@@ -190,17 +190,38 @@ input:focus, textarea:focus {
     radial-gradient(circle at 40% 80%, rgba(14, 165, 233, 0.05) 0%, transparent 50%);
 }
 
-/* Custom checkbox styling */
+/* Force checkbox visibility - override any hiding CSS */
+input[type="checkbox"], 
+[role="checkbox"],
+.checkbox,
+button[role="checkbox"] {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Ensure Radix checkbox is visible */
+[data-radix-collection-item] {
+  display: inline-block !important;
+  visibility: visible !important;
+}
+
+/* Custom checkbox styling for fallback */
 .custom-checkbox {
   appearance: none;
   width: 20px;
   height: 20px;
   border: 2px solid #10b981;
   border-radius: 4px;
-  display: inline-block;
+  display: inline-block !important;
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .custom-checkbox:checked {
