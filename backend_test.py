@@ -614,7 +614,9 @@ class FishingPermitsAPITester:
         
         # Test missing permit types
         test_data_no_permits = {
-            "permit_types": []
+            "permit_types": [],
+            "regulations_accepted": True,
+            "data_processing_accepted": True
         }
         
         headers = self.get_auth_headers(self.client_token)
