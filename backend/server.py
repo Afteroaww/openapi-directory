@@ -351,10 +351,43 @@ async def register(user_data: UserCreate):
         # Check if user already exists
         existing_user = await get_user_by_email(user_data.email)
         if existing_user:
-            raise HTTPException(
-                status_code=400,
-                detail="Email already registered"
-            )
+            # If user exists as client and wants to become controller with valid code
+            if (existing_user.get("role") == UserRole.CLIENT.value and 
+                user_data.controller_code and 
+                user_data.controller_code.strip() == CONTROLLER_CODE):
+                
+                # Upgrade existing client to controller
+                await db.users.update_one(
+                    {"email": user_data.email},
+                    {"$set": {"role": UserRole.CONTROLLER.value}}
+                )
+                
+                # Get updated user
+                updated_user = await get_user_by_email(user_data.email)
+                
+                # Create access token
+                access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+                access_token = create_access_token(
+                    data={"sub": updated_user["id"]}, expires_delta=access_token_expires
+                )
+                
+                return {
+                    "success": True,
+                    "access_token": access_token,
+                    "token_type": "bearer",
+                    "user": {
+                        "id": updated_user["id"],
+                        "email": updated_user["email"],
+                        "full_name": updated_user["full_name"],
+                        "role": UserRole.CONTROLLER.value
+                    },
+                    "message": "Account upgraded to controller successfully"
+                }
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Email already registered. If you want to become a controller, provide the correct controller code."
+                )
         
         # Determine user role
         role = UserRole.CLIENT
