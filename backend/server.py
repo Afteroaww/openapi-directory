@@ -568,7 +568,7 @@ async def purchase_permits(
                 permit_type=permit_type,
                 price=price,
                 validity_days=PERMIT_VALIDITY[permit_type],
-                description=f"{permit_type.value.title()} Fishing Permit",
+                description=f"{permit_type.value.title()} Fishing Permit{description_suffix}",
                 customer_id=current_user["id"],
                 customer_info=customer_info,
                 issue_date=issue_date,
