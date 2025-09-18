@@ -1181,6 +1181,98 @@ async def get_payment_status(
         logging.error(f"Get payment status error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get payment status")
 
+@api_router.post("/fishing/upload-catch")
+async def upload_catch(
+    request: Request,
+    current_user: dict = Depends(get_current_active_user)
+):
+    """Upload fish catch image - ETAP 1"""
+    try:
+        form = await request.form()
+        image_file = form.get("image")
+        notes = form.get("notes", "")
+        
+        if not image_file or not hasattr(image_file, 'file'):
+            raise HTTPException(status_code=400, detail="Image file is required")
+        
+        # Save image (for now just create a placeholder URL)
+        # In production, upload to cloud storage
+        image_filename = f"catch_{current_user['id']}_{int(datetime.now().timestamp())}.jpg"
+        image_url = f"/images/catches/{image_filename}"
+        
+        # Create catch record
+        catch = FishCatch(
+            user_id=current_user["id"],
+            user_name=current_user["full_name"],
+            image_url=image_url,
+            notes=notes
+        )
+        
+        # Store in database
+        catch_dict = catch.dict()
+        catch_dict['created_at'] = catch_dict['created_at'].isoformat()
+        await db.fish_catches.insert_one(catch_dict)
+        
+        return {
+            "success": True,
+            "catch_id": catch.id,
+            "message": "Zdjęcie połowu zostało przesłane! Oczekuje na weryfikację."
+        }
+        
+    except Exception as e:
+        logging.error(f"Upload catch error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to upload catch")
+
+@api_router.get("/fishing/my-catches")
+async def get_my_catches(current_user: dict = Depends(get_current_active_user)):
+    """Get user's fish catches"""
+    try:
+        catches = await db.fish_catches.find(
+            {"user_id": current_user["id"]}, 
+            {"_id": 0}
+        ).sort("created_at", -1).to_list(length=50)
+        
+        return {
+            "success": True,
+            "catches": catches,
+            "total": len(catches)
+        }
+        
+    except Exception as e:
+        logging.error(f"Get catches error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get catches")
+
+@api_router.get("/fishing/leaderboard")
+async def get_monthly_leaderboard():
+    """Get current month leaderboard"""
+    try:
+        current_month = datetime.now().strftime('%Y-%m')
+        
+        # Get top users for current month
+        pipeline = [
+            {"$match": {"month_year": current_month, "status": "approved"}},
+            {"$group": {
+                "_id": "$user_id",
+                "user_name": {"$first": "$user_name"},
+                "total_points": {"$sum": "$points"},
+                "total_catches": {"$sum": 1}
+            }},
+            {"$sort": {"total_points": -1}},
+            {"$limit": 10}
+        ]
+        
+        leaderboard = await db.fish_catches.aggregate(pipeline).to_list(length=10)
+        
+        return {
+            "success": True,
+            "month": current_month,
+            "leaderboard": leaderboard
+        }
+        
+    except Exception as e:
+        logging.error(f"Get leaderboard error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get leaderboard")
+
 @api_router.get("/admin/stats")
 async def get_admin_stats(current_user: dict = Depends(require_role(UserRole.ADMIN))):
     """Get admin statistics"""
