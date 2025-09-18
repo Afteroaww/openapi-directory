@@ -1134,8 +1134,17 @@ class FishingPermitsAPITester:
             print("❌ No controller token available for controller catch test")
             return False, {}
         
+        # Create a fake image file for testing
+        import io
+        fake_image = io.BytesIO(b"fake controller image content")
+        fake_image.name = "controller_fish.jpg"
+        
         test_data = {
             "notes": "Controller trying to upload catch"
+        }
+        
+        files = {
+            "image": ("controller_fish.jpg", fake_image, "image/jpeg")
         }
         
         headers = self.get_auth_headers(self.controller_token)
@@ -1143,20 +1152,21 @@ class FishingPermitsAPITester:
             "Controller Upload Catch (Should Work)", 
             "POST", 
             "fishing/upload-catch", 
-            400,  # Expect 400 because no image file provided
+            200,  # Should succeed
             data=test_data,
-            headers=headers
+            headers=headers,
+            files=files
         )
         
         # Note: Based on the backend code, any authenticated user can upload catches
         # The endpoint uses get_current_active_user, not role-specific authorization
         if success and response:
-            if 'Image file is required' in response.get('detail', ''):
-                print(f"   ✅ Controller can upload catches (authentication works)")
-                print(f"   ✅ Endpoint correctly requires image file")
+            if response.get('success') and response.get('catch_id'):
+                print(f"   ✅ Controller can upload catches (as expected)")
+                print(f"   ✅ Catch ID: {response.get('catch_id')}")
                 return True, response
             else:
-                print(f"   ❌ Unexpected error message: {response.get('detail')}")
+                print(f"   ❌ Controller upload failed unexpectedly: {response}")
                 return False, response
         
         return success, response
