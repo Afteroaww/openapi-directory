@@ -309,9 +309,18 @@ const ClientDashboard = () => {
   };
 
   const calculateTotal = () => {
+    const isOwner = ownerCode.trim() === 'WLASCICIELWIELISZEW';
+    
     return selectedPermits.reduce((total, permitType) => {
       const permit = permitTypes.find(p => p.type === permitType);
-      return total + (permit ? permit.price : 0);
+      if (!permit) return total;
+      
+      // Apply owner discount for yearly permit
+      if (isOwner && permitType === 'yearly') {
+        return total + 50; // Special owner price
+      }
+      
+      return total + permit.price;
     }, 0);
   };
 
