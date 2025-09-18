@@ -861,29 +861,33 @@ async def purchase_permits(
                 "requires_payment": True
             }
             
-        except HTTPException as e:
-            # If payment creation fails, fallback to mock success for development
-            logging.warning(f"P24 payment creation failed: {e.detail}. Using mock payment.")
+            except HTTPException as e:
+                # If payment creation fails, fallback to mock success for development
+                logging.warning(f"P24 payment creation failed: {e.detail}. Using mock payment.")
+                raise e  # Let it fall through to the mock handler below
+        else:
+            # P24 not configured - use mock payment for development
+            logging.info("P24 not configured. Using mock payment for development.")
             
-            # For development - create permits immediately
-            for permit_data in permits:
-                permit_obj = FishingPermit(**permit_data)
-                permit_obj.status = PermitStatus.ACTIVE
-                await store_permit(permit_obj)
-            
-            await db.permit_orders.update_one(
-                {"order_id": order_id},
-                {"$set": {"status": "completed"}}
-            )
-            
-            return {
-                "success": True,
-                "order_id": order_id,
-                "total_amount": total_amount,
-                "permits": permits,
-                "message": "Pozwolenia zakupione pomyślnie! (Tryb deweloperski)",
-                "requires_payment": False
-            }
+        # Mock payment success for development when P24 is not configured
+        for permit_data in permits:
+            permit_obj = FishingPermit(**permit_data)
+            permit_obj.status = PermitStatus.ACTIVE
+            await store_permit(permit_obj)
+        
+        await db.permit_orders.update_one(
+            {"order_id": order_id},
+            {"$set": {"status": "completed"}}
+        )
+        
+        return {
+            "success": True,
+            "order_id": order_id,
+            "total_amount": total_amount,
+            "permits": permits,
+            "message": "Pozwolenia zakupione pomyślnie! (Tryb deweloperski - brak P24)",
+            "requires_payment": False
+        }
         
     except HTTPException:
         raise
