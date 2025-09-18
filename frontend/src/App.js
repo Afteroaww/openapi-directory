@@ -1257,8 +1257,109 @@ const AdminDashboard = () => {
   );
 };
 
+const PaymentSuccess = () => {
+  const { token } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [paymentStatus, setPaymentStatus] = useState(null);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    
+    if (orderId) {
+      checkPaymentStatus(orderId);
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const checkPaymentStatus = async (orderId) => {
+    try {
+      const response = await axios.get(`${API}/payment/status/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setPaymentStatus(response.data);
+    } catch (error) {
+      console.error('Payment status check failed:', error);
+      setPaymentStatus({ status: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 flex items-center justify-center">
+        <div className="text-center">
+          <Fish className="h-12 w-12 text-emerald-600 mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-600">Sprawdzanie statusu płatności...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <Card className="shadow-lg">
+            <CardHeader className="text-center">
+              <Fish className="h-12 w-12 text-emerald-600 mx-auto mb-4" />
+              <CardTitle className="text-2xl">
+                {paymentStatus?.payment_status === 'completed' ? 'Płatność pomyślna!' : 'Status płatności'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              {paymentStatus?.payment_status === 'completed' ? (
+                <div>
+                  <CheckCircle className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
+                  <p className="text-lg text-emerald-800 mb-4">
+                    Twoje pozwolenia zostały aktywowane!
+                  </p>
+                  <p className="text-gray-600 mb-6">
+                    Zamówienie: {paymentStatus.order_id}<br />
+                    Kwota: {paymentStatus.amount} PLN
+                  </p>
+                  <Button 
+                    onClick={() => window.location.href = '/'}
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    Przejdź do panelu klienta
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  <AlertCircle className="h-16 w-16 text-red-600 mx-auto mb-4" />
+                  <p className="text-lg text-red-800 mb-4">
+                    Problem z płatnością
+                  </p>
+                  <p className="text-gray-600 mb-6">
+                    Status: {paymentStatus?.payment_status || 'Nieznany'}<br />
+                    Zamówienie: {paymentStatus?.order_id || 'Brak'}
+                  </p>
+                  <Button 
+                    onClick={() => window.location.href = '/'}
+                    variant="outline"
+                  >
+                    Powrót do panelu
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const App = () => {
   const { user, loading, isAuthenticated } = useAuth();
+
+  // Check if this is a payment return page
+  if (window.location.pathname === '/payment-success') {
+    return <PaymentSuccess />;
+  }
 
   if (loading) {
     return (
