@@ -121,7 +121,7 @@ async def store_permit_order(order: PermitOrder):
 
 async def get_permit_order(order_id: str):
     """Get permit order from database"""
-    order = await db.permit_orders.find_one({"order_id": order_id})
+    order = await db.permit_orders.find_one({"order_id": order_id}, {"_id": 0})
     return order
 
 async def update_order_status(order_id: str, status: str):
