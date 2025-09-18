@@ -1047,6 +1047,120 @@ async def get_verification_history(
         logging.error(f"Get verification history error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to retrieve verification history")
 
+@api_router.post("/payment/webhook")
+async def payment_webhook(request: Request):
+    """Handle Przelewy24 payment webhooks"""
+    try:
+        form_data = await request.form()
+        data = dict(form_data)
+        
+        logging.info(f"Received P24 webhook: {data}")
+        
+        # Extract key fields
+        session_id = data.get("sessionId")
+        order_id_from_session = session_id.split("_")[0] if session_id else None
+        p24_order_id = data.get("orderId")
+        amount = data.get("amount")
+        currency = data.get("currency")
+        received_sign = data.get("sign")
+        
+        if not all([session_id, amount, currency, received_sign]):
+            logging.error("Missing required fields in webhook")
+            return {"status": "error", "message": "Missing required fields"}
+        
+        # Verify signature
+        verification_data = {
+            "sessionId": session_id,
+            "merchantId": P24_MERCHANT_ID,
+            "amount": amount,
+            "currency": currency
+        }
+        
+        if not verify_p24_sign(verification_data, received_sign):
+            logging.error("Invalid signature in webhook")
+            return {"status": "error", "message": "Invalid signature"}
+        
+        # Find order
+        if not order_id_from_session:
+            logging.error("Could not extract order ID from session")
+            return {"status": "error", "message": "Invalid session ID"}
+        
+        # Update payment status
+        await db.payments.update_one(
+            {"session_id": session_id},
+            {"$set": {
+                "status": "completed",
+                "p24_order_id": p24_order_id,
+                "completed_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # Get order details
+        order = await get_permit_order(order_id_from_session)
+        if not order:
+            logging.error(f"Order not found: {order_id_from_session}")
+            return {"status": "error", "message": "Order not found"}
+        
+        # Create permits for successful payment
+        for permit_data in order["permits"]:
+            permit_obj = FishingPermit(**permit_data)
+            permit_obj.status = PermitStatus.ACTIVE
+            await store_permit(permit_obj)
+        
+        # Update order status
+        await db.permit_orders.update_one(
+            {"order_id": order_id_from_session},
+            {"$set": {"status": "completed"}}
+        )
+        
+        logging.info(f"Payment completed for order: {order_id_from_session}")
+        return {"status": "OK"}
+        
+    except Exception as e:
+        logging.error(f"Webhook processing error: {str(e)}")
+        return {"status": "error", "message": "Processing failed"}
+
+@api_router.get("/payment/status/{order_id}")
+async def get_payment_status(
+    order_id: str,
+    current_user: dict = Depends(get_current_active_user)
+):
+    """Get payment status for an order"""
+    try:
+        # Check if order belongs to current user (for clients) or allow all (for admins)
+        order = await get_permit_order(order_id)
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        if (current_user["role"] == UserRole.CLIENT.value and 
+            order["customer_id"] != current_user["id"]):
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        # Get payment info
+        payment = await db.payments.find_one({"order_id": order_id}, {"_id": 0})
+        
+        if not payment:
+            return {
+                "order_id": order_id,
+                "status": "no_payment",
+                "order_status": order["status"]
+            }
+        
+        return {
+            "order_id": order_id,
+            "payment_status": payment["status"],
+            "order_status": order["status"],
+            "amount": payment["amount"],
+            "created_at": payment["created_at"],
+            "completed_at": payment.get("completed_at")
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Get payment status error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get payment status")
+
 @api_router.get("/admin/stats")
 async def get_admin_stats(current_user: dict = Depends(require_role(UserRole.ADMIN))):
     """Get admin statistics"""
