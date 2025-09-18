@@ -336,7 +336,8 @@ const ClientDashboard = () => {
     
     try {
       const response = await axios.post(`${API}/permits/purchase`, {
-        permit_types: selectedPermits
+        permit_types: selectedPermits,
+        owner_code: ownerCode.trim() || undefined
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
