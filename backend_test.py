@@ -15,7 +15,7 @@ class FishingPermitsAPITester:
         self.client_user = None
         self.controller_user = None
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
+    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None, files=None):
         """Run a single API test"""
         url = f"{self.base_url}/{endpoint}" if endpoint else self.base_url
         if headers is None:
@@ -29,7 +29,12 @@ class FishingPermitsAPITester:
             if method == 'GET':
                 response = requests.get(url, headers=headers, timeout=10)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=10)
+                if files:
+                    # For multipart form data, don't set Content-Type header
+                    auth_headers = {k: v for k, v in headers.items() if k != 'Content-Type'}
+                    response = requests.post(url, data=data, files=files, headers=auth_headers, timeout=10)
+                else:
+                    response = requests.post(url, json=data, headers=headers, timeout=10)
 
             print(f"   Status Code: {response.status_code}")
             
