@@ -502,12 +502,13 @@ const ClientDashboard = () => {
                         <div key={permit.type} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                           <div className="flex items-start justify-between">
                             <div className="flex items-start space-x-3">
-                              <Checkbox
-                                id={permit.type}
-                                checked={selectedPermits.includes(permit.type)}
-                                onCheckedChange={(checked) => handlePermitSelection(permit.type, checked)}
-                                className="mt-1"
-                              />
+                              <div className="flex items-center mt-1">
+                                <Checkbox
+                                  id={permit.type}
+                                  checked={selectedPermits.includes(permit.type)}
+                                  onCheckedChange={(checked) => handlePermitSelection(permit.type, checked)}
+                                />
+                              </div>
                               <div className="flex-1">
                                 <Label htmlFor={permit.type} className="text-base font-medium cursor-pointer">
                                   {permit.name}
