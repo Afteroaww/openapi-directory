@@ -10,7 +10,8 @@ import { Label } from './components/ui/label';
 import { Checkbox } from './components/ui/checkbox';
 import { Badge } from './components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
-import { AlertCircle, Fish, CheckCircle, QrCode, Download, User, Shield, Settings, LogOut, Camera, History } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
+import { AlertCircle, Fish, CheckCircle, QrCode, Download, User, Shield, Settings, LogOut, Camera, History, FileText, Info } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
