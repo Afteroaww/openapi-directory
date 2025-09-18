@@ -781,6 +781,98 @@ async def verify_permit(
         logging.error(f"Permit verification error: {str(e)}")
         raise HTTPException(status_code=500, detail="Verification failed")
 
+@api_router.post("/permits/verify-by-order")
+async def verify_permit_by_order(
+    request: dict,
+    current_user: dict = Depends(require_role(UserRole.CONTROLLER))
+):
+    """Verify permit using order ID - alternative to QR scanning"""
+    try:
+        order_id = request.get("order_id", "").strip()
+        
+        if not order_id:
+            raise HTTPException(status_code=400, detail="Order ID is required")
+        
+        # Find permits by order ID
+        permits = await db.fishing_permits.find({"order_id": order_id}, {"_id": 0}).to_list(length=None)
+        
+        if not permits:
+            # Log failed verification
+            log = VerificationLog(
+                controller_id=current_user["id"],
+                controller_name=current_user["full_name"],
+                permit_id=order_id,
+                permit_holder="Unknown",
+                verification_result=False
+            )
+            await store_verification_log(log)
+            
+            return {
+                "valid": False,
+                "message": "No permits found for this order ID"
+            }
+        
+        # Get the most recent active permit from this order
+        active_permits = []
+        for permit in permits:
+            expiry_date = datetime.fromisoformat(permit['expiry_date'])
+            current_time = datetime.now(timezone.utc)
+            
+            if permit['status'] == PermitStatus.ACTIVE.value and current_time <= expiry_date:
+                active_permits.append(permit)
+        
+        if not active_permits:
+            # All permits expired or inactive
+            log = VerificationLog(
+                controller_id=current_user["id"],
+                controller_name=current_user["full_name"],
+                permit_id=order_id,
+                permit_holder=permits[0]['customer_info']['full_name'] if permits else "Unknown",
+                verification_result=False
+            )
+            await store_verification_log(log)
+            
+            return {
+                "valid": False,
+                "message": "All permits for this order have expired or are inactive",
+                "permits_found": len(permits)
+            }
+        
+        # Return info about active permits
+        permit_info = []
+        for permit in active_permits:
+            expiry_date = datetime.fromisoformat(permit['expiry_date'])
+            permit_info.append({
+                "permit_id": permit['id'],
+                "description": permit['description'],
+                "expiry_date": expiry_date.isoformat(),
+                "days_remaining": (expiry_date - datetime.now(timezone.utc)).days
+            })
+        
+        # Log successful verification
+        log = VerificationLog(
+            controller_id=current_user["id"],
+            controller_name=current_user["full_name"],
+            permit_id=order_id,
+            permit_holder=active_permits[0]['customer_info']['full_name'],
+            verification_result=True
+        )
+        await store_verification_log(log)
+        
+        return {
+            "valid": True,
+            "message": f"Found {len(active_permits)} active permit(s)",
+            "customer": active_permits[0]['customer_info'],
+            "permits": permit_info,
+            "order_id": order_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Order verification error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Order verification failed")
+
 @api_router.get("/controller/verification-history")
 async def get_verification_history(
     current_user: dict = Depends(require_role(UserRole.CONTROLLER))
