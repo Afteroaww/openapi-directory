@@ -548,8 +548,19 @@ async def purchase_permits(
             email=current_user["email"]
         )
         
+        # Check owner discount code
+        is_owner = (permit_request.owner_code and 
+                   permit_request.owner_code.strip() == OWNER_DISCOUNT_CODE)
+        
         for permit_type in permit_request.permit_types:
-            price = PERMIT_PRICES[permit_type]
+            # Apply owner discount if applicable
+            if is_owner and permit_type == PermitType.YEARLY:
+                price = OWNER_PRICES[permit_type]
+                description_suffix = " (Współwłaściciel)"
+            else:
+                price = PERMIT_PRICES[permit_type]
+                description_suffix = ""
+            
             issue_date = datetime.now(timezone.utc)
             expiry_date = calculate_expiry_date(permit_type, issue_date)
             
