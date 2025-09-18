@@ -288,7 +288,56 @@ const ClientDashboard = () => {
     if (activeTab === 'history') {
       fetchMyPermits();
     }
+    if (activeTab === 'catches') {
+      fetchMyCatches();
+    }
   }, [activeTab]);
+
+  const fetchMyCatches = async () => {
+    try {
+      const response = await axios.get(`${API}/fishing/my-catches`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMyCatches(response.data.catches);
+    } catch (error) {
+      console.error('Error fetching catches:', error);
+    }
+  };
+
+  const handleCatchUpload = async (e) => {
+    e.preventDefault();
+    
+    if (!catchImage) {
+      alert('Proszę wybrać zdjęcie ryby');
+      return;
+    }
+
+    setUploadingCatch(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', catchImage);
+      formData.append('notes', 'Połów z aplikacji mobilnej');
+
+      const response = await axios.post(`${API}/fishing/upload-catch`, formData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data.success) {
+        alert('Zdjęcie połowu zostało przesłane!');
+        setCatchImage(null);
+        fetchMyCatches(); // Refresh list
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Błąd podczas przesyłania zdjęcia');
+    } finally {
+      setUploadingCatch(false);
+    }
+  };
 
   const fetchRegulations = async () => {
     try {
