@@ -140,7 +140,7 @@ async def store_permit(permit: FishingPermit):
 
 async def get_permits_by_order(order_id: str):
     """Get all permits for an order"""
-    permits = await db.fishing_permits.find({"order_id": order_id}).to_list(length=None)
+    permits = await db.fishing_permits.find({"order_id": order_id}, {"_id": 0}).to_list(length=None)
     return permits
 
 async def verify_permit_qr(permit_id: str):
