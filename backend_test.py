@@ -226,23 +226,24 @@ class FishingPermitsAPITester:
         
         return success, response
 
-    def test_purchase_permits(self):
-        """Test purchasing permits"""
+    def test_purchase_permits_client(self):
+        """Test purchasing permits as client"""
+        if not self.client_token:
+            print("❌ No client token available for purchase test")
+            return False, {}
+        
         test_data = {
-            "customer": {
-                "full_name": "Jan Kowalski",
-                "email": "jan.kowalski@test.com",
-                "phone": "+48123456789"
-            },
             "permit_types": ["daily"]
         }
         
+        headers = self.get_auth_headers(self.client_token)
         success, response = self.run_test(
-            "Purchase Daily Permit", 
+            "Purchase Daily Permit (Client)", 
             "POST", 
             "permits/purchase", 
             200, 
-            data=test_data
+            data=test_data,
+            headers=headers
         )
         
         if success and response:
@@ -256,7 +257,7 @@ class FishingPermitsAPITester:
                     print(f"   ❌ Missing field: {field}")
                     return False, response
             
-            if response['success'] and response['total_amount'] == 25.0:
+            if response['success'] and response['total_amount'] == 20.0:  # Updated price
                 print(f"   ✅ Purchase successful - Order ID: {response['order_id']}")
                 print(f"   ✅ Total amount: {response['total_amount']} PLN")
                 
@@ -271,7 +272,70 @@ class FishingPermitsAPITester:
                 
                 return True, response
             else:
-                print(f"   ❌ Purchase failed or incorrect amount")
+                print(f"   ❌ Purchase failed or incorrect amount - Expected 20.0, got {response.get('total_amount')}")
+                return False, response
+        
+        return success, response
+
+    def test_purchase_unauthorized(self):
+        """Test purchasing permits without authentication"""
+        test_data = {
+            "permit_types": ["daily"]
+        }
+        
+        success, response = self.run_test(
+            "Purchase Without Auth", 
+            "POST", 
+            "permits/purchase", 
+            401, 
+            data=test_data
+        )
+        
+        return success, response
+
+    def test_purchase_controller_forbidden(self):
+        """Test that controller cannot purchase permits"""
+        if not self.controller_token:
+            print("❌ No controller token available for forbidden test")
+            return False, {}
+        
+        test_data = {
+            "permit_types": ["daily"]
+        }
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Purchase as Controller (Should Fail)", 
+            "POST", 
+            "permits/purchase", 
+            403, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_get_my_permits(self):
+        """Test getting client's permits"""
+        if not self.client_token:
+            print("❌ No client token available for my permits test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Get My Permits", 
+            "GET", 
+            "permits/my-permits", 
+            200, 
+            headers=headers
+        )
+        
+        if success and response:
+            if 'permits' in response:
+                print(f"   ✅ Found {len(response['permits'])} permits")
+                return True, response
+            else:
+                print(f"   ❌ Missing permits field in response")
                 return False, response
         
         return success, response
