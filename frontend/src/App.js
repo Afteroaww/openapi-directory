@@ -760,19 +760,34 @@ const ControllerDashboard = () => {
   const handleVerification = async (e) => {
     e.preventDefault();
     
-    if (!qrData.trim()) {
+    if (verificationMethod === 'qr' && !qrData.trim()) {
       alert('Proszę wprowadzić dane z kodu QR');
+      return;
+    }
+    
+    if (verificationMethod === 'order' && !orderId.trim()) {
+      alert('Proszę wprowadzić numer zamówienia');
       return;
     }
 
     setLoading(true);
     
     try {
-      const response = await axios.post(`${API}/permits/verify`, {
-        qr_data: qrData
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      let response;
+      
+      if (verificationMethod === 'qr') {
+        response = await axios.post(`${API}/permits/verify`, {
+          qr_data: qrData
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else {
+        response = await axios.post(`${API}/permits/verify-by-order`, {
+          order_id: orderId
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
 
       setVerificationResult(response.data);
     } catch (error) {
