@@ -798,6 +798,7 @@ def main():
         # Basic API tests
         tester.test_api_root,
         tester.test_get_permit_types,
+        tester.test_get_regulations,  # NEW: Test regulations endpoint
         
         # Authentication tests
         tester.test_register_client,
@@ -806,6 +807,11 @@ def main():
         tester.test_register_invalid_controller_code,
         tester.test_login_client,
         tester.test_get_current_user,
+        
+        # NEW: Consent validation tests
+        tester.test_purchase_without_regulations_consent,
+        tester.test_purchase_without_data_consent,
+        tester.test_purchase_with_both_consents,
         
         # Client functionality tests
         tester.test_purchase_permits_client,
