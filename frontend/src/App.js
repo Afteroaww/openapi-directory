@@ -346,6 +346,7 @@ const ClientDashboard = () => {
         setPurchaseResult(response.data);
         setActiveTab('success');
         setSelectedPermits([]);
+        setOwnerCode('');
       }
     } catch (error) {
       console.error('Purchase error:', error);
