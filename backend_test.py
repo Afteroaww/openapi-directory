@@ -300,14 +300,173 @@ class FishingPermitsAPITester:
         
         return success, response
 
+    def test_get_regulations(self):
+        """Test getting fishing regulations and GDPR consent"""
+        success, response = self.run_test(
+            "Get Fishing Regulations", 
+            "GET", 
+            "regulations", 
+            200
+        )
+        
+        if success and response:
+            # Validate response structure
+            required_fields = ['fishing_regulations', 'data_processing_agreement']
+            for field in required_fields:
+                if field not in response:
+                    print(f"   ❌ Missing field: {field}")
+                    return False, response
+            
+            # Check fishing regulations content
+            fishing_regs = response.get('fishing_regulations', {})
+            if 'title' in fishing_regs and 'content' in fishing_regs:
+                content = fishing_regs['content']
+                # Check for key elements in regulations
+                key_elements = ['REGULAMIN ŁOWISKA', 'szczupak', 'sandacz', 'karp', 'catch & release', 'wymiary ochronne']
+                missing_elements = []
+                for element in key_elements:
+                    if element.lower() not in content.lower():
+                        missing_elements.append(element)
+                
+                if missing_elements:
+                    print(f"   ❌ Missing key elements in regulations: {missing_elements}")
+                    return False, response
+                else:
+                    print(f"   ✅ Fishing regulations content complete with all key elements")
+            else:
+                print(f"   ❌ Missing title or content in fishing_regulations")
+                return False, response
+            
+            # Check GDPR agreement content
+            gdpr_agreement = response.get('data_processing_agreement', {})
+            if 'title' in gdpr_agreement and 'content' in gdpr_agreement:
+                content = gdpr_agreement['content']
+                # Check for key GDPR elements
+                gdpr_elements = ['Administrator danych', 'Cel przetwarzania', 'RODO', '3 lata', 'kontakt']
+                missing_gdpr = []
+                for element in gdpr_elements:
+                    if element.lower() not in content.lower():
+                        missing_gdpr.append(element)
+                
+                if missing_gdpr:
+                    print(f"   ❌ Missing key GDPR elements: {missing_gdpr}")
+                    return False, response
+                else:
+                    print(f"   ✅ GDPR agreement content complete with all key elements")
+            else:
+                print(f"   ❌ Missing title or content in data_processing_agreement")
+                return False, response
+            
+            return True, response
+        
+        return success, response
+
+    def test_purchase_without_regulations_consent(self):
+        """Test purchasing permits without regulations consent"""
+        if not self.client_token:
+            print("❌ No client token available for consent test")
+            return False, {}
+        
+        test_data = {
+            "permit_types": ["daily"],
+            "regulations_accepted": False,
+            "data_processing_accepted": True
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Purchase Without Regulations Consent (Should Fail)", 
+            "POST", 
+            "permits/purchase", 
+            400, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if 'fishing regulations' in response.get('detail', '').lower():
+                print(f"   ✅ Correctly rejected purchase without regulations consent")
+                return True, response
+            else:
+                print(f"   ❌ Wrong error message: {response.get('detail')}")
+                return False, response
+        
+        return success, response
+
+    def test_purchase_without_data_consent(self):
+        """Test purchasing permits without data processing consent"""
+        if not self.client_token:
+            print("❌ No client token available for consent test")
+            return False, {}
+        
+        test_data = {
+            "permit_types": ["daily"],
+            "regulations_accepted": True,
+            "data_processing_accepted": False
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Purchase Without Data Processing Consent (Should Fail)", 
+            "POST", 
+            "permits/purchase", 
+            400, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if 'data processing' in response.get('detail', '').lower():
+                print(f"   ✅ Correctly rejected purchase without data processing consent")
+                return True, response
+            else:
+                print(f"   ❌ Wrong error message: {response.get('detail')}")
+                return False, response
+        
+        return success, response
+
+    def test_purchase_with_both_consents(self):
+        """Test purchasing permits with both consents accepted"""
+        if not self.client_token:
+            print("❌ No client token available for consent test")
+            return False, {}
+        
+        test_data = {
+            "permit_types": ["daily"],
+            "regulations_accepted": True,
+            "data_processing_accepted": True
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Purchase With Both Consents Accepted", 
+            "POST", 
+            "permits/purchase", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('success') and response.get('total_amount') == 20.0:
+                print(f"   ✅ Purchase successful with both consents")
+                return True, response
+            else:
+                print(f"   ❌ Purchase failed despite both consents: {response}")
+                return False, response
+        
+        return success, response
+
     def test_purchase_permits_client(self):
-        """Test purchasing permits as client"""
+        """Test purchasing permits as client (legacy test without consents)"""
         if not self.client_token:
             print("❌ No client token available for purchase test")
             return False, {}
         
         test_data = {
-            "permit_types": ["daily"]
+            "permit_types": ["daily"],
+            "regulations_accepted": True,
+            "data_processing_accepted": True
         }
         
         headers = self.get_auth_headers(self.client_token)
