@@ -39,7 +39,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
 # Special codes
-CONTROLLER_CODE = "kontroler jezioro Wieliszew"
+CONTROLLER_CODE = "JEZIOROWIELISZEW"
 
 # Create the main app
 app = FastAPI(title="Fishing Permits API", version="2.0.0")
