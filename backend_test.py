@@ -639,6 +639,7 @@ def main():
         # Authentication tests
         tester.test_register_client,
         tester.test_register_controller,
+        tester.test_client_upgrade_to_controller,  # New test for role upgrade
         tester.test_register_invalid_controller_code,
         tester.test_login_client,
         tester.test_get_current_user,
