@@ -40,6 +40,7 @@ security = HTTPBearer()
 
 # Special codes
 CONTROLLER_CODE = "JEZIOROWIELISZEW"
+OWNER_DISCOUNT_CODE = "WLASCICIELWIELISZEW"
 
 # Create the main app
 app = FastAPI(title="Fishing Permits API", version="2.0.0")
