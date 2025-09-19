@@ -358,6 +358,84 @@ def calculate_expiry_date(permit_type: PermitType, issue_date: datetime) -> date
     validity_days = PERMIT_VALIDITY[permit_type]
     return issue_date + timedelta(days=validity_days)
 
+# ===== PRO SYSTEM HELPERS =====
+
+def generate_short_code() -> str:
+    """Generate 8-character Base32 shortcode with checksum"""
+    # Base32 alphabet (RFC 4648) without 0,1,8,9 to avoid confusion
+    alphabet = "ABCDEFGHJKMNPQRSTVWXYZ23456789"
+    
+    # Generate 6 random characters
+    code = ''.join(secrets.choice(alphabet) for _ in range(6))
+    
+    # Calculate simple checksum (sum of char positions mod 32)
+    checksum_val = sum(alphabet.index(c) for c in code) % len(alphabet)
+    checksum_chars = alphabet[checksum_val] + alphabet[(checksum_val + 7) % len(alphabet)]
+    
+    return code + checksum_chars
+
+def validate_short_code(short_code: str) -> bool:
+    """Validate shortcode format and checksum"""
+    if not short_code or len(short_code) != 8:
+        return False
+    
+    alphabet = "ABCDEFGHJKMNPQRSTVWXYZ23456789"
+    
+    try:
+        code = short_code[:6]
+        checksum = short_code[6:8]
+        
+        # Verify all characters are in alphabet
+        if not all(c in alphabet for c in short_code):
+            return False
+        
+        # Verify checksum
+        checksum_val = sum(alphabet.index(c) for c in code) % len(alphabet)
+        expected_checksum = alphabet[checksum_val] + alphabet[(checksum_val + 7) % len(alphabet)]
+        
+        return checksum == expected_checksum
+    except (IndexError, ValueError):
+        return False
+
+def create_ticket_jwt(ticket_id: str, short_code: str, water_id: str, tariff_id: str, valid_until: datetime) -> str:
+    """Create JWT token for ticket QR code"""
+    payload = {
+        "tid": ticket_id,      # ticket_id
+        "sc": short_code,      # short_code  
+        "w": water_id,         # water_id
+        "tar": tariff_id,      # tariff_id
+        "nbf": int(datetime.now(timezone.utc).timestamp()),  # not before
+        "exp": int(valid_until.timestamp()),  # expires
+        "ver": 1               # version
+    }
+    
+    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+def verify_ticket_jwt(token: str) -> dict:
+    """Verify and decode ticket JWT"""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        
+        # Check version
+        if payload.get("ver") != 1:
+            return {"valid": False, "error": "Invalid token version"}
+        
+        # Check timestamps
+        now = int(datetime.now(timezone.utc).timestamp())
+        if now < payload.get("nbf", 0):
+            return {"valid": False, "error": "Token not yet valid"}
+        if now > payload.get("exp", 0):
+            return {"valid": False, "error": "Token expired"}
+        
+        return {"valid": True, "payload": payload}
+        
+    except jwt.ExpiredSignatureError:
+        return {"valid": False, "error": "Token expired"}
+    except jwt.InvalidTokenError:
+        return {"valid": False, "error": "Invalid token"}
+    except Exception as e:
+        return {"valid": False, "error": f"Token verification failed: {str(e)}"}
+
 def generate_p24_sign(data: dict) -> str:
     """Generate Przelewy24 signature"""
     if not P24_CRC_KEY:
