@@ -1323,6 +1323,125 @@ const ClientDashboard = () => {
 
             {/* EcoFishing Challenge */}
             <TabsContent value="catches">
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Upload nowego połowu */}
+                <Card className="shadow-lg border-blue-200">
+                  <CardHeader className="bg-blue-50">
+                    <CardTitle className="text-blue-800 flex items-center gap-2">
+                      <Camera className="h-5 w-5" />
+                      Prześlij połów (ETAP 1)
+                    </CardTitle>
+                    <CardDescription>Wgraj zdjęcie swojej ryby - start systemu catch & release!</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <form onSubmit={handleCatchUpload} className="space-y-4">
+                      <div>
+                        <Label htmlFor="catch-image">Zdjęcie ryby</Label>
+                        <Input
+                          id="catch-image"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setCatchImage(e.target.files[0])}
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Zrób zdjęcie ryby z miarką dla najlepszego efektu
+                        </p>
+                      </div>
+
+                      {catchImage && (
+                        <div className="mt-4">
+                          <p className="text-sm font-medium text-gray-700 mb-2">Podgląd:</p>
+                          <img 
+                            src={URL.createObjectURL(catchImage)} 
+                            alt="Preview" 
+                            className="max-w-full h-48 object-cover rounded border"
+                          />
+                        </div>
+                      )}
+
+                      <Button 
+                        type="submit" 
+                        disabled={uploadingCatch || !catchImage}
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        {uploadingCatch ? 'Przesyłanie...' : 'Prześlij połów'}
+                      </Button>
+                    </form>
+
+                    <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <h4 className="font-medium text-yellow-800 mb-2">🎣 ETAP 1 - Podstawowy upload</h4>
+                      <ul className="text-sm text-yellow-700 space-y-1">
+                        <li>• Prześlij zdjęcie ryby</li>
+                        <li>• Czeka na weryfikację admina</li>
+                        <li>• Kolejne etapy: AI, punkty, rankingi</li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Lista moich połowów */}
+                <Card className="shadow-lg border-emerald-200">
+                  <CardHeader className="bg-emerald-50">
+                    <CardTitle className="text-emerald-800">Moje połowy</CardTitle>
+                    <CardDescription>Historia przesłanych zdjęć połowów</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {myCatches.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">Brak przesłanych połowów</p>
+                        <p className="text-sm text-gray-400 mt-2">
+                          Prześlij swoje pierwsze zdjęcie ryby!
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {myCatches.map((catchItem, index) => (
+                          <div key={index} className="border rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <p className="font-medium">
+                                  Połów #{catchItem.id.slice(-6)}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {new Date(catchItem.created_at).toLocaleDateString('pl-PL')}
+                                </p>
+                              </div>
+                              <Badge 
+                                className={
+                                  catchItem.status === 'approved' 
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : catchItem.status === 'rejected'
+                                    ? 'bg-red-100 text-red-800' 
+                                    : 'bg-yellow-100 text-yellow-800'
+                                }
+                              >
+                                {catchItem.status === 'approved' ? 'Zatwierdzony' : 
+                                 catchItem.status === 'rejected' ? 'Odrzucony' : 'Oczekuje'}
+                              </Badge>
+                            </div>
+                            
+                            {catchItem.points > 0 && (
+                              <p className="text-sm font-medium text-emerald-600">
+                                Punkty: {catchItem.points}
+                              </p>
+                            )}
+                            
+                            {catchItem.species && (
+                              <p className="text-sm text-gray-600">
+                                Gatunek: {catchItem.species}
+                                {catchItem.length_cm && ` (${catchItem.length_cm} cm)`}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
