@@ -1542,11 +1542,39 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+async def create_database_indexes():
+    """Create database indexes for performance"""
+    try:
+        # Legacy collections indexes
+        await db.users.create_index("email", unique=True)
+        await db.fishing_permits.create_index([("customer_id", 1), ("status", 1)])
+        await db.permit_orders.create_index("order_id", unique=True)
+        await db.fish_catches.create_index([("user_id", 1), ("month_year", 1)])
+        
+        # Pro system indexes
+        await db.waters.create_index("name", unique=True)
+        await db.tariffs.create_index([("water_id", 1), ("active", 1)])
+        await db.payments.create_index("order_id", unique=True)
+        await db.payments.create_index([("user_id", 1), ("status", 1)])
+        await db.tickets.create_index("short_code", unique=True)
+        await db.tickets.create_index([("user_id", 1), ("status", 1)])
+        await db.tickets.create_index([("water_id", 1), ("status", 1)])
+        await db.inspections.create_index([("ticket_id", 1), ("timestamp", -1)])
+        await db.inspections.create_index([("inspector_id", 1), ("timestamp", -1)])
+        await db.inspectors.create_index("user_id", unique=True)
+        
+        logging.info("Database indexes created successfully")
+        
+    except Exception as e:
+        logging.warning(f"Index creation warning: {str(e)}")
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize app on startup"""
     await ensure_admin_user()
-    logger.info("Fishing Permits API v2.0 started")
+    await ensure_default_water_and_tariffs()
+    await create_database_indexes()
+    logger.info("Fishing Permits API v2.0 started with Pro system")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
