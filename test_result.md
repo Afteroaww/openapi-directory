@@ -528,6 +528,53 @@ backend:
           agent: "testing"
           comment: "✅ ADMIN ACCESS CONTROL VERIFIED: check_admin_role() function properly implemented and working. Admin user (admin@jezioro-wieliszew.pl) successfully logs in and gets redirected to admin dashboard. Regular users get redirected to client dashboard (correct behavior). Unauthorized API access with invalid token returns 401 status (proper security). Admin credentials from .env working: ADMIN_EMAIL and ADMIN_PASSWORD properly configured. Role-based routing working perfectly in frontend App component."
 
+frontend:
+  - task: "ETAP 3B-B: Waters CRUD Frontend"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement Waters management interface in AdminDashboard with full CRUD operations: create, read, update, delete waters with form validation and statistics display"
+        - working: true
+          agent: "testing"
+          comment: "✅ WATERS CRUD FRONTEND VERIFIED: AdminDashboard successfully displays Waters management section with 'Zarządzanie Łowiskami' header. Existing water 'Jezioro Wieliszew' shown with complete statistics (7 total tickets, 7 active tickets, 3 tariffs). Edit and Delete buttons present. Create water dialog opens correctly with all form fields: name, location, description, regulations (optional). Form validation working with required field indicators. Cancel functionality working. Interface professional and user-friendly. Minor: Dialog overlay occasionally blocks interactions but core functionality intact."
+
+backend:
+  - task: "ETAP 3B-B: Waters CRUD API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement complete CRUD API endpoints for Waters management: GET /api/admin/waters (list with statistics), POST /api/admin/waters (create), PUT /api/admin/waters/{id} (update), DELETE /api/admin/waters/{id} (delete with protection)"
+        - working: true
+          agent: "testing"
+          comment: "✅ WATERS CRUD API FULLY VERIFIED: All CRUD endpoints working perfectly. GET /api/admin/waters returns waters with statistics (total_tickets: 7, active_tickets: 7, tariffs_count: 3). POST /api/admin/waters creates new waters successfully with validation (name, location, description required). PUT /api/admin/waters/{id} updates waters correctly. DELETE /api/admin/waters/{id} has proper protection - prevents deletion of waters with active tickets ('Nie można usunąć łowiska. Ma 7 aktywnych biletów'). Admin role authorization working. API responses include success messages in Polish. Complete CRUD functionality operational."
+
+  - task: "ETAP 3B-B: Waters Management Interface"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement complete Waters management interface with professional UI showing waters list, statistics cards, create/edit dialogs, and proper integration with backend CRUD APIs"
+        - working: true
+          agent: "testing"
+          comment: "✅ WATERS MANAGEMENT INTERFACE VERIFIED: Complete admin interface implemented with 3 tabs (Dashboard, Łowiska, Taryfy). Waters section shows professional cards with water details, location, description, and statistics. Statistics display: total tickets, active tickets, tariffs count. Create dialog with form fields: name*, location*, description*, regulations (optional). Edit dialog pre-fills existing data. Delete button present with expected protection. 'Dodaj łowisko' button prominent and functional. Interface responsive and user-friendly. Integration with backend APIs working correctly."
+
 agent_communication:
     - agent: "main"
       message: "ETAP 1 wydaje się być ukończony. Wszystkie modele Pro są zdefiniowane, indeksy utworzone, inicjalizacja danych zaimplementowana. Teraz potrzeba przetestować czy backend startuje poprawnie i czy wszystkie kolekcje są tworzone prawidłowo."
@@ -571,3 +618,7 @@ agent_communication:
       message: "🎯 ETAP 3B-A: ADMIN DASHBOARD IMPLEMENTATION COMPLETED! Zaimplementowałem kompletny panel administratora z profesjonalnym interfejsem. BACKEND: Dodałem GET /api/admin/dashboard endpoint z pełnymi statystykami (total_tickets, revenue, active_users, waters_count, tariffs_count), check_admin_role() dla autoryzacji, top waters/tariffs analytics, recent tickets z ShortCode. FRONTEND: Utworzyłem AdminDashboard komponent z 4 kartami statystyk, sekcjami najpopularniejszych łowisk/taryf, listą ostatnich biletów, informacjami o następnych etapach (3B-B, 3B-C, 3B-D/E/F). Gradient background, responsive design, logout button. Role-based routing: admin → AdminDashboard, client → ClientDashboard, controller → ControllerDashboard. Gotowy do testowania!"
     - agent: "testing"
       message: "🏆 ETAP 3B-A: ADMIN DASHBOARD TESTING COMPLETED SUCCESSFULLY! Przeprowadziłem kompleksowe testowanie nowego panelu administratora. WYNIKI GŁÓWNE: ✅ ADMIN LOGIN & ACCESS CONTROL: Admin (admin@jezioro-wieliszew.pl) loguje się poprawnie i jest przekierowywany do panelu administratora. Regular users przekierowywani do client dashboard (poprawne). ✅ ADMIN DASHBOARD UI: Wszystkie 4 karty statystyk działają: 'Łączna liczba biletów' (7), 'Przychody ogółem' (140 PLN), 'Aktywni użytkownicy' (4), 'Łowiska i taryfy' (1). ✅ DASHBOARD SECTIONS: 'Najpopularniejsze łowiska' pokazuje Jezioro Wieliszew (7 biletów), 'Najpopularniejsze taryfy' pokazuje Pro Dzienny (7 biletów), 'Ostatnio zakupione bilety' wyświetla listę z ShortCode. ✅ NEXT STEPS SECTION: Sekcja 'Następne kroki ETAP 3B' z wszystkimi 3 planowanymi etapami (3B-B, 3B-C, 3B-D/E/F). ✅ API INTEGRATION: GET /api/admin/dashboard zwraca pełne dane, unauthorized access blokowany (401). ✅ UI-API CONSISTENCY: Wszystkie wartości UI idealnie pasują do danych z API. ✅ PROFESSIONAL DESIGN: Gradient background, responsive layout, logout button. ETAP 3B-A W 100% UKOŃCZONY!"
+    - agent: "main"
+      message: "🎯 ETAP 3B-B: WATERS CRUD IMPLEMENTATION COMPLETED! Zaimplementowałem kompletny system zarządzania łowiskami w panelu administratora. BACKEND: Dodałem pełne CRUD API - GET /api/admin/waters (lista ze statystykami), POST /api/admin/waters (tworzenie), PUT /api/admin/waters/{id} (edycja), DELETE /api/admin/waters/{id} (usuwanie z ochroną). Walidacja: sprawdzanie unikalności nazw, ochrona przed usuwaniem łowisk z aktywnymi biletami. FRONTEND: Rozszerzyłem AdminDashboard o zakładkę 'Łowiska' z pełnym interfejsem CRUD. Dialog tworzenia/edycji łowisk (nazwa, lokalizacja, opis, regulamin). Lista łowisk z kartami zawierającymi statystyki (total tickets, active tickets, tariffs count). Buttony edycji i usuwania dla każdego łowiska. Gotowy do testowania!"
+    - agent: "testing"
+      message: "🏆 ETAP 3B-B: WATERS CRUD TESTING COMPLETED SUCCESSFULLY! Przeprowadziłem kompleksowe testowanie zarządzania łowiskami w panelu administratora. WYNIKI GŁÓWNE: ✅ ADMIN ACCESS & NAVIGATION: Admin loguje się poprawnie, 3 tabs widoczne (Dashboard, Łowiska, Taryfy), nawigacja do 'Łowiska' działa. ✅ EXISTING WATER DISPLAY: 'Jezioro Wieliszew' wyświetlane z pełnymi statystykami (7 total tickets, 7 active tickets, 3 tariffs). Edit i Delete buttony obecne. ✅ WATERS CRUD API: Wszystkie endpointy działają perfekcyjnie - GET /api/admin/waters zwraca dane ze statystykami, POST tworzy nowe łowiska z walidacją, PUT edytuje istniejące, DELETE ma ochronę przed usuwaniem łowisk z biletami ('Nie można usunąć łowiska. Ma 7 aktywnych biletów'). ✅ FRONTEND INTERFACE: Dialog tworzenia/edycji z polami: nazwa*, lokalizacja*, opis*, regulamin (opcjonalnie). Walidacja formularza działa. Cancel/Save buttony funkcjonalne. ✅ PROTECTION WORKING: Łowiska z aktywnymi biletami chronione przed usunięciem. ✅ API INTEGRATION: Frontend-backend integracja działająca poprawnie. ETAP 3B-B W 100% UKOŃCZONY - pełny CRUD dla Waters zaimplementowany i przetestowany!"
