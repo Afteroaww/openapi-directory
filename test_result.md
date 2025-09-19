@@ -105,6 +105,54 @@
 user_problem_statement: "ETAP 3A: FRONTEND PRO INTEGRATION - implementacja frontend interface dla Pro systemu: nowa sekcja Pro Bilety, interface zakupu Pro biletów z ShortCode/QR, rozszerzenie panelu kontrolera o weryfikację Pro biletów"
 
 backend:
+  - task: "ETAP 3A: Pro Waters Frontend Integration"
+    implemented: false
+    working: "NA"
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to add frontend interface to fetch and display Pro waters and tariffs using /api/pro/waters and /api/pro/waters/{id}/tariffs endpoints"
+          
+  - task: "ETAP 3A: Pro Purchase Frontend"
+    implemented: false
+    working: "NA"
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to add Pro ticket purchase interface using /api/pro/tickets/purchase endpoint with Pro tariff selection, regulations/RODO acceptance"
+          
+  - task: "ETAP 3A: My Pro Tickets Section"
+    implemented: false
+    working: "NA"
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to add 'Moje Pro Bilety' section using /api/pro/tickets/my-tickets to display user's Pro tickets with ShortCode and QR tokens"
+
+  - task: "ETAP 3A: Controller Pro Verification"
+    implemented: false
+    working: "NA"
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to extend controller panel with Pro ticket verification using /api/pro/tickets/verify-qr and /api/pro/tickets/verify-shortcode endpoints plus /api/pro/inspections/history"
+
   - task: "ETAP 2: Pro Waters API"
     implemented: true
     working: true
