@@ -347,6 +347,15 @@ const ClientDashboard = () => {
     }
   };
 
+  const fetchRegulations = async () => {
+    try {
+      const response = await axios.get(`${API}/regulations`);
+      setRegulationsData(response.data);
+    } catch (error) {
+      console.error('Error fetching regulations:', error);
+    }
+  };
+
   // Pro System Functions
   const fetchProWaters = async () => {
     try {
