@@ -304,6 +304,12 @@ const ClientDashboard = () => {
     if (activeTab === 'catches') {
       fetchMyCatches();
     }
+    if (activeTab === 'pro-buy') {
+      fetchProWaters();
+    }
+    if (activeTab === 'pro-history') {
+      fetchMyProTickets();
+    }
   }, [activeTab]);
 
   const fetchMyCatches = async () => {
