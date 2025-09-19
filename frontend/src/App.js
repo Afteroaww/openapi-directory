@@ -273,6 +273,86 @@ const LoginForm = () => {
                 </Button>
               </form>
             </TabsContent>
+
+            <TabsContent value="admin">
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="h-5 w-5 text-blue-600" />
+                    <h3 className="font-semibold text-blue-800">Panel Administratora</h3>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Dostęp dla administratorów systemu biletów
+                  </p>
+                </div>
+                
+                <form onSubmit={handleAdminLogin} className="space-y-4">
+                  <div>
+                    <Label htmlFor="adminUsername">Nazwa użytkownika</Label>
+                    <Input
+                      id="adminUsername"
+                      value={adminLogin.username}
+                      onChange={(e) => setAdminLogin(prev => ({ ...prev, username: e.target.value }))}
+                      placeholder="admin"
+                      className="bg-blue-50 border-blue-200 focus:border-blue-400"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="adminPassword">Hasło administratora</Label>
+                    <Input
+                      id="adminPassword"
+                      type="password"
+                      value={adminLogin.password}
+                      onChange={(e) => setAdminLogin(prev => ({ ...prev, password: e.target.value }))}
+                      placeholder="admin"
+                      className="bg-blue-50 border-blue-200 focus:border-blue-400"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <AlertCircle className="h-4 w-4 text-yellow-600" />
+                      <span className="text-sm font-medium text-yellow-800">Dane początkowe</span>
+                    </div>
+                    <p className="text-xs text-yellow-700">
+                      Login: <strong>admin</strong> | Hasło: <strong>admin</strong><br />
+                      W panelu administratora będziesz mógł zmienić te dane
+                    </p>
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    disabled={loading} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Logowanie...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Zaloguj jako Administrator
+                      </div>
+                    )}
+                  </Button>
+                </form>
+                
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <h4 className="text-sm font-medium text-gray-800 mb-2">🔧 Panel Administratora obejmuje:</h4>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    <li>• Dashboard z statystykami systemu</li>
+                    <li>• Zarządzanie łowiskami (CRUD)</li>
+                    <li>• Zarządzanie taryfami</li>
+                    <li>• Monitoring płatności i biletów</li>
+                    <li>• Zarządzanie inspektorami</li>
+                  </ul>
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
           
           {message && (
