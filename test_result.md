@@ -106,7 +106,7 @@ user_problem_statement: "ETAP 2: IMPLEMENTACJA API PRO SYSTEM - implementacja en
 
 backend:
   - task: "ETAP 2: Pro Waters API"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "server.py"
     stuck_count: 0
@@ -116,9 +116,12 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Need to implement GET /api/pro/waters and GET /api/pro/waters/{water_id}/tariffs endpoints"
+        - working: "NA"
+          agent: "main"
+          comment: "✅ IMPLEMENTED: Added GET /api/pro/waters and GET /api/pro/waters/{water_id}/tariffs endpoints. Returns active waters and their tariffs with price conversion from grosze to PLN."
           
   - task: "ETAP 2: Pro Purchase API"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "server.py"
     stuck_count: 0
@@ -128,9 +131,12 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Need to implement POST /api/pro/tickets/purchase and GET /api/pro/tickets/my-tickets endpoints with ShortCode and JWT QR generation"
+        - working: "NA"
+          agent: "main"
+          comment: "✅ IMPLEMENTED: Added POST /api/pro/tickets/purchase (creates Payment + P24 redirect) and GET /api/pro/tickets/my-tickets endpoints. Integrated with existing Przelewy24 flow, generates ShortCode and JWT QR tokens."
           
   - task: "ETAP 2: Pro Verification API"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "server.py"
     stuck_count: 0
@@ -140,9 +146,12 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Need to implement POST /api/pro/tickets/verify-qr, POST /api/pro/tickets/verify-shortcode and GET /api/pro/inspections/history endpoints"
+        - working: "NA"
+          agent: "main"
+          comment: "✅ IMPLEMENTED: Added POST /api/pro/tickets/verify-qr (JWT verification), POST /api/pro/tickets/verify-shortcode (ShortCode validation), GET /api/pro/inspections/history endpoints. Full verification system with inspection logging."
 
   - task: "ETAP 2: Pro Payment Integration"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "server.py"
     stuck_count: 0
@@ -152,6 +161,9 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "Need to integrate Pro system with existing Przelewy24 payment flow and webhook handling"
+        - working: "NA"
+          agent: "main"
+          comment: "✅ IMPLEMENTED: Added POST /api/pro/payment/webhook for Pro payments. Integrated with existing P24 flow, creates Ticket with ShortCode and JWT after successful payment via create_ticket_from_payment() helper function."
 
   - task: "ETAP 1: Pro Models Implementation"
     implemented: true
