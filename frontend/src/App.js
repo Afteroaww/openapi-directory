@@ -755,7 +755,7 @@ const ClientDashboard = () => {
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Desktop Tabs - hidden on mobile when has permits (uses hamburger menu) */}
-            <TabsList className={`grid w-full ${hasActivePermits ? 'grid-cols-3 hidden md:grid' : 'grid-cols-2'} mb-8`}>
+            <TabsList className={`grid w-full ${hasActivePermits ? 'grid-cols-5 hidden md:grid' : 'grid-cols-2'} mb-8`}>
               <TabsTrigger value="buy" className="flex items-center gap-2">
                 <Fish className="h-4 w-4" />
                 Kup pozwolenia
@@ -763,6 +763,14 @@ const ClientDashboard = () => {
               <TabsTrigger value="history" className="flex items-center gap-2">
                 <History className="h-4 w-4" />
                 Moje pozwolenia
+              </TabsTrigger>
+              <TabsTrigger value="pro-buy" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Pro Bilety
+              </TabsTrigger>
+              <TabsTrigger value="pro-history" className="flex items-center gap-2">
+                <QrCode className="h-4 w-4" />
+                Moje Pro Bilety
               </TabsTrigger>
               {(hasActivePermits || myPermits.length > 0) && (
                 <TabsTrigger value="catches" className="flex items-center gap-2">
