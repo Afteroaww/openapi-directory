@@ -544,7 +544,7 @@ const ClientDashboard = () => {
                   <Button 
                     onClick={() => {
                       setActiveTab('catches');
-                      // On mobile, highlight hamburger menu to show new features
+                      // On mobile, highlight hamburger menu to show new options
                       if (window.innerWidth <= 768) {
                         setTimeout(() => {
                           const hamburgerButton = document.querySelector('button[data-state]');
@@ -562,7 +562,7 @@ const ClientDashboard = () => {
                     size="sm"
                   >
                     <Menu className="h-4 w-4 mr-2" />
-                    Poznaj aplikację
+                    Przejdź do menu
                   </Button>
                 </div>
               </div>
