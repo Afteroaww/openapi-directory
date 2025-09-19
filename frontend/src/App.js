@@ -1320,6 +1320,275 @@ const ClientDashboard = () => {
                 </Card>
               </div>
             </TabsContent>
+
+            {/* Pro System - Buy Pro Tickets */}
+            <TabsContent value="pro-buy">
+              <div className="grid lg:grid-cols-2 gap-8">
+                <Card className="shadow-lg border-blue-200">
+                  <CardHeader className="bg-blue-50">
+                    <CardTitle className="text-blue-800 flex items-center gap-2">
+                      <Shield className="h-5 w-5" />
+                      Pro Bilety - Zaawansowany System
+                    </CardTitle>
+                    <CardDescription>Kup bilet Pro z ShortCode i QR tokenem</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {proWaters.length === 0 ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="text-gray-500 mt-4">Ładowanie łowisk Pro...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {/* Water Selection */}
+                        <div>
+                          <Label className="text-base font-medium">Łowisko</Label>
+                          <div className="mt-2 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <Fish className="h-5 w-5 text-emerald-600" />
+                              <div>
+                                <p className="font-medium text-emerald-800">{selectedProWater?.name}</p>
+                                <p className="text-sm text-emerald-600">{selectedProWater?.location}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Tariff Selection */}
+                        <div>
+                          <Label className="text-base font-medium">Wybierz taryfę Pro</Label>
+                          <div className="mt-3 space-y-3">
+                            {proTariffs.map((tariff) => (
+                              <div
+                                key={tariff.id}
+                                className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                                  selectedProTariff?.id === tariff.id
+                                    ? 'border-blue-500 bg-blue-50 shadow-md'
+                                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                                }`}
+                                onClick={() => handleProTariffSelection(tariff)}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <h3 className="font-semibold text-blue-800">{tariff.name}</h3>
+                                    <p className="text-sm text-gray-600 mt-1">{tariff.description}</p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Ważność: {tariff.validity_days} {tariff.validity_days === 1 ? 'dzień' : 'dni'}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-2xl font-bold text-blue-600">{tariff.price_pln} PLN</p>
+                                    {selectedProTariff?.id === tariff.id && (
+                                      <CheckCircle className="h-5 w-5 text-blue-600 mt-1 ml-auto" />
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Agreements */}
+                        <div className="space-y-4">
+                          <div className="flex items-start space-x-3">
+                            <Checkbox
+                              id="pro-regulations"
+                              checked={proRegulationsAccepted}
+                              onCheckedChange={setProRegulationsAccepted}
+                              className="mt-1"
+                            />
+                            <Label htmlFor="pro-regulations" className="text-sm leading-relaxed">
+                              Akceptuję <strong>regulamin Pro systemu</strong> i zasady zaawansowanego systemu biletów
+                            </Label>
+                          </div>
+                          
+                          <div className="flex items-start space-x-3">
+                            <Checkbox
+                              id="pro-rodo"
+                              checked={proDataProcessingAccepted}
+                              onCheckedChange={setProDataProcessingAccepted}
+                              className="mt-1"
+                            />
+                            <Label htmlFor="pro-rodo" className="text-sm leading-relaxed">
+                              Wyrażam zgodę na <strong>przetwarzanie danych osobowych</strong> w systemie Pro
+                            </Label>
+                          </div>
+                        </div>
+
+                        {/* Purchase Button */}
+                        <Button 
+                          onClick={purchaseProTicket}
+                          disabled={!selectedProTariff || !proRegulationsAccepted || !proDataProcessingAccepted || purchasingProTicket}
+                          className="w-full bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white py-3"
+                          size="lg"
+                        >
+                          {purchasingProTicket ? (
+                            <div className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Przetwarzanie...
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <Shield className="h-5 w-5" />
+                              Kup bilet Pro {selectedProTariff ? `- ${selectedProTariff.price_pln} PLN` : ''}
+                            </div>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Pro System Features */}
+                <Card className="shadow-lg border-emerald-200">
+                  <CardHeader className="bg-emerald-50">
+                    <CardTitle className="text-emerald-800">Zalety Pro Systemu</CardTitle>
+                    <CardDescription>Dlaczego warto wybrać Pro?</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <QrCode className="h-6 w-6 text-emerald-600 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-emerald-800">ShortCode + QR Token</h4>
+                          <p className="text-sm text-gray-600">Bezpieczna weryfikacja przez kod 8-znakowy lub QR</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <Shield className="h-6 w-6 text-emerald-600 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-emerald-800">JWT Security</h4>
+                          <p className="text-sm text-gray-600">Zaawansowane zabezpieczenia z tokenami JWT</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="h-6 w-6 text-emerald-600 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-emerald-800">Offline Mode</h4>
+                          <p className="text-sm text-gray-600">Weryfikacja przez kontrolerów bez internetu</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <Fish className="h-6 w-6 text-emerald-600 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-emerald-800">Multi-venue</h4>
+                          <p className="text-sm text-gray-600">Wsparcie dla wielu łowisk i taryf</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h4 className="font-medium text-blue-800 mb-2">🚀 Pro System - ETAP 2</h4>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>• Backend API w pełni funkcjonalny</li>
+                        <li>• ShortCode generation z checksumą</li>
+                        <li>• JWT tokens z nbf/exp/ver</li>
+                        <li>• Mock payment w trybie dev</li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Pro System - My Pro Tickets */}
+            <TabsContent value="pro-history">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <QrCode className="h-5 w-5" />
+                    Moje Pro Bilety
+                  </CardTitle>
+                  <CardDescription>Historia zakupionych biletów Pro z ShortCode i QR tokenami</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {myProTickets.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-4">
+                        Nie masz jeszcze żadnych biletów Pro. <br />
+                        Kup pierwszy bilet Pro aby uzyskać dostęp do zaawansowanych funkcji!
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('pro-buy')} 
+                        className="mt-4 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700"
+                      >
+                        <Shield className="h-4 w-4 mr-2" />
+                        Kup pierwszy bilet Pro
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4">
+                      {myProTickets.map((ticket, index) => (
+                        <div key={index} className="border rounded-lg p-6 bg-gradient-to-r from-blue-50 to-emerald-50">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h3 className="font-semibold text-lg">{ticket.tariff?.name}</h3>
+                              <p className="text-sm text-gray-600">{ticket.water?.name} - {ticket.water?.location}</p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Ważny do: {new Date(ticket.valid_until).toLocaleDateString('pl-PL')} {new Date(ticket.valid_until).toLocaleTimeString('pl-PL', {hour: '2-digit', minute: '2-digit'})}
+                              </p>
+                            </div>
+                            <Badge 
+                              className={
+                                ticket.status === 'valid' 
+                                  ? 'bg-emerald-100 text-emerald-800' 
+                                  : ticket.status === 'expired'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }
+                            >
+                              {ticket.status === 'valid' ? 'AKTYWNY' : 
+                               ticket.status === 'expired' ? 'WYGASŁ' : 
+                               ticket.status.toUpperCase()}
+                            </Badge>
+                          </div>
+
+                          {/* ShortCode */}
+                          <div className="mb-4 p-3 bg-white border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Shield className="h-4 w-4 text-blue-600" />
+                              <span className="text-sm font-medium">ShortCode do weryfikacji</span>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-2xl font-mono font-bold text-blue-600 tracking-wider">
+                                {ticket.short_code}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Podaj ten kod kontrolerowi
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* QR Code */}
+                          {ticket.qr_token && (
+                            <div className="p-3 bg-white border rounded-lg">
+                              <div className="flex items-center gap-2 mb-2">
+                                <QrCode className="h-4 w-4 text-emerald-600" />
+                                <span className="text-sm font-medium">QR Token do skanowania</span>
+                              </div>
+                              <div className="text-center">
+                                <div className="inline-block p-2 bg-white border rounded">
+                                  <div className="text-xs font-mono break-all text-gray-600 max-w-xs">
+                                    {ticket.qr_token.substring(0, 50)}...
+                                  </div>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                  Pokaż ten token podczas skanowania QR
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
