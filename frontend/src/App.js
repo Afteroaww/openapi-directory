@@ -2014,12 +2014,6 @@ const ControllerDashboard = () => {
   );
 };
 
-const AdminManagementSection = () => {
-  // This component will be defined within AdminDashboard scope
-  // to access its state and functions
-  return null; // Placeholder - will be implemented inline
-};
-
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const [adminDashboard, setAdminDashboard] = useState(null);
