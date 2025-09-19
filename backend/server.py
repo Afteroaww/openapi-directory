@@ -2728,6 +2728,7 @@ async def create_sub_admin(
         return {
             "success": True,
             "message": f"Sub-administrator {admin_data.email} został utworzony pomyślnie",
+            "admin_id": new_admin_id,
             "admin": admin_response
         }
         
