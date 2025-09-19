@@ -343,15 +343,6 @@ const ClientDashboard = () => {
     }
   };
 
-  const fetchRegulations = async () => {
-    try {
-      const response = await axios.get(`${API}/regulations`);
-      setRegulationsData(response.data);
-    } catch (error) {
-      console.error('Error fetching regulations:', error);
-    }
-  };
-
   const fetchPermitTypes = async () => {
     try {
       const response = await axios.get(`${API}/permits/types`);
