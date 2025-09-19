@@ -2633,12 +2633,12 @@ async def update_admin_profile(
                 raise HTTPException(status_code=400, detail="Aktualne hasło jest wymagane do zmiany hasła")
             
             # Verify current password
-            if not bcrypt.checkpw(profile_data.current_password.encode('utf-8'), admin_user["password"].encode('utf-8')):
+            if not verify_password(profile_data.current_password, admin_user["hashed_password"]):
                 raise HTTPException(status_code=400, detail="Nieprawidłowe aktualne hasło")
             
             # Hash new password
-            hashed_password = bcrypt.hashpw(profile_data.new_password.encode('utf-8'), bcrypt.gensalt())
-            update_data["password"] = hashed_password.decode('utf-8')
+            hashed_password = get_password_hash(profile_data.new_password)
+            update_data["hashed_password"] = hashed_password
         
         if not update_data:
             raise HTTPException(status_code=400, detail="Brak danych do aktualizacji")
