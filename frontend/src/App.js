@@ -188,18 +188,21 @@ const LoginForm = () => {
         </CardHeader>
         <CardContent className="p-4 md:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 h-auto p-2">
-              <TabsTrigger value="login" className="flex items-center gap-2 p-3 text-sm">
-                <Fish className="h-4 w-4" />
-                Logowanie
+            <TabsList className="grid w-full grid-cols-3 gap-1 sm:gap-2 h-auto p-1 sm:p-2">
+              <TabsTrigger value="login" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                <Fish className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Logowanie</span>
+                <span className="xs:hidden">Login</span>
               </TabsTrigger>
-              <TabsTrigger value="register" className="flex items-center gap-2 p-3 text-sm">
-                <History className="h-4 w-4" />
-                Rejestracja
+              <TabsTrigger value="register" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
+                <History className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Rejestracja</span>
+                <span className="xs:hidden">Rej.</span>
               </TabsTrigger>
-              <TabsTrigger value="admin" className="flex items-center gap-2 p-3 text-sm bg-blue-50 border-blue-200">
-                <Shield className="h-4 w-4" />
-                Panel Admin
+              <TabsTrigger value="admin" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm bg-blue-50 border-blue-200">
+                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Panel Admin</span>
+                <span className="xs:hidden">Admin</span>
               </TabsTrigger>
             </TabsList>
             
