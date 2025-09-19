@@ -474,9 +474,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "ETAP 3B-A: Admin Dashboard Frontend"
-    - "ETAP 3B-A: Admin Dashboard API"
-    - "ETAP 3B-A: Admin Role Access Control"
+    - "ETAP 3B-B: Waters CRUD Frontend"
+    - "ETAP 3B-B: Waters CRUD API"
+    - "ETAP 3B-B: Waters Management Interface"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
