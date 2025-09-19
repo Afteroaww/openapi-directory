@@ -546,7 +546,7 @@ const ClientDashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className={`grid w-full ${hasActivePermits ? 'grid-cols-3' : 'grid-cols-2'} mb-8`}>
               <TabsTrigger value="buy" className="flex items-center gap-2">
                 <Fish className="h-4 w-4" />
                 Kup pozwolenia
@@ -555,10 +555,12 @@ const ClientDashboard = () => {
                 <History className="h-4 w-4" />
                 Moje pozwolenia
               </TabsTrigger>
-              <TabsTrigger value="catches" className="flex items-center gap-2">
-                <Camera className="h-4 w-4" />
-                Moje połowy
-              </TabsTrigger>
+              {hasActivePermits && (
+                <TabsTrigger value="catches" className="flex items-center gap-2">
+                  <Camera className="h-4 w-4" />
+                  Moje połowy
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="buy">
