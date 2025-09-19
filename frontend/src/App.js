@@ -179,14 +179,14 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 flex items-center justify-center">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-lg shadow-lg">
+        <CardHeader className="text-center pb-4">
           <Fish className="h-12 w-12 text-emerald-600 mx-auto mb-4" />
-          <CardTitle className="text-2xl">Pozwolenia na Połów Ryb</CardTitle>
-          <CardDescription>Jezioro Wieliszew</CardDescription>
+          <CardTitle className="text-xl md:text-2xl">Pozwolenia na Połów Ryb</CardTitle>
+          <CardDescription className="text-sm">Jezioro Wieliszew</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 h-auto p-2">
               <TabsTrigger value="login" className="flex items-center gap-2 p-3 text-sm">
