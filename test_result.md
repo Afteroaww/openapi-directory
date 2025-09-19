@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "ETAP 3A: FRONTEND PRO INTEGRATION - implementacja frontend interface dla Pro systemu: nowa sekcja Pro Bilety, interface zakupu Pro biletów z ShortCode/QR, rozszerzenie panelu kontrolera o weryfikację Pro biletów"
+user_problem_statement: "PRZEJŚCIE Z DUAL SYSTEM NA ONLY PRO SYSTEM - Wielka zmiana: usunięto cały legacy system pozwoleń, zachowano tylko Pro system przemianowany na główny system. Zmieniono nazwy: 'Pro Bilety' → 'Bilety', 'Moje Pro Bilety' → 'Moje Bilety'. Uproszono menu: tylko 3 zakładki zamiast 5. Aplikacja ma teraz jeden nowoczesny system oparty na Pro API."
 
 frontend:
   - task: "ETAP 3A: Pro Waters Frontend Integration"
