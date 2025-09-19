@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Kontynuacja ETAP 1: MODELE DANYCH - ukończenie przechodzenia z systemu FishingPermit na bardziej zaawansowany system Tickets z nowymi modelami Pro (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors)"
+user_problem_statement: "ETAP 2: IMPLEMENTACJA API PRO SYSTEM - implementacja endpointów API dla nowego systemu Tickets z wykorzystaniem zdefiniowanych modeli Pro (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors) oraz funkcji ShortCode i JWT"
 
 backend:
   - task: "ETAP 1: Pro Models Implementation"
