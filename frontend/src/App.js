@@ -272,7 +272,7 @@ const ClientDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [purchaseResult, setPurchaseResult] = useState(null);
   const [myPermits, setMyPermits] = useState([]);
-  const [activeTab, setActiveTab] = useState('buy');
+  const [activeTab, setActiveTab] = useState('pro-buy');
   const [ownerCode, setOwnerCode] = useState('');
   const [regulationsAccepted, setRegulationsAccepted] = useState(false);
   const [dataProcessingAccepted, setDataProcessingAccepted] = useState(false);
