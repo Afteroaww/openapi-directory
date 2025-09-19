@@ -875,7 +875,7 @@ const ClientDashboard = () => {
                   <CardHeader className="bg-blue-50">
                     <CardTitle className="text-blue-800 flex items-center gap-2">
                       <Shield className="h-5 w-5" />
-                      Bilety Wędkarskie - System Zaawansowany
+                      Bilety Wędkarskie
                     </CardTitle>
                     <CardDescription>Kup bilet z Kodem Weryfikacyjnym i tokenem QR</CardDescription>
                   </CardHeader>
