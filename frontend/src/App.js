@@ -877,7 +877,7 @@ const ClientDashboard = () => {
                       <Shield className="h-5 w-5" />
                       Bilety Wędkarskie - System Zaawansowany
                     </CardTitle>
-                    <CardDescription>Kup bilet z ShortCode i QR tokenem</CardDescription>
+                    <CardDescription>Kup bilet z Kodem Weryfikacyjnym i tokenem QR</CardDescription>
                   </CardHeader>
                   <CardContent className="p-6">
                     {proWaters.length === 0 ? (
