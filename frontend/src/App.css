@@ -281,10 +281,54 @@ button[role="checkbox"][data-state="checked"] {
   color: white;
 }
 
+/* Mobile App Header */
+.mobile-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Hamburger Menu Styles */
+.hamburger-menu {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+/* Mobile Navigation */
+.mobile-nav-item {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.98);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+/* PWA Optimizations */
+.pwa-safe-area {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 8px;
   }
   
   .grid {
@@ -297,6 +341,11 @@ button[role="checkbox"][data-state="checked"] {
   
   .text-xl {
     font-size: 1.125rem;
+  }
+  
+  /* Hide desktop tabs on mobile when menu available */
+  .desktop-tabs {
+    display: none;
   }
   
   /* Mobile-specific permit cards */
@@ -334,6 +383,25 @@ button[role="checkbox"][data-state="checked"] {
     font-size: 1rem;
     padding: 12px 24px;
     touch-action: manipulation;
+  }
+  
+  /* Mobile content spacing */
+  .mobile-content {
+    padding: 12px;  
+  }
+  
+  /* Card adjustments for mobile */
+  .mobile-card {
+    margin-bottom: 16px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Desktop - show tabs */
+@media (min-width: 769px) {
+  .desktop-tabs {
+    display: flex;
   }
 }
 
