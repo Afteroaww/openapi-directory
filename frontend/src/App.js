@@ -284,6 +284,16 @@ const ClientDashboard = () => {
   const [catchImage, setCatchImage] = useState(null);
   const [hasActivePermits, setHasActivePermits] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Pro System State
+  const [proWaters, setProWaters] = useState([]);
+  const [proTariffs, setProTariffs] = useState([]);
+  const [selectedProWater, setSelectedProWater] = useState(null);
+  const [selectedProTariff, setSelectedProTariff] = useState(null);
+  const [myProTickets, setMyProTickets] = useState([]);
+  const [proRegulationsAccepted, setProRegulationsAccepted] = useState(false);
+  const [proDataProcessingAccepted, setProDataProcessingAccepted] = useState(false);
+  const [purchasingProTicket, setPurchasingProTicket] = useState(false);
 
   useEffect(() => {
     fetchPermitTypes();
