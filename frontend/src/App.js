@@ -364,6 +364,15 @@ const ClientDashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMyPermits(response.data.permits);
+      
+      // Check if user has any active permits
+      const activePermits = response.data.permits.filter(permit => {
+        const expiryDate = new Date(permit.expiry_date);
+        const now = new Date();
+        return permit.status === 'active' && expiryDate > now;
+      });
+      
+      setHasActivePermits(activePermits.length > 0);
     } catch (error) {
       console.error('Error fetching my permits:', error);
     }
