@@ -101,3 +101,62 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Kontynuacja ETAP 1: MODELE DANYCH - ukończenie przechodzenia z systemu FishingPermit na bardziej zaawansowany system Tickets z nowymi modelami Pro (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors)"
+
+backend:
+  - task: "ETAP 1: Pro Models Implementation"
+    implemented: true
+    working: "NA"  # needs testing
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "All Pro models defined: Water, Tariff, Payment, Ticket, Inspector, Inspection. Database indexes created. Default water and tariffs initialization implemented."
+          
+  - task: "Database Indexes for Pro System"
+    implemented: true
+    working: "NA"  # needs testing
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true  
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Created indexes for all Pro collections: waters, tariffs, payments, tickets, inspections, inspectors. Indexes are created on startup."
+
+frontend:
+  - task: "Legacy System Compatibility"
+    implemented: true
+    working: "NA"  # needs testing
+    file: "App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Frontend should still work with existing FishingPermit system while Pro system is being developed in parallel."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "ETAP 1: Pro Models Implementation"
+    - "Database Indexes for Pro System"
+    - "Legacy System Compatibility"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+      message: "ETAP 1 wydaje się być ukończony. Wszystkie modele Pro są zdefiniowane, indeksy utworzone, inicjalizacja danych zaimplementowana. Teraz potrzeba przetestować czy backend startuje poprawnie i czy wszystkie kolekcje są tworzone prawidłowo."
