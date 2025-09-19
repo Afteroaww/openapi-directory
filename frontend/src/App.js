@@ -1354,7 +1354,7 @@ const ClientDashboard = () => {
                               className="mt-1"
                             />
                             <Label htmlFor="pro-rodo" className="text-sm leading-relaxed">
-                              Wyrażam zgodę na <strong>przetwarzanie danych osobowych</strong> w systemie Pro
+                              Wyrażam zgodę na <strong>przetwarzanie danych osobowych</strong> w systemie biletów
                             </Label>
                           </div>
                         </div>
