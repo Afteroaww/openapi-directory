@@ -286,7 +286,6 @@ const ClientDashboard = () => {
   const [purchasingProTicket, setPurchasingProTicket] = useState(false);
 
   useEffect(() => {
-    fetchRegulations();
     if (activeTab === 'catches') {
       fetchMyCatches();
     }
