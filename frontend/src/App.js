@@ -351,6 +351,25 @@ const ClientDashboard = () => {
     }
   };
 
+  // Admin Panel Functions
+  const fetchAdminDashboard = async () => {
+    if (!user || user.role !== 'admin') return;
+    
+    setLoadingAdminDashboard(true);
+    try {
+      const response = await axios.get(`${API}/admin/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setAdminDashboard(response.data.dashboard);
+      }
+    } catch (error) {
+      console.error('Error fetching admin dashboard:', error);
+    } finally {
+      setLoadingAdminDashboard(false);
+    }
+  };
+
   const fetchRegulations = async () => {
     try {
       const response = await axios.get(`${API}/regulations`);
