@@ -915,25 +915,17 @@ const ClientDashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            {/* Desktop Tabs - hidden on mobile when has permits (uses hamburger menu) */}
-            <TabsList className={`grid w-full ${hasActivePermits ? 'grid-cols-5 hidden md:grid' : 'grid-cols-2'} mb-8`}>
-              <TabsTrigger value="buy" className="flex items-center gap-2">
-                <Fish className="h-4 w-4" />
-                Kup pozwolenia
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2">
-                <History className="h-4 w-4" />
-                Moje pozwolenia
-              </TabsTrigger>
+            {/* Desktop Tabs */}
+            <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="pro-buy" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
-                Pro Bilety
+                Bilety
               </TabsTrigger>
               <TabsTrigger value="pro-history" className="flex items-center gap-2">
                 <QrCode className="h-4 w-4" />
-                Moje Pro Bilety
+                Moje Bilety
               </TabsTrigger>
-              {(hasActivePermits || myPermits.length > 0) && (
+              {(hasActivePermits || myPermits.length > 0 || myProTickets.length > 0) && (
                 <TabsTrigger value="catches" className="flex items-center gap-2">
                   <Camera className="h-4 w-4" />
                   Moje połowy
