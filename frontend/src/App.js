@@ -769,7 +769,7 @@ const ClientDashboard = () => {
           {/* Mobile Header with Hamburger Menu */}
           <div className="flex justify-between items-center mb-6 md:mb-8">
             <div className="flex items-center gap-4">
-              {(hasActivePermits || myPermits.length > 0 || myProTickets.length > 0) && (
+              {(myProTickets.length > 0) && (
                 <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="sm" className="md:hidden">
