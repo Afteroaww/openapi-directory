@@ -225,6 +225,11 @@ test_plan:
     - "ETAP 1: Pro Models Implementation"
     - "Database Indexes for Pro System"
     - "Legacy System Compatibility"
+    - "Frontend User Registration and Authentication"
+    - "Permit System and Purchase Flow"
+    - "Controller Verification System"
+    - "EcoFishing Challenge - Photo Upload (ETAP 1)"
+    - "Mobile Responsiveness and UI"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
