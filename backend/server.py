@@ -640,6 +640,65 @@ async def ensure_admin_user():
             await create_user(admin_user)
             logging.info(f"Admin user created: {admin_email}")
 
+async def ensure_default_water_and_tariffs():
+    """Initialize default water and tariffs for Pro system"""
+    # Check if Jezioro Wieliszew exists
+    existing_water = await db.waters.find_one({"name": "Jezioro Wieliszew"})
+    
+    if not existing_water:
+        # Create default water
+        water = Water(
+            name="Jezioro Wieliszew",
+            location="Wieliszew, mazowieckie", 
+            description="Łowisko Jezioro Wieliszew - zawody wędkarskie i rekreacja",
+            regulations="Regulamin dostępny w aplikacji"
+        )
+        
+        water_dict = water.dict()
+        water_dict['created_at'] = water_dict['created_at'].isoformat()
+        water_dict['updated_at'] = water_dict['updated_at'].isoformat()
+        await db.waters.insert_one(water_dict)
+        
+        water_id = water.id
+        
+        # Create default tariffs
+        tariffs = [
+            {
+                "name": "Pro Dzienny", 
+                "description": "Pozwolenie Pro na jeden dzień z dostępem do systemu catch & release",
+                "price_grosze": 2000,  # 20 PLN
+                "validity_hours": 24
+            },
+            {
+                "name": "Pro Miesięczny",
+                "description": "Pozwolenie Pro na miesiąc z pełnym dostępem do funkcji",
+                "price_grosze": 6000,  # 60 PLN  
+                "validity_hours": 720  # 30 dni
+            },
+            {
+                "name": "Pro Roczny",
+                "description": "Pozwolenie Pro na rok z wszystkimi funkcjami premium",
+                "price_grosze": 30000,  # 300 PLN
+                "validity_hours": 8760  # 365 dni
+            }
+        ]
+        
+        for tariff_data in tariffs:
+            tariff = Tariff(
+                water_id=water_id,
+                name=tariff_data["name"],
+                description=tariff_data["description"], 
+                price_grosze=tariff_data["price_grosze"],
+                validity_hours=tariff_data["validity_hours"]
+            )
+            
+            tariff_dict = tariff.dict()
+            tariff_dict['created_at'] = tariff_dict['created_at'].isoformat()
+            tariff_dict['updated_at'] = tariff_dict['updated_at'].isoformat()
+            await db.tariffs.insert_one(tariff_dict)
+        
+        logging.info("Default water and tariffs created for Pro system")
+
 # Authentication endpoints
 @api_router.post("/auth/register", response_model=Dict[str, Any])
 async def register(user_data: UserCreate):
