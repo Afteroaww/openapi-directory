@@ -297,7 +297,7 @@ const LoginForm = () => {
                   </p>
                 </div>
                 
-                <form onSubmit={handleAdminLogin} className="space-y-5">
+                <form onSubmit={handleAdminLogin} className="space-y-4 sm:space-y-5">
                   <div>
                     <Label htmlFor="adminUsername" className="text-sm font-medium">Nazwa użytkownika</Label>
                     <Input
