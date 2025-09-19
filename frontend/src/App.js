@@ -552,6 +552,30 @@ const ClientDashboard = () => {
                                   </Button>
                                   
                                   <Button
+                                    variant={activeTab === 'pro-buy' ? 'default' : 'ghost'}
+                                    className="w-full justify-start text-left"
+                                    onClick={() => {
+                                      setActiveTab('pro-buy');
+                                      setMobileMenuOpen(false);
+                                    }}
+                                  >
+                                    <Shield className="h-4 w-4 mr-3" />
+                                    Pro Bilety
+                                  </Button>
+                                  
+                                  <Button
+                                    variant={activeTab === 'pro-history' ? 'default' : 'ghost'}
+                                    className="w-full justify-start text-left"
+                                    onClick={() => {
+                                      setActiveTab('pro-history');
+                                      setMobileMenuOpen(false);
+                                    }}
+                                  >
+                                    <QrCode className="h-4 w-4 mr-3" />
+                                    Moje Pro Bilety
+                                  </Button>
+                                  
+                                  <Button
                                     variant={activeTab === 'catches' ? 'default' : 'ghost'}
                                     className="w-full justify-start text-left"
                                     onClick={() => {
