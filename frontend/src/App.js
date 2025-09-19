@@ -296,11 +296,7 @@ const ClientDashboard = () => {
   const [purchasingProTicket, setPurchasingProTicket] = useState(false);
 
   useEffect(() => {
-    fetchPermitTypes();
     fetchRegulations();
-    if (activeTab === 'history') {
-      fetchMyPermits();
-    }
     if (activeTab === 'catches') {
       fetchMyCatches();
     }
