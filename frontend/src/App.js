@@ -130,12 +130,16 @@ const AuthProvider = ({ children }) => {
 
 // Components
 const LoginForm = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [activeTab, setActiveTab] = useState('login');
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
     password: '',
     controllerCode: ''
+  });
+  const [adminLogin, setAdminLogin] = useState({
+    username: 'admin',
+    password: 'admin'
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -147,14 +151,29 @@ const LoginForm = () => {
     setMessage('');
 
     let result;
-    if (isLogin) {
+    if (activeTab === 'login') {
       result = await login(formData.email, formData.password);
-    } else {
+    } else if (activeTab === 'register') {
       result = await register(formData.email, formData.fullName, formData.password, formData.controllerCode);
     }
 
-    if (!result.success) {
-      setMessage(result.message);
+    if (!result?.success) {
+      setMessage(result?.message || 'Błąd logowania');
+    }
+    setLoading(false);
+  };
+
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    // For now, use the admin credentials from .env
+    // Later we can implement proper admin login endpoint
+    const result = await login('admin@jezioro-wieliszew.pl', 'admin123!@#');
+
+    if (!result?.success) {
+      setMessage('Nieprawidłowe dane administratora');
     }
     setLoading(false);
   };
@@ -168,10 +187,14 @@ const LoginForm = () => {
           <CardDescription>Jezioro Wieliszew</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={isLogin ? 'login' : 'register'} onValueChange={(val) => setIsLogin(val === 'login')}>
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="login">Logowanie</TabsTrigger>
               <TabsTrigger value="register">Rejestracja</TabsTrigger>
+              <TabsTrigger value="admin" className="text-xs">
+                <Shield className="h-3 w-3 mr-1" />
+                Admin
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="login">
