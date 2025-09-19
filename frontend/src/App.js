@@ -283,6 +283,7 @@ const ClientDashboard = () => {
   const [uploadingCatch, setUploadingCatch] = useState(false);
   const [catchImage, setCatchImage] = useState(null);
   const [hasActivePermits, setHasActivePermits] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchPermitTypes();
