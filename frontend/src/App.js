@@ -506,7 +506,81 @@ const ClientDashboard = () => {
                       </div>
                       
                       {permit.qr_code && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg relative">
+                          {/* Hamburger Menu w prawym górnym rogu QR sekcji */}
+                          <div className="absolute top-2 right-2 md:hidden">
+                            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                              <SheetTrigger asChild>
+                                <Button variant="outline" size="sm" className="w-8 h-8 p-0">
+                                  <Menu className="h-4 w-4" />
+                                </Button>
+                              </SheetTrigger>
+                              <SheetContent side="left" className="w-72">
+                                <SheetHeader>
+                                  <SheetTitle className="flex items-center gap-2">
+                                    <Fish className="h-5 w-5 text-emerald-600" />
+                                    Jezioro Wieliszew
+                                  </SheetTitle>
+                                  <SheetDescription>
+                                    Panel wędkarza - {user?.full_name}
+                                  </SheetDescription>
+                                </SheetHeader>
+                                
+                                <div className="mt-8 space-y-2">
+                                  <Button
+                                    variant={activeTab === 'buy' ? 'default' : 'ghost'}
+                                    className="w-full justify-start text-left"
+                                    onClick={() => {
+                                      setActiveTab('buy');
+                                      setMobileMenuOpen(false);
+                                    }}
+                                  >
+                                    <Fish className="h-4 w-4 mr-3" />
+                                    Kup pozwolenia
+                                  </Button>
+                                  
+                                  <Button
+                                    variant={activeTab === 'history' ? 'default' : 'ghost'}
+                                    className="w-full justify-start text-left"
+                                    onClick={() => {
+                                      setActiveTab('history');
+                                      setMobileMenuOpen(false);
+                                    }}
+                                  >
+                                    <History className="h-4 w-4 mr-3" />
+                                    Moje pozwolenia
+                                  </Button>
+                                  
+                                  <Button
+                                    variant={activeTab === 'catches' ? 'default' : 'ghost'}
+                                    className="w-full justify-start text-left"
+                                    onClick={() => {
+                                      setActiveTab('catches');
+                                      setMobileMenuOpen(false);
+                                    }}
+                                  >
+                                    <Camera className="h-4 w-4 mr-3" />
+                                    Moje połowy
+                                  </Button>
+                                  
+                                  <div className="border-t pt-4 mt-6">
+                                    <Button
+                                      variant="ghost"
+                                      className="w-full justify-start text-left text-red-600"
+                                      onClick={() => {
+                                        logout();
+                                        setMobileMenuOpen(false);
+                                      }}
+                                    >
+                                      <LogOut className="h-4 w-4 mr-3" />
+                                      Wyloguj się
+                                    </Button>
+                                  </div>
+                                </div>
+                              </SheetContent>
+                            </Sheet>
+                          </div>
+                          
                           <div className="flex items-center gap-2 mb-2">
                             <QrCode className="h-4 w-4" />
                             <span className="text-sm font-medium">Kod QR do weryfikacji</span>
