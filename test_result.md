@@ -316,6 +316,21 @@ frontend:
           agent: "testing"
           comment: "✅ COMPREHENSIVE FRONTEND TESTING COMPLETED: All major functionality verified after ETAP 1 implementation. Homepage loads correctly with proper branding (Pozwolenia na Połów Ryb, Jezioro Wieliszew). User registration/login working for both clients and controllers. Dashboard displays all permit types (20 PLN dzienny, 60 PLN miesięczny, 300 PLN roczny). Custom checkboxes and permit selection functional. Owner code WLASCICIELWIELISZEW discount system working. Regulations and RODO acceptance modals operational. Purchase process generates QR codes successfully. EcoFishing Challenge unlocked with photo upload (ETAP 1). My Permits section displays QR codes. Controller panel with QR/Order verification methods working. Mobile responsiveness confirmed. API connectivity stable. Legacy system maintains full compatibility while Pro models run in parallel."
 
+  - task: "TRANSITION: Dual System to Single Pro System"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "WIELKA ZMIANA: Usunięto cały legacy system pozwoleń (TabsContent 'buy' i 'history'), zachowano tylko Pro system ale przemianowano na główny system. Zmieniono nazwy: 'Pro Bilety' → 'Bilety', 'Moje Pro Bilety' → 'Moje Bilety'. Uproszono menu: tylko 3 zakładki zamiast 5."
+        - working: true
+          agent: "testing"
+          comment: "✅ TRANSITION SUCCESSFUL: Przeprowadziłem kompleksowe testowanie przejścia z dual system na single Pro system. WYNIKI: ✅ Interface ma teraz tylko 3 zakładki: 'Bilety', 'Moje Bilety', 'Moje połowy'. ✅ Legacy tabs całkowicie usunięte: 'Kup pozwolenia', 'Moje pozwolenia', 'Pro Bilety', 'Moje Pro Bilety'. ✅ Pro system przemianowany na główny system. ✅ Wszystkie funkcje Pro działają (ShortCode, QR tokens, tariffs 20/60/300 PLN). ✅ Purchase flow z mock payment działa - bilet pojawia się w 'Moje Bilety'. ✅ EcoFishing Challenge 'Moje połowy' odblokowany po zakupie. Minor: Mobile hamburger menu wymaga naprawy (conditional/responsive issues). PODSUMOWANIE: Przejście udane - aplikacja ma jeden spójny system zamiast dwóch konfliktujących."
+
   - task: "Hamburger Menu Fix in QR Code Section"
     implemented: true
     working: true
