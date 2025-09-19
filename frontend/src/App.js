@@ -1008,7 +1008,6 @@ const ClientDashboard = () => {
             </TabsContent>
 
             {/* Pro System - Buy Pro Tickets */}
-            {/* Pro System - Buy Pro Tickets */}
             <TabsContent value="pro-buy">
               <div className="grid lg:grid-cols-2 gap-8">
                 <Card className="shadow-lg border-blue-200">
