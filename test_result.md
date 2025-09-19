@@ -137,6 +137,9 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "✅ IMPLEMENTED: Added POST /api/pro/tickets/purchase (creates Payment + P24 redirect) and GET /api/pro/tickets/my-tickets endpoints. Integrated with existing Przelewy24 flow, generates ShortCode and JWT QR tokens."
+        - working: "NA"
+          agent: "main"
+          comment: "🔧 FIXED P24 FALLBACK: Added P24 configuration check and mock payment fallback similar to legacy system. Fixed critical error 'invalid literal for int() with base 10: YOUR_MERCHANT_ID' by implementing proper P24 validation before attempting int conversion."
         - working: false
           agent: "testing"
           comment: "❌ PRO PURCHASE API CRITICAL ISSUE: POST /api/pro/tickets/purchase fails with 500 error 'invalid literal for int() with base 10: YOUR_MERCHANT_ID'. Pro system lacks fallback mechanism for unconfigured P24 (unlike legacy system). GET /api/pro/tickets/my-tickets works correctly (returns empty list as expected). Authorization working correctly (403 for unauthorized, 400 for missing consents, 404 for invalid water/tariff)."
