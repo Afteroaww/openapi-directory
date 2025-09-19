@@ -1444,9 +1444,9 @@ const ClientDashboard = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <QrCode className="h-5 w-5" />
-                    Moje Pro Bilety
+                    Moje Bilety
                   </CardTitle>
-                  <CardDescription>Historia zakupionych biletów Pro z ShortCode i QR tokenami</CardDescription>
+                  <CardDescription>Historia zakupionych biletów z ShortCode i QR tokenami</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {myProTickets.length === 0 ? (
