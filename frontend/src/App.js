@@ -1006,7 +1006,15 @@ const ClientDashboard = () => {
                               className="mt-1"
                             />
                             <Label htmlFor="pro-rodo" className="text-sm leading-relaxed">
-                              Wyrażam zgodę na <strong>przetwarzanie danych osobowych</strong> w systemie biletów
+                              Wyrażam zgodę na{' '}
+                              <button
+                                type="button"
+                                onClick={() => setActiveTab('regulations')}
+                                className="font-bold text-emerald-600 hover:text-emerald-800 underline hover:no-underline transition-colors"
+                              >
+                                przetwarzanie danych osobowych
+                              </button>
+                              {' '}w systemie biletów (szczegóły w regulaminie)
                             </Label>
                           </div>
                         </div>
