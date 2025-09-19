@@ -2188,7 +2188,7 @@ const AdminDashboard = () => {
 
         {/* Admin Navigation Tabs */}
         <Tabs value={activeAdminTab} onValueChange={setActiveAdminTab}>
-          <TabsList className="grid w-full grid-cols-3 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <QrCode className="h-4 w-4" />
               Dashboard
@@ -2200,6 +2200,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="tariffs" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Taryfy
+            </TabsTrigger>
+            <TabsTrigger value="admins" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Administratorzy
             </TabsTrigger>
           </TabsList>
 
