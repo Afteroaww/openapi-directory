@@ -1905,19 +1905,260 @@ const ControllerDashboard = () => {
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
-  const [stats, setStats] = useState(null);
+  const [adminDashboard, setAdminDashboard] = useState(null);
+  const [loadingDashboard, setLoadingDashboard] = useState(false);
 
   useEffect(() => {
-    fetchStats();
+    fetchAdminDashboard();
   }, []);
 
-  const fetchStats = async () => {
-    // Admin stats would be implemented here
+  const fetchAdminDashboard = async () => {
+    setLoadingDashboard(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/admin/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setAdminDashboard(response.data.dashboard);
+      }
+    } catch (error) {
+      console.error('Error fetching admin dashboard:', error);
+    } finally {
+      setLoadingDashboard(false);
+    }
   };
+
+  if (loadingDashboard) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-emerald-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-500 mt-4">Ładowanie panelu administratora...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-emerald-50">
       <div className="container mx-auto px-4 py-8">
+        {/* Admin Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Panel Administratora</h1>
+            <p className="text-gray-600">Zarządzanie systemem biletów - Jezioro Wieliszew</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">Zalogowany jako: <strong>{user?.full_name}</strong></span>
+            <Button 
+              onClick={logout}
+              variant="outline"
+              className="bg-red-50 text-red-600 hover:bg-red-100"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Wyloguj się
+            </Button>
+          </div>
+        </div>
+
+        {adminDashboard ? (
+          <div className="space-y-8">
+            {/* Overview Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="shadow-lg border-blue-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <QrCode className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Łączna liczba biletów</p>
+                      <p className="text-2xl font-bold text-gray-900">{adminDashboard.overview.total_tickets}</p>
+                      <p className="text-xs text-emerald-600">
+                        Aktywnych: {adminDashboard.overview.active_tickets}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg border-emerald-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-emerald-100 rounded-lg">
+                      <Fish className="h-6 w-6 text-emerald-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Przychody ogółem</p>
+                      <p className="text-2xl font-bold text-gray-900">{adminDashboard.overview.total_revenue_pln} PLN</p>
+                      <p className="text-xs text-gray-500">{adminDashboard.overview.total_tickets} sprzedanych biletów</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg border-yellow-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-yellow-100 rounded-lg">
+                      <History className="h-6 w-6 text-yellow-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Aktywni użytkownicy</p>
+                      <p className="text-2xl font-bold text-gray-900">{adminDashboard.overview.active_users}</p>
+                      <p className="text-xs text-gray-500">z {adminDashboard.overview.total_users} zarejestrowanych</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg border-purple-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <Shield className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Łowiska i taryfy</p>
+                      <p className="text-2xl font-bold text-gray-900">{adminDashboard.overview.waters_count}</p>
+                      <p className="text-xs text-gray-500">{adminDashboard.overview.tariffs_count} aktywnych taryf</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Top Waters and Tariffs */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Fish className="h-5 w-5" />
+                    Najpopularniejsze łowiska
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {adminDashboard.top_waters.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">Brak danych</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {adminDashboard.top_waters.map((water, index) => (
+                        <div key={index} className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg">
+                          <span className="font-medium text-emerald-800">{water.water_name}</span>
+                          <Badge className="bg-emerald-100 text-emerald-800">
+                            {water.tickets_count} biletów
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <QrCode className="h-5 w-5" />
+                    Najpopularniejsze taryfy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {adminDashboard.top_tariffs.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">Brak danych</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {adminDashboard.top_tariffs.map((tariff, index) => (
+                        <div key={index} className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                          <span className="font-medium text-blue-800">{tariff.tariff_name}</span>
+                          <Badge className="bg-blue-100 text-blue-800">
+                            {tariff.tickets_count} biletów
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Tickets */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="h-5 w-5" />
+                  Ostatnio zakupione bilety
+                </CardTitle>
+                <CardDescription>10 najnowszych biletów w systemie</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {adminDashboard.recent_tickets.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">Brak biletów w systemie</p>
+                ) : (
+                  <div className="space-y-3">
+                    {adminDashboard.recent_tickets.map((ticket, index) => (
+                      <div key={index} className="flex justify-between items-center p-4 border rounded-lg">
+                        <div>
+                          <p className="font-medium">{ticket.user_name}</p>
+                          <p className="text-sm text-gray-600">{ticket.water_name} - {ticket.tariff_name}</p>
+                          <p className="text-xs text-gray-500">Kod: {ticket.short_code}</p>
+                        </div>
+                        <div className="text-right">
+                          <Badge 
+                            className={
+                              ticket.status === 'valid' 
+                                ? 'bg-emerald-100 text-emerald-800' 
+                                : 'bg-gray-100 text-gray-800'
+                            }
+                          >
+                            {ticket.status === 'valid' ? 'Aktywny' : ticket.status}
+                          </Badge>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {ticket.created_at !== 'Unknown' ? new Date(ticket.created_at).toLocaleDateString('pl-PL') : 'Nieznana data'}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Admin Actions */}
+            <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-blue-500">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Następne kroki - ETAP 3B</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-medium text-blue-800">3B-B: Zarządzanie Łowiskami</h4>
+                  <p className="text-sm text-blue-600 mt-1">CRUD dla Waters - dodawanie, edycja, deaktywacja łowisk</p>
+                </div>
+                <div className="p-4 bg-emerald-50 rounded-lg">
+                  <h4 className="font-medium text-emerald-800">3B-C: Zarządzanie Taryfami</h4>
+                  <p className="text-sm text-emerald-600 mt-1">CRUD dla Tariffs - edycja cen i czasu ważności</p>
+                </div>
+                <div className="p-4 bg-purple-50 rounded-lg">
+                  <h4 className="font-medium text-purple-800">3B-D/E/F: Płatności, Bilety, Inspektorzy</h4>
+                  <p className="text-sm text-purple-600 mt-1">Zarządzanie płatnościami, biletami i inspektorami</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">Nie udało się załadować danych dashboard</p>
+            <Button 
+              onClick={fetchAdminDashboard}
+              className="mt-4"
+            >
+              Spróbuj ponownie
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
