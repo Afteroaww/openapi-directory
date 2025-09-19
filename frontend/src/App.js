@@ -284,6 +284,7 @@ const ClientDashboard = () => {
   const [proRegulationsAccepted, setProRegulationsAccepted] = useState(false);
   const [proDataProcessingAccepted, setProDataProcessingAccepted] = useState(false);
   const [purchasingProTicket, setPurchasingProTicket] = useState(false);
+  const [regulationsData, setRegulationsData] = useState(null);
 
   useEffect(() => {
     if (activeTab === 'catches') {
