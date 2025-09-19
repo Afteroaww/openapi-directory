@@ -203,36 +203,38 @@ const LoginForm = () => {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="login">
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <TabsContent value="login" className="mt-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="mt-2 h-12"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="password">Hasło</Label>
+                  <Label htmlFor="password" className="text-sm font-medium">Hasło</Label>
                   <Input
                     id="password"
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                    className="mt-2 h-12"
                     required
                   />
                 </div>
-                <Button type="submit" disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700">
+                <Button type="submit" disabled={loading} className="w-full bg-emerald-600 hover:bg-emerald-700 h-12 text-base">
                   {loading ? 'Logowanie...' : 'Zaloguj się'}
                 </Button>
               </form>
             </TabsContent>
             
-            <TabsContent value="register">
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <TabsContent value="register" className="mt-6">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <Label htmlFor="fullName">Imię i nazwisko</Label>
                   <Input
