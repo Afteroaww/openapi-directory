@@ -1519,10 +1519,575 @@ async def get_admin_stats(current_user: dict = Depends(require_role(UserRole.ADM
         logging.error(f"Get admin stats error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to retrieve admin statistics")
 
+# ===== PRO SYSTEM API ENDPOINTS =====
+
+# Pro Waters API
+@api_router.get("/pro/waters")
+async def get_pro_waters():
+    """Get all available waters for Pro system"""
+    try:
+        waters = await db.waters.find({"active": True}).to_list(length=100)
+        
+        result = []
+        for water in waters:
+            water_data = Water(**water)
+            result.append({
+                "id": water_data.id,
+                "name": water_data.name,
+                "location": water_data.location,
+                "description": water_data.description,
+                "regulations": water_data.regulations
+            })
+        
+        return {"success": True, "waters": result}
+    except Exception as e:
+        logger.error(f"Error fetching waters: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch waters")
+
+@api_router.get("/pro/waters/{water_id}/tariffs")
+async def get_water_tariffs(water_id: str):
+    """Get all tariffs for a specific water"""
+    try:
+        tariffs = await db.tariffs.find({"water_id": water_id, "active": True}).to_list(length=100)
+        
+        result = []
+        for tariff in tariffs:
+            tariff_data = Tariff(**tariff)
+            result.append({
+                "id": tariff_data.id,
+                "name": tariff_data.name,
+                "description": tariff_data.description,
+                "price_pln": tariff_data.price_grosze / 100,  # Convert to PLN
+                "price_grosze": tariff_data.price_grosze,
+                "validity_hours": tariff_data.validity_hours,
+                "validity_days": tariff_data.validity_hours // 24
+            })
+        
+        return {"success": True, "tariffs": result}
+    except Exception as e:
+        logger.error(f"Error fetching tariffs for water {water_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch tariffs")
+
+# Pro Purchase API
+class ProPurchaseRequest(BaseModel):
+    water_id: str
+    tariff_id: str
+    regulations_accepted: bool
+    data_processing_accepted: bool
+
+@api_router.post("/pro/tickets/purchase")
+async def purchase_pro_ticket(
+    request: ProPurchaseRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Purchase Pro ticket - creates Payment and redirects to Przelewy24"""
+    try:
+        # Get current user
+        current_user = await get_current_user(credentials)
+        if not current_user:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        
+        # Validate required acceptances
+        if not request.regulations_accepted or not request.data_processing_accepted:
+            raise HTTPException(status_code=400, detail="Must accept regulations and data processing")
+        
+        # Get water and tariff
+        water = await db.waters.find_one({"id": request.water_id, "active": True})
+        if not water:
+            raise HTTPException(status_code=404, detail="Water not found")
+        
+        tariff = await db.tariffs.find_one({"id": request.tariff_id, "active": True})
+        if not tariff:
+            raise HTTPException(status_code=404, detail="Tariff not found")
+        
+        if tariff["water_id"] != request.water_id:
+            raise HTTPException(status_code=400, detail="Tariff does not belong to this water")
+        
+        # Create payment record
+        order_id = str(uuid.uuid4())
+        session_id = f"pro_{order_id[:8]}"
+        
+        payment = Payment(
+            order_id=order_id,
+            session_id=session_id,
+            user_id=current_user["id"],
+            water_id=request.water_id,
+            tariff_id=request.tariff_id,
+            amount_grosze=tariff["price_grosze"],
+            status="pending"
+        )
+        
+        payment_dict = payment.dict()
+        payment_dict['created_at'] = payment_dict['created_at'].isoformat()
+        await db.payments.insert_one(payment_dict)
+        
+        # Create Przelewy24 payment request
+        p24_data = {
+            "sessionId": session_id,
+            "merchantId": int(P24_MERCHANT_ID),
+            "posId": int(P24_POS_ID),
+            "amount": tariff["price_grosze"],
+            "currency": "PLN",
+            "description": f"Pro Ticket: {tariff['name']} - {water['name']}",
+            "email": current_user["email"],
+            "country": "PL",
+            "language": "pl",
+            "urlReturn": f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/pro-payment-success",
+            "urlStatus": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/pro/payment/webhook"
+        }
+        
+        # Generate P24 signature
+        p24_data["sign"] = generate_p24_sign(p24_data)
+        
+        # Send to Przelewy24
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{P24_API_URL}/api/v1/transaction/register",
+                json=p24_data,
+                headers={"Content-Type": "application/json"},
+                auth=(P24_POS_ID, P24_API_KEY) if P24_API_KEY else None
+            )
+            
+            if response.status_code != 200:
+                logger.error(f"P24 registration failed: {response.text}")
+                raise HTTPException(status_code=500, detail="Payment initialization failed")
+            
+            p24_response = response.json()
+            
+            if p24_response.get("error"):
+                logger.error(f"P24 error: {p24_response}")
+                raise HTTPException(status_code=500, detail="Payment initialization failed")
+            
+            # Update payment with P24 response
+            await db.payments.update_one(
+                {"order_id": order_id},
+                {"$set": {"p24_order_id": p24_response.get("data", {}).get("token")}}
+            )
+            
+            # Return payment URL
+            payment_url = f"{P24_API_URL}/trnRequest/{p24_response['data']['token']}"
+            
+            return {
+                "success": True,
+                "payment_url": payment_url,
+                "order_id": order_id,
+                "session_id": session_id
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error purchasing pro ticket: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to process purchase")
+
+@api_router.get("/pro/tickets/my-tickets")  
+async def get_my_pro_tickets(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get current user's Pro tickets"""
+    try:
+        current_user = await get_current_user(credentials)
+        if not current_user:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        
+        # Get user's tickets
+        tickets = await db.tickets.find({"user_id": current_user["id"]}).to_list(length=100)
+        
+        result = []
+        for ticket in tickets:
+            # Get related data
+            water = await db.waters.find_one({"id": ticket["water_id"]})
+            tariff = await db.tariffs.find_one({"id": ticket["tariff_id"]})
+            
+            # Parse dates
+            valid_from = datetime.fromisoformat(ticket["valid_from"]) if isinstance(ticket["valid_from"], str) else ticket["valid_from"]
+            valid_until = datetime.fromisoformat(ticket["valid_until"]) if isinstance(ticket["valid_until"], str) else ticket["valid_until"]
+            
+            result.append({
+                "id": ticket["id"],
+                "short_code": ticket["short_code"],
+                "qr_token": ticket["qr_token"], 
+                "status": ticket["status"],
+                "valid_from": valid_from.isoformat(),
+                "valid_until": valid_until.isoformat(),
+                "water": {
+                    "name": water["name"] if water else "Unknown",
+                    "location": water["location"] if water else "Unknown"
+                },
+                "tariff": {
+                    "name": tariff["name"] if tariff else "Unknown",
+                    "description": tariff["description"] if tariff else "Unknown"
+                }
+            })
+        
+        return {"success": True, "tickets": result}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching user tickets: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch tickets")
+
+# Pro Verification API
+class ProQRVerificationRequest(BaseModel):
+    qr_token: str
+    inspector_notes: Optional[str] = None
+
+class ProShortCodeVerificationRequest(BaseModel):
+    short_code: str
+    inspector_notes: Optional[str] = None
+
+@api_router.post("/pro/tickets/verify-qr")
+async def verify_pro_ticket_qr(
+    request: ProQRVerificationRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Verify Pro ticket by QR token (JWT)"""
+    try:
+        current_user = await get_current_user(credentials)
+        if not current_user or current_user["role"] not in ["controller", "admin"]:
+            raise HTTPException(status_code=403, detail="Controller access required")
+        
+        # Verify JWT token
+        jwt_result = verify_ticket_jwt(request.qr_token)
+        if not jwt_result["valid"]:
+            return {
+                "success": False,
+                "result": "invalid",
+                "message": jwt_result["error"]
+            }
+        
+        payload = jwt_result["payload"]
+        ticket_id = payload["tid"]
+        short_code = payload["sc"]
+        
+        # Get ticket from database
+        ticket = await db.tickets.find_one({"id": ticket_id})
+        if not ticket:
+            return {
+                "success": False,
+                "result": "invalid", 
+                "message": "Ticket not found"
+            }
+        
+        # Verify short code matches
+        if ticket["short_code"] != short_code:
+            return {
+                "success": False,
+                "result": "invalid",
+                "message": "Ticket data mismatch"
+            }
+        
+        # Check ticket status
+        if ticket["status"] != "valid":
+            return {
+                "success": False,
+                "result": ticket["status"],
+                "message": f"Ticket is {ticket['status']}"
+            }
+        
+        # Get inspector record
+        inspector = await db.inspectors.find_one({"user_id": current_user["id"]})
+        if not inspector:
+            # Create inspector record if not exists
+            inspector_data = Inspector(user_id=current_user["id"])
+            inspector_dict = inspector_data.dict()
+            inspector_dict['created_at'] = inspector_dict['created_at'].isoformat()
+            inspector_dict['updated_at'] = inspector_dict['updated_at'].isoformat()
+            await db.inspectors.insert_one(inspector_dict)
+            inspector = inspector_dict
+        
+        # Log inspection
+        inspection = Inspection(
+            ticket_id=ticket_id,
+            inspector_id=inspector["id"],
+            user_id=ticket["user_id"],
+            water_id=ticket["water_id"],
+            method="qr_scan",
+            result="valid",
+            notes=request.inspector_notes
+        )
+        
+        inspection_dict = inspection.dict()
+        inspection_dict['timestamp'] = inspection_dict['timestamp'].isoformat()
+        await db.inspections.insert_one(inspection_dict)
+        
+        # Get additional ticket info
+        water = await db.waters.find_one({"id": ticket["water_id"]})
+        tariff = await db.tariffs.find_one({"id": ticket["tariff_id"]})
+        user = await db.users.find_one({"id": ticket["user_id"]})
+        
+        return {
+            "success": True,
+            "result": "valid",
+            "ticket": {
+                "id": ticket["id"],
+                "short_code": ticket["short_code"],
+                "valid_until": ticket["valid_until"],
+                "water_name": water["name"] if water else "Unknown",
+                "tariff_name": tariff["name"] if tariff else "Unknown",
+                "user_name": user["full_name"] if user else "Unknown"
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error verifying QR ticket: {str(e)}")
+        raise HTTPException(status_code=500, detail="Verification failed")
+
+@api_router.post("/pro/tickets/verify-shortcode")
+async def verify_pro_ticket_shortcode(
+    request: ProShortCodeVerificationRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Verify Pro ticket by short code"""
+    try:
+        current_user = await get_current_user(credentials)
+        if not current_user or current_user["role"] not in ["controller", "admin"]:
+            raise HTTPException(status_code=403, detail="Controller access required")
+        
+        # Validate short code format
+        if not validate_short_code(request.short_code):
+            return {
+                "success": False,
+                "result": "invalid",
+                "message": "Invalid short code format"
+            }
+        
+        # Find ticket by short code
+        ticket = await db.tickets.find_one({"short_code": request.short_code.upper()})
+        if not ticket:
+            return {
+                "success": False,
+                "result": "invalid",
+                "message": "Ticket not found"
+            }
+        
+        # Check ticket status and expiry
+        if ticket["status"] != "valid":
+            return {
+                "success": False,
+                "result": ticket["status"],
+                "message": f"Ticket is {ticket['status']}"
+            }
+        
+        # Check expiry
+        valid_until = datetime.fromisoformat(ticket["valid_until"]) if isinstance(ticket["valid_until"], str) else ticket["valid_until"]
+        if datetime.now(timezone.utc) > valid_until:
+            # Update ticket status
+            await db.tickets.update_one(
+                {"id": ticket["id"]},
+                {"$set": {"status": "expired"}}
+            )
+            return {
+                "success": False,
+                "result": "expired",
+                "message": "Ticket has expired"
+            }
+        
+        # Get inspector record
+        inspector = await db.inspectors.find_one({"user_id": current_user["id"]})
+        if not inspector:
+            inspector_data = Inspector(user_id=current_user["id"])
+            inspector_dict = inspector_data.dict()
+            inspector_dict['created_at'] = inspector_dict['created_at'].isoformat()
+            inspector_dict['updated_at'] = inspector_dict['updated_at'].isoformat()
+            await db.inspectors.insert_one(inspector_dict)
+            inspector = inspector_dict
+        
+        # Log inspection
+        inspection = Inspection(
+            ticket_id=ticket["id"],
+            inspector_id=inspector["id"], 
+            user_id=ticket["user_id"],
+            water_id=ticket["water_id"],
+            method="short_code",
+            result="valid",
+            notes=request.inspector_notes
+        )
+        
+        inspection_dict = inspection.dict()
+        inspection_dict['timestamp'] = inspection_dict['timestamp'].isoformat()
+        await db.inspections.insert_one(inspection_dict)
+        
+        # Get additional info
+        water = await db.waters.find_one({"id": ticket["water_id"]})
+        tariff = await db.tariffs.find_one({"id": ticket["tariff_id"]})
+        user = await db.users.find_one({"id": ticket["user_id"]})
+        
+        return {
+            "success": True,
+            "result": "valid",
+            "ticket": {
+                "id": ticket["id"],
+                "short_code": ticket["short_code"],
+                "valid_until": valid_until.isoformat(),
+                "water_name": water["name"] if water else "Unknown",
+                "tariff_name": tariff["name"] if tariff else "Unknown", 
+                "user_name": user["full_name"] if user else "Unknown"
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error verifying short code ticket: {str(e)}")
+        raise HTTPException(status_code=500, detail="Verification failed")
+
+@api_router.get("/pro/inspections/history")
+async def get_inspection_history(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    limit: int = 50
+):
+    """Get inspection history for inspector"""
+    try:
+        current_user = await get_current_user(credentials)
+        if not current_user or current_user["role"] not in ["controller", "admin"]:
+            raise HTTPException(status_code=403, detail="Controller access required")
+        
+        # Get inspector record
+        inspector = await db.inspectors.find_one({"user_id": current_user["id"]})
+        if not inspector:
+            return {"success": True, "inspections": []}
+        
+        # Get inspections
+        inspections = await db.inspections.find(
+            {"inspector_id": inspector["id"]}
+        ).sort("timestamp", -1).limit(limit).to_list(length=limit)
+        
+        result = []
+        for inspection in inspections:
+            # Get related data
+            ticket = await db.tickets.find_one({"id": inspection["ticket_id"]})
+            user = await db.users.find_one({"id": inspection["user_id"]}) if inspection.get("user_id") else None
+            water = await db.waters.find_one({"id": inspection["water_id"]}) if inspection.get("water_id") else None
+            
+            timestamp = datetime.fromisoformat(inspection["timestamp"]) if isinstance(inspection["timestamp"], str) else inspection["timestamp"]
+            
+            result.append({
+                "id": inspection["id"],
+                "timestamp": timestamp.isoformat(),
+                "method": inspection["method"],
+                "result": inspection["result"],
+                "notes": inspection.get("notes"),
+                "ticket_short_code": ticket["short_code"] if ticket else "Unknown",
+                "user_name": user["full_name"] if user else "Unknown",
+                "water_name": water["name"] if water else "Unknown",
+                "location": inspection.get("location", "Jezioro Wieliszew")
+            })
+        
+        return {"success": True, "inspections": result}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching inspection history: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch history")
+
+# Pro Payment Webhook
+@api_router.post("/pro/payment/webhook")
+async def pro_payment_webhook(request: Request):
+    """Handle Przelewy24 webhook for Pro payments"""
+    try:
+        data = await request.json()
+        logger.info(f"Pro payment webhook received: {data}")
+        
+        session_id = data.get("sessionId")
+        order_id = data.get("orderId")
+        
+        if not session_id:
+            logger.error("No sessionId in webhook")
+            return {"error": "Missing sessionId"}
+        
+        # Find payment
+        payment = await db.payments.find_one({"session_id": session_id})
+        if not payment:
+            logger.error(f"Payment not found for session {session_id}")
+            return {"error": "Payment not found"}
+        
+        # Verify P24 signature if provided
+        if data.get("sign"):
+            expected_sign = generate_p24_sign(data)
+            if data["sign"] != expected_sign:
+                logger.error("Invalid P24 signature")
+                return {"error": "Invalid signature"}
+        
+        # Update payment status
+        await db.payments.update_one(
+            {"session_id": session_id},
+            {
+                "$set": {
+                    "status": "paid",
+                    "paid_at": datetime.now(timezone.utc).isoformat(),
+                    "webhook_data": data
+                }
+            }
+        )
+        
+        # Create ticket after successful payment
+        await create_ticket_from_payment(payment["id"])
+        
+        return {"status": "OK"}
+        
+    except Exception as e:
+        logger.error(f"Pro payment webhook error: {str(e)}")
+        return {"error": "Webhook processing failed"}
+
+# Helper function to create ticket from payment
+async def create_ticket_from_payment(payment_id: str):
+    """Create ticket after successful payment"""
+    try:
+        payment = await db.payments.find_one({"id": payment_id})
+        if not payment or payment["status"] != "paid":
+            return
+        
+        # Get tariff for validity calculation
+        tariff = await db.tariffs.find_one({"id": payment["tariff_id"]})
+        if not tariff:
+            logger.error(f"Tariff not found for payment {payment_id}")
+            return
+        
+        # Calculate validity
+        valid_from = datetime.now(timezone.utc)
+        valid_until = valid_from + timedelta(hours=tariff["validity_hours"])
+        
+        # Generate short code and JWT
+        short_code = generate_short_code()
+        qr_token = create_ticket_jwt(
+            ticket_id=str(uuid.uuid4()),
+            short_code=short_code,
+            water_id=payment["water_id"],
+            tariff_id=payment["tariff_id"],
+            valid_until=valid_until
+        )
+        
+        # Create ticket
+        ticket = Ticket(
+            payment_id=payment_id,
+            user_id=payment["user_id"],
+            water_id=payment["water_id"],
+            tariff_id=payment["tariff_id"],
+            short_code=short_code,
+            qr_token=qr_token,
+            valid_from=valid_from,
+            valid_until=valid_until
+        )
+        
+        ticket_dict = ticket.dict()
+        ticket_dict['valid_from'] = ticket_dict['valid_from'].isoformat()
+        ticket_dict['valid_until'] = ticket_dict['valid_until'].isoformat()
+        ticket_dict['created_at'] = ticket_dict['created_at'].isoformat()
+        
+        await db.tickets.insert_one(ticket_dict)
+        
+        logger.info(f"Ticket created: {ticket.id} with short code {short_code}")
+        
+    except Exception as e:
+        logger.error(f"Error creating ticket from payment {payment_id}: {str(e)}")
+
 # Root endpoint
 @api_router.get("/")
 async def root():
-    return {"message": "Fishing Permits API v2.0", "version": "2.0.0"}
+    return {"message": "Fishing Permits API v2.0 with Pro System", "version": "2.0.0"}
 
 # Include the router in the main app
 app.include_router(api_router)
