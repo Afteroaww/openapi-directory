@@ -1031,8 +1031,8 @@ const ClientDashboard = () => {
                       <h4 className="font-medium text-blue-800 mb-2">🚀 System Zaawansowany</h4>
                       <ul className="text-sm text-blue-700 space-y-1">
                         <li>• Backend API w pełni funkcjonalny</li>
-                        <li>• ShortCode generation z checksumą</li>
-                        <li>• JWT tokens z nbf/exp/ver</li>
+                        <li>• Generowanie Kodów Weryfikacyjnych z checksumą</li>
+                        <li>• Tokeny bezpieczeństwa z datami ważności</li>
                         <li>• Bezpieczna weryfikacja offline</li>
                       </ul>
                     </div>
