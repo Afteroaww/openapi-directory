@@ -873,7 +873,7 @@ const ClientDashboard = () => {
                 <QrCode className="h-4 w-4" />
                 Moje Bilety
               </TabsTrigger>
-              {(hasActivePermits || myPermits.length > 0 || myProTickets.length > 0) && (
+              {(myProTickets.length > 0) && (
                 <TabsTrigger value="catches" className="flex items-center gap-2">
                   <Camera className="h-4 w-4" />
                   Moje połowy
