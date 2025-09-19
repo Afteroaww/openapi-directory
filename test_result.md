@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "ETAP 2: IMPLEMENTACJA API PRO SYSTEM - implementacja endpointów API dla nowego systemu Tickets z wykorzystaniem zdefiniowanych modeli Pro (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors) oraz funkcji ShortCode i JWT"
+user_problem_statement: "ETAP 3A: FRONTEND PRO INTEGRATION - implementacja frontend interface dla Pro systemu: nowa sekcja Pro Bilety, interface zakupu Pro biletów z ShortCode/QR, rozszerzenie panelu kontrolera o weryfikację Pro biletów"
 
 backend:
   - task: "ETAP 2: Pro Waters API"
