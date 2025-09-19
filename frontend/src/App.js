@@ -526,6 +526,17 @@ const ClientDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+            
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Camera className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-blue-800">🎉 Zawody wędkarskie odblokowane!</span>
+              </div>
+              <p className="text-sm text-blue-700">
+                Teraz możesz uczestniczyć w miesięcznych zawodach catch & release! 
+                Sprawdź nową zakładkę "Moje połowy".
+              </p>
+            </div>
           </div>
         </div>
       </div>
