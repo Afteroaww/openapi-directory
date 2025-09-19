@@ -817,30 +817,6 @@ const ClientDashboard = () => {
                     
                     <div className="mt-8 space-y-2">
                       <Button
-                        variant={activeTab === 'buy' ? 'default' : 'ghost'}
-                        className="w-full justify-start text-left"
-                        onClick={() => {
-                          setActiveTab('buy');
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <Fish className="h-4 w-4 mr-3" />
-                        Kup pozwolenia
-                      </Button>
-                      
-                      <Button
-                        variant={activeTab === 'history' ? 'default' : 'ghost'}
-                        className="w-full justify-start text-left"
-                        onClick={() => {
-                          setActiveTab('history');
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <History className="h-4 w-4 mr-3" />
-                        Moje pozwolenia
-                      </Button>
-                      
-                      <Button
                         variant={activeTab === 'pro-buy' ? 'default' : 'ghost'}
                         className="w-full justify-start text-left"
                         onClick={() => {
@@ -849,7 +825,7 @@ const ClientDashboard = () => {
                         }}
                       >
                         <Shield className="h-4 w-4 mr-3" />
-                        Pro Bilety
+                        Bilety
                       </Button>
                       
                       <Button
@@ -861,7 +837,7 @@ const ClientDashboard = () => {
                         }}
                       >
                         <QrCode className="h-4 w-4 mr-3" />
-                        Moje Pro Bilety
+                        Moje Bilety
                       </Button>
                       
                       <Button
