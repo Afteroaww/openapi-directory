@@ -729,7 +729,7 @@ const ClientDashboard = () => {
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Desktop Tabs */}
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="pro-buy" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 Bilety
@@ -737,6 +737,10 @@ const ClientDashboard = () => {
               <TabsTrigger value="pro-history" className="flex items-center gap-2">
                 <QrCode className="h-4 w-4" />
                 Moje Bilety
+              </TabsTrigger>
+              <TabsTrigger value="regulations" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Regulamin
               </TabsTrigger>
               {(myProTickets.length > 0) && (
                 <TabsTrigger value="catches" className="flex items-center gap-2">
