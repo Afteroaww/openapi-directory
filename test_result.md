@@ -327,7 +327,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "ETAP 2: Frontend Regression Testing"
+    - "Hamburger Menu Fix in QR Code Section"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -351,3 +351,7 @@ agent_communication:
       message: "📋 PLAN: Robię oba - najpierw testuję frontend z nowym Pro API z ETAP 2, a potem przejdę do ETAP 3. Frontend powinien nadal działać z legacy systemem, ale warto sprawdzić czy nie ma konfliktów z nowymi endpointami Pro API."
     - agent: "testing"
       message: "🎯 ETAP 2 FRONTEND REGRESSION TESTING COMPLETED: Przeprowadziłem kompleksowe testowanie regresji frontend po implementacji ETAP 2 Pro API. WYNIKI: ✅ Homepage ładuje się poprawnie z właściwym brandingiem (Pozwolenia na Połów Ryb, Jezioro Wieliszew). ✅ Rejestracja użytkowników i kontrolerów działa bez problemów. ✅ System pozwoleń legacy (20/60/300 PLN) w pełni funkcjonalny. ✅ Kompletny flow zakupu pozwoleń z QR kodami działa poprawnie. ✅ Kod właściciela WLASCICIELWIELISZEW i akceptacja regulaminu/RODO działają. ✅ Panel kontrolera z weryfikacją QR/Order ID funkcjonalny. ✅ EcoFishing Challenge (ETAP 1) z uploadem zdjęć odblokowany po zakupie. ✅ Mobile responsiveness zachowana z hamburger menu. ✅ KLUCZOWE: Brak wywołań Pro API w frontend (0 calls) - frontend używa tylko legacy endpointów jak oczekiwano. ✅ Brak konfliktów między legacy i Pro API. ✅ Brak błędów w konsoli. PODSUMOWANIE: Legacy system działa w 100% bez zmian po dodaniu Pro API endpointów. Frontend gotowy do przyszłej integracji z Pro systemem."
+    - agent: "main"
+      message: "🔧 HAMBURGER MENU FIX: Naprawiłem dostępność hamburger menu w sekcji QR kodu. Zmieniłem warunek z hasActivePermits na hasActivePermits || myPermits.length > 0. Dodałem dodatkowy przycisk hamburger menu w prawym górnym rogu sekcji QR (.bg-gray-50 .absolute button). Powinno to poprawić UX - użytkownik ma łatwiejszy dostęp do menu niż tylko przycisk na dole."
+    - agent: "testing"
+      message: "🎯 ROZPOCZYNAM TESTOWANIE HAMBURGER MENU FIX: Testuję naprawkę hamburger menu w sekcji QR kodu. Plan testów: 1) Rejestracja/logowanie użytkownika, 2) Zakup pozwolenia (dowolny typ), 3) Sprawdzenie sekcji QR - czy hamburger menu w prawym górnym rogu, 4) Test funkcjonalności hamburger menu, 5) Porównanie UX. Test na mobile viewport (390x844)."
