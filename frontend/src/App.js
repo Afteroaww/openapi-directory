@@ -2666,7 +2666,101 @@ const AdminDashboard = () => {
 
           {/* Administrators Tab */}
           <TabsContent value="admins">
-            <AdminManagementSection />
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Zarządzanie Administratorami</h2>
+                  <p className="text-gray-600">Zarządzaj kontami administratorów systemu</p>
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={() => setShowProfileDialog(true)} 
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Mój profil
+                  </Button>
+                  <Button 
+                    onClick={() => setShowAdminDialog(true)}
+                    className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
+                  >
+                    <User className="h-4 w-4" />
+                    Dodaj administratora
+                  </Button>
+                </div>
+              </div>
+
+              {loadingAdmins ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {admins.length === 0 ? (
+                    <div className="text-center py-8">
+                      <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">Brak administratorów</p>
+                    </div>
+                  ) : (
+                    admins.map((admin) => (
+                      <Card key={admin.id} className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className={`p-3 rounded-full ${admin.is_main_admin ? 'bg-yellow-100' : 'bg-blue-100'}`}>
+                              {admin.is_main_admin ? (
+                                <Shield className="h-6 w-6 text-yellow-600" />
+                              ) : (
+                                <User className="h-6 w-6 text-blue-600" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                {admin.full_name}
+                                {admin.is_main_admin && (
+                                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                                    Główny Administrator
+                                  </Badge>
+                                )}
+                              </h3>
+                              <p className="text-gray-600">{admin.email}</p>
+                              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                                <span>Utworzony: {new Date(admin.created_at).toLocaleDateString()}</span>
+                                {admin.last_login !== "Never" && (
+                                  <span>Ostatnie logowanie: {new Date(admin.last_login).toLocaleDateString()}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {admin.is_deletable && (
+                              <Button
+                                onClick={() => deleteSubAdmin(admin)}
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <AlertCircle className="h-4 w-4 mr-1" />
+                                Usuń
+                              </Button>
+                            )}
+                            <Button
+                              onClick={() => requestPasswordReset(admin.email)}
+                              variant="outline"
+                              size="sm"
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            >
+                              <Info className="h-4 w-4 mr-1" />
+                              Reset hasła
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
 
