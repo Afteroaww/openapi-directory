@@ -414,7 +414,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Hamburger Menu Fix in QR Code Section"
+    - "ETAP 3A: Controller Pro Verification"
+    - "ETAP 3A: Hamburger Menu Pro Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
