@@ -620,25 +620,45 @@ async def verify_permit_qr(permit_id: str):
 
 # Check for first admin user
 async def ensure_admin_user():
-    """Ensure admin user exists"""
-    admin_email = os.environ.get('ADMIN_EMAIL')
-    admin_password = os.environ.get('ADMIN_PASSWORD') 
-    admin_name = os.environ.get('ADMIN_NAME', 'Administrator')
+    """Ensure main admin user exists"""
+    # Main admin email - recovery contact
+    main_admin_email = "jacek.oktaba@gmail.com"
+    admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123!@#') 
+    admin_name = "Administrator Jezioro Wieliszew"
     
-    if admin_email and admin_password:
-        existing_admin = await get_user_by_email(admin_email)
-        if not existing_admin:
-            admin_user = {
+    # Check if main admin exists
+    existing_admin = await get_user_by_email(main_admin_email)
+    if not existing_admin:
+        admin_user = {
+            "id": str(uuid.uuid4()),
+            "email": main_admin_email,
+            "full_name": admin_name,
+            "hashed_password": get_password_hash(admin_password),
+            "role": UserRole.ADMIN.value,
+            "is_active": True,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "is_main_admin": True
+        }
+        await create_user(admin_user)
+        logging.info(f"Main admin user created: {main_admin_email}")
+    
+    # Also ensure the old admin exists for backward compatibility
+    old_admin_email = os.environ.get('ADMIN_EMAIL', 'admin@jezioro-wieliszew.pl')
+    if old_admin_email and old_admin_email != main_admin_email:
+        existing_old_admin = await get_user_by_email(old_admin_email)
+        if not existing_old_admin:
+            old_admin_user = {
                 "id": str(uuid.uuid4()),
-                "email": admin_email,
-                "full_name": admin_name,
+                "email": old_admin_email,
+                "full_name": "Admin Legacy",
                 "hashed_password": get_password_hash(admin_password),
                 "role": UserRole.ADMIN.value,
                 "is_active": True,
-                "created_at": datetime.now(timezone.utc).isoformat()
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "is_sub_admin": True
             }
-            await create_user(admin_user)
-            logging.info(f"Admin user created: {admin_email}")
+            await create_user(old_admin_user)
+            logging.info(f"Legacy admin user created: {old_admin_email}")
 
 async def ensure_default_water_and_tariffs():
     """Initialize default water and tariffs for Pro system"""
