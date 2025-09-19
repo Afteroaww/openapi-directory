@@ -343,35 +343,6 @@ const ClientDashboard = () => {
     }
   };
 
-  const fetchPermitTypes = async () => {
-    try {
-      const response = await axios.get(`${API}/permits/types`);
-      setPermitTypes(response.data.permit_types);
-    } catch (error) {
-      console.error('Error fetching permit types:', error);
-    }
-  };
-
-  const fetchMyPermits = async () => {
-    try {
-      const response = await axios.get(`${API}/permits/my-permits`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setMyPermits(response.data.permits);
-      
-      // Check if user has any active permits
-      const activePermits = response.data.permits.filter(permit => {
-        const expiryDate = new Date(permit.expiry_date);
-        const now = new Date();
-        return permit.status === 'active' && expiryDate > now;
-      });
-      
-      setHasActivePermits(activePermits.length > 0);
-    } catch (error) {
-      console.error('Error fetching my permits:', error);
-    }
-  };
-
   // Pro System Functions
   const fetchProWaters = async () => {
     try {
