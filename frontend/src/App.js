@@ -1425,12 +1425,12 @@ const ClientDashboard = () => {
                     </div>
 
                     <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-2">🚀 Pro System - ETAP 2</h4>
+                      <h4 className="font-medium text-blue-800 mb-2">🚀 System Zaawansowany</h4>
                       <ul className="text-sm text-blue-700 space-y-1">
                         <li>• Backend API w pełni funkcjonalny</li>
                         <li>• ShortCode generation z checksumą</li>
                         <li>• JWT tokens z nbf/exp/ver</li>
-                        <li>• Mock payment w trybie dev</li>
+                        <li>• Bezpieczna weryfikacja offline</li>
                       </ul>
                     </div>
                   </CardContent>
