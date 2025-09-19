@@ -725,13 +725,6 @@ const ClientDashboard = () => {
               <LogOut className="h-4 w-4" />
               Wyloguj
             </Button>
-            
-            {/* Mobile logout button (when no permits) */}
-            {!hasActivePermits && (
-              <Button onClick={logout} variant="outline" size="sm" className="md:hidden">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            )}
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
