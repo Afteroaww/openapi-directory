@@ -296,6 +296,9 @@ const ClientDashboard = () => {
     if (activeTab === 'pro-history') {
       fetchMyProTickets();
     }
+    if (activeTab === 'regulations') {
+      fetchRegulations();
+    }
   }, [activeTab]);
 
   const fetchMyCatches = async () => {
