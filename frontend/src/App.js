@@ -2032,6 +2032,24 @@ const AdminDashboard = () => {
     regulations: ''
   });
 
+  // Administrators management state
+  const [admins, setAdmins] = useState([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
+  const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [adminForm, setAdminForm] = useState({
+    email: '',
+    full_name: '',
+    password: ''
+  });
+  const [profileForm, setProfileForm] = useState({
+    full_name: '',
+    email: '',
+    current_password: '',
+    new_password: '',
+    confirm_password: ''
+  });
+
   useEffect(() => {
     if (activeAdminTab === 'dashboard') {
       fetchAdminDashboard();
