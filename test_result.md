@@ -474,7 +474,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "TRANSITION: Dual System to Single Pro System"
+    - "CLICKABLE LINKS IN CHECKBOXES - Regulations Hyperlinks"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
