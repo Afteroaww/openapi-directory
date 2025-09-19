@@ -1300,7 +1300,7 @@ const ClientDashboard = () => {
 
                         {/* Tariff Selection */}
                         <div>
-                          <Label className="text-base font-medium">Wybierz taryfę Pro</Label>
+                          <Label className="text-base font-medium">Wybierz taryfę</Label>
                           <div className="mt-3 space-y-3">
                             {proTariffs.map((tariff) => (
                               <div
