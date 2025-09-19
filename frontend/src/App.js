@@ -1028,7 +1028,7 @@ const ClientDashboard = () => {
                     </div>
 
                     <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <h4 className="font-medium text-blue-800 mb-2">🚀 System Zaawansowany</h4>
+                      <h4 className="font-medium text-blue-800 mb-2">🚀 Nasze Funkcje</h4>
                       <ul className="text-sm text-blue-700 space-y-1">
                         <li>• Backend API w pełni funkcjonalny</li>
                         <li>• Generowanie Kodów Weryfikacyjnych z checksumą</li>
