@@ -1,100 +1,65 @@
 <analysis>
-The previous AI engineer developed a full-stack fishing permit application. Initial work involved setting up a basic system for daily/monthly/yearly permits with QR code verification and user authentication. Key features added iteratively included a role-based access system (client, controller, admin) with unique registration codes, an owner discount system for yearly permits, and legal compliances (fishing regulations, RODO consent). The payment gateway, Przelewy24, was integrated in sandbox mode. Significant effort went into improving mobile responsiveness, particularly for checkboxes and a new hamburger menu. A Monthly EcoFishing Challenge gamification feature was introduced, starting with photo upload. The latest task involves evolving the permit system from a simple  model to a more robust  system, following a detailed Controller Prompt for future scalability and security, specifically focusing on ETAP 1: MODELE DANYCH by adding new data models and database indexes. The engineer consistently addressed user feedback and bug reports, particularly around UI/UX issues and backend serialization problems.
+The AI engineer successfully transitioned the fishing permit application from an initial MVP to a more robust Pro system, incorporating new data models and an extensive API. Key achievements include completing ETAP 1 (Pro data models with indexes and default data) and ETAP 2 (full Pro API implementation for waters, tariffs, tickets, payments, and inspections), ensuring both backward compatibility and a new core system. Significant UX improvements were made, such as enhancing the hamburger menu visibility, consolidating the dual permit system into a single Pro system, translating the entire application to Polish, and creating dedicated Admin login and dashboard. The most recent focus has been on refining the frontend, specifically addressing mobile layout issues on the login page after the introduction of the Admin tab. The engineer consistently followed a phased approach (ETAP system) and iteratively addressed user feedback, bug reports, and UX requests.
 </analysis>
 
 <product_requirements>
-The user initially requested a simple application for collecting fishing fees, where users could buy tickets and controllers could verify them via QR codes.
-The product evolved through several key feature requests:
-1.  **Fishing Permits & QR Verification**: Core functionality to sell daily, monthly, yearly permits and generate/verify QR codes for validity. Initial prices were 25 PLN/day, 500 PLN/year.
-2.  **Role-Based Access**: Implement client, controller, and admin roles. Clients self-register. Controllers register with a special code (JEZIOROWIELISZEW). Admin access is via environment variables.
-3.  **Dynamic Pricing**: Update permit prices to 20 PLN/day, 60 PLN/month, 300 PLN/year.
-4.  **Owner Discount**: Introduce a discount code (WLASCICIELWIELISZEW) for lake co-owners, reducing the yearly permit to 50 PLN.
-5.  **Legal Compliance**: Add mandatory acceptance for fishing regulations (details on fish size, catch & release focus) and RODO (data processing consent) before purchase.
-6.  **Payment Integration**: Integrate Przelewy24 as the primary payment gateway, initially in sandbox mode.
-7.  **Enhanced Verification**: Improve controller experience with camera-based QR scanning (using ) and an alternative verification method via order ID.
-8.  **Mobile-First UI/UX**: Ensure the application is responsive and user-friendly on mobile devices, including touch-friendly checkboxes and a hamburger menu for navigation.
-9.  **Gamification (EcoFishing Challenge)**: Implement a Monthly EcoFishing Challenge to reward catch & release. This includes uploading fish photos, manual scoring (initially), and monthly rankings with prizes (e.g., free permits). This feature is unlocked only after a user purchases a permit.
-10. **System Evolution**: Transition from the current  system to a more robust  system for scalability, enhanced security (JWT, short codes), and multi-venue support. This is a phased approach (Evolution chosen).
+The application, initially a simple fishing fee collection system, evolved to sell daily, monthly, yearly permits with QR code verification. Key features included client/controller/admin role-based access, dynamic pricing, an owner discount, legal compliance (fishing regulations, RODO), Przelewy24 payment integration (sandbox), and mobile-first UI/UX. Gamification was introduced with an EcoFishing Challenge for photo uploads. A major Evolution initiative mandated transitioning from  to a scalable  system. Recent work integrated this Pro system, simplified the UI to be Pro-only, translated all content to Polish, and added an Admin Dashboard and Waters CRUD. Current focus is on refining the Admin login UI.
 </product_requirements>
 
 <key_technical_concepts>
 -   **Full-stack Architecture**: FastAPI (backend), React (frontend), MongoDB (database).
--   **Authentication/Authorization**: JWT tokens, bcrypt for password hashing, role-based access.
--   **UI/UX**: Shadcn/UI components, Tailwind CSS for styling, responsive design.
--   **Payment Gateway**: Przelewy24 integration (sandbox/mock).
--   **QR Codes**: Generation and scanning ( for backend,  then  for frontend).
--   **Environment Variables**: Secure handling of sensitive data (API keys, database URLs).
--   **Data Serialization**: Pydantic models for data validation and MongoDB ObjectId handling.
--   **Gamification**: Photo upload, scoring, ranking system.
--   **Database Models**: Evolution from simple permits to a complex Tickets system (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors).
+-   **Authentication/Authorization**: JWT, bcrypt, role-based access.
+-   **UI/UX**: Shadcn/UI, Tailwind CSS, responsive design.
+-   **Payment Gateway**: Przelewy24 (sandbox).
+-   **QR Codes**: Generation and  scanning.
+-   **Data Models**: Evolution to  system (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors).
+-   **Internationalization**: Full Polish translation.
 </key_technical_concepts>
 
 <code_architecture>
 
 
-
 -   **/app/backend/server.py**:
-    -   **Summary of importance**: This is the core FastAPI application. It handles all backend logic, including user authentication (registration, login, JWT token generation), permit management (retrieving, purchasing, generating QR codes), Przelewy24 payment integration, and the initial endpoints for the EcoFishing Challenge (photo upload, ranking). It defines MongoDB models and CRUD operations.
-    -   **Changes made**: Extensively modified to include:
-        -   User authentication with roles (client, controller, admin).
-        -   Permit types with dynamic pricing.
-        -   Owner discount logic.
-        -   Endpoints for  CRUD.
-        -   Przelewy24 payment initiation, callback, and webhook handling.
-        -   Endpoints for QR verification and order ID verification.
-        -   EcoFishing Challenge endpoints for photo upload and listing.
-        -   Placeholder models, utility functions, and initialization for the new  system (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors) as part of the Evolution plan.
-        -   Bcrypt for password hashing, JWT for security.
+    -   **Summary of importance**: The core FastAPI application handling all backend logic. It defines MongoDB models and CRUD operations for both legacy () and new (, , , etc.) systems. Includes authentication, permit management, Przelewy24 integration, and EcoFishing Challenge endpoints.
+    -   **Changes made**: Extensive additions for Pro Models (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors), including Pydantic models, database indexes, default data initialization. New API endpoints for Pro system CRUD (Waters, Tariffs, Tickets, Payments, Inspections). Added Admin Dashboard API endpoints () and Waters CRUD API (). Updated all user-facing messages and comments to Polish.
 -   **/app/backend/.env**:
-    -   **Summary of importance**: Stores environment variables for backend configuration, ensuring sensitive data is not hardcoded.
-    -   **Changes made**: Added , ,  (for initial admin setup), , , and Przelewy24 credentials (, , , , ).
+    -   **Summary of importance**: Stores environment variables for backend configuration.
+    -   **Changes made**: Added various keys for JWT, admin credentials, controller/owner codes, and Przelewy24 credentials.
 -   **/app/frontend/src/App.js**:
-    -   **Summary of importance**: The main React component that orchestrates the entire frontend UI, routing, state management, and interaction with the backend API.
-    -   **Changes made**: Extensively rewritten to:
-        -   Implement user registration, login, and dashboard views based on user roles.
-        -   Display permit types with dynamic pricing and the owner discount input field.
-        -   Handle permit selection with custom, mobile-friendly checkboxes.
-        -   Integrate fishing regulations and RODO consent checkboxes/dialogs.
-        -   Implement QR code display and the controller's verification dashboard (camera scan, order ID input).
-        -   Integrate Przelewy24 payment flow and handle post-payment redirects.
-        -   Add the My Catches section for EcoFishing photo upload and display.
-        -   Implement a mobile-first responsive hamburger menu with a slide-out drawer (using Shadcn's Sheet component).
-        -   Conditional rendering of navigation elements based on user login and permit purchase status.
+    -   **Summary of importance**: The main React component for UI, routing, state, and API interaction.
+    -   **Changes made**: Substantial rewrites: Implemented new Pro system tabs (Bilety, Moje Bilety), removed legacy permit tabs. Adjusted hamburger menu visibility (now for all logged-in users). Added a dedicated Regulamin section with content and made checkbox terms clickable links. Implemented  component with tabs for navigation (Dashboard, Łowiska). Created  with three tabs: Logowanie, Rejestracja, Admin (pre-filled login/pass for admin). Significant refactoring for mobile responsiveness, specifically around tab and card styling on the login screen. All English terms and UI strings translated to Polish.
 -   **/app/frontend/src/App.css**:
-    -   **Summary of importance**: Contains global and component-specific styles to enhance the UI/UX, especially for mobile responsiveness and custom design elements.
-    -   **Changes made**: Added styles for mobile responsiveness, custom checkbox appearances, card highlighting on selection, hamburger menu animations, and general layout adjustments to adhere to design guidelines.
+    -   **Summary of importance**: Contains global styles for UI/UX.
+    -   **Changes made**: Added styles for mobile responsiveness, custom checkboxes, card highlighting, and general layout adjustments. Likely further modified for recent mobile layout fixes.
 -   **/app/frontend/src/components/ui/**:
-    -   **Summary of importance**: Contains reusable Shadcn UI components that maintain design consistency and accessibility throughout the application.
-    -   **Changes made**: Specific components like , , , , , , , , and  (for toasts) were utilized and sometimes modified or wrapped for specific behaviors and styling. Notably,  was a source of several mobile-related UI bugs, requiring extensive debugging and custom styling in  and .
+    -   **Summary of importance**: Reusable Shadcn UI components for design consistency.
+    -   **Changes made**: Utilized components like , , , , , , , , and .  was a recurring area for mobile UI fixes.
 </code_architecture>
 
 <pending_tasks>
+-   Complete ETAP 3B-C: Zarządzanie Taryfami (Tariffs CRUD).
+-   Implement ETAP 3B-D: Zarządzanie Płatnościami (Payments).
+-   Implement ETAP 3B-E: Zarządzanie Biletami (Tickets).
+-   Implement ETAP 3B-F: Zarządzanie Inspektorami (Inspectors).
 -   Complete ETAP 2-12 of the Monthly EcoFishing Challenge (manual scoring by admin, monthly ranking, AI fish recognition/measurement, anti-fraud, badges, sponsorship, community forum).
--   Implement the full  system (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors) including JWT with nbf/exp/ver and key rotation, ShortCode generation, and offline mode for controllers.
--   Develop the complete Admin CRUD interface for managing waters, tariffs, payments, tickets, and inspectors.
--   Replace the Przelewy24 sandbox integration with production keys and ensure secure handling of actual payments.
--   Implement advanced logging/alerts for backend issues (webhook errors, 5xx, refund spikes) and verification metrics.
+-   Develop change password and password recovery by email for Admin.
+-   Replace Przelewy24 sandbox integration with production keys.
+-   Implement advanced logging/alerts for backend issues.
 -   Execute the full Test Plan/Checks outlined in the Controller Prompt.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was engaged in transitioning the application's permit system from the existing  model to a more robust  system. This change was initiated based on the user's decision to adopt an Evolution strategy, incorporating new, more secure, and scalable models as outlined in a detailed Controller Prompt.
+Immediately before this summary request, the AI engineer was addressing a critical mobile layout issue on the login page. Following the implementation of a dedicated Admin tab alongside Logowanie and Rejestracja tabs, the user reported that the layout was rozjechany na mobile (disrupted on mobile), with tabs being too small, elements overlapping, and poor readability.
 
-The specific task at hand was ETAP 1: MODELE DANYCH. This involved:
--   **Preserving existing models**: The , , and  models were kept intact.
--   **Adding new Pro Models**: New Pydantic and MongoDB models were being introduced for:
-    -   : To define different fishing locations.
-    -   : To define various pricing plans for specific waters.
-    -   : The core model for permits in the new system, including fields for  and  (JWT based).
-    -   : To manage payment transactions with detailed status.
-    -   : To log controller activities.
-    -   : To define specific roles for controllers.
--   **Database Setup**: New MongoDB collections corresponding to these Pro Models were being set up.
--   **Indexes and Validations**: The engineer was in the process of adding database indexes for these new collections to ensure performance and data integrity.
+The AI engineer initiated fixes by:
+1.  Modifying  to adjust CSS classes for better spacing and width for tabs ().
+2.  Adjusting  width and spacing to prevent overlapping elements on mobile.
+3.  Improving spacing within the admin tab content for better readability.
+4.  Ensuring consistency across other  sections regarding mobile improvements.
 
-The last action performed by the AI engineer was , indicating that the creation of database indexes for the newly defined Pro Models was underway. This is a foundational step for the new Tickets system, crucial for its performance and the subsequent implementation of features like JWT-based QR codes, offline controller mode, and a comprehensive admin panel.
+The specific files being edited are  and potentially  to manage layout and responsiveness. The goal is to make the login/registration/admin tabs and their content visually appealing and functional on mobile devices, ensuring user-friendliness across all screen sizes. This is an ongoing task to refine the UI/UX.
 </current_work>
 
 <optional_next_step>
-Continue with ETAP 1: MODELE DANYCH by completing the addition of database indexes for the new , , , , , and  models to optimize performance.
+Continue fixing the mobile layout issues on the login page and other  sections to ensure consistent mobile responsiveness.
 </optional_next_step>
