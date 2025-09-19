@@ -207,7 +207,7 @@ const LoginForm = () => {
             </TabsList>
             
             <TabsContent value="login" className="mt-4 sm:mt-6">
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 <div>
                   <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                   <Input
@@ -237,7 +237,7 @@ const LoginForm = () => {
             </TabsContent>
             
             <TabsContent value="register" className="mt-4 sm:mt-6">
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                 <div>
                   <Label htmlFor="fullName">Imię i nazwisko</Label>
                   <Input
