@@ -474,7 +474,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "CLICKABLE LINKS IN CHECKBOXES - Regulations Hyperlinks"
+    - "ETAP 3B-A: Admin Dashboard Frontend"
+    - "ETAP 3B-A: Admin Dashboard API"
+    - "ETAP 3B-A: Admin Role Access Control"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
