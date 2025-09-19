@@ -1453,15 +1453,15 @@ const ClientDashboard = () => {
                     <div className="text-center py-8">
                       <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-500 mb-4">
-                        Nie masz jeszcze żadnych biletów Pro. <br />
-                        Kup pierwszy bilet Pro aby uzyskać dostęp do zaawansowanych funkcji!
+                        Nie masz jeszcze żadnych biletów. <br />
+                        Kup pierwszy bilet aby uzyskać dostęp do zaawansowanych funkcji!
                       </p>
                       <Button 
                         onClick={() => setActiveTab('pro-buy')} 
                         className="mt-4 bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700"
                       >
                         <Shield className="h-4 w-4 mr-2" />
-                        Kup pierwszy bilet Pro
+                        Kup pierwszy bilet
                       </Button>
                     </div>
                   ) : (
