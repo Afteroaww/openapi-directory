@@ -1206,6 +1206,548 @@ class FishingPermitsAPITester:
         
         return passed == total, {"passed": passed, "total": total}
 
+    # ===== PRO SYSTEM API TESTS - ETAP 2 =====
+
+    def test_get_pro_waters(self):
+        """Test getting Pro waters - should return Jezioro Wieliszew"""
+        success, response = self.run_test(
+            "Get Pro Waters", 
+            "GET", 
+            "pro/waters", 
+            200
+        )
+        
+        if success and response:
+            if 'waters' in response and response.get('success'):
+                waters = response['waters']
+                print(f"   ✅ Found {len(waters)} waters")
+                
+                # Check for Jezioro Wieliszew
+                wieliszew_found = False
+                for water in waters:
+                    if water.get('name') == 'Jezioro Wieliszew':
+                        wieliszew_found = True
+                        print(f"   ✅ Jezioro Wieliszew found")
+                        print(f"   ✅ Location: {water.get('location')}")
+                        print(f"   ✅ Description: {water.get('description', 'No description')[:50]}...")
+                        # Store water ID for tariff tests
+                        self.wieliszew_water_id = water.get('id')
+                        break
+                
+                if not wieliszew_found:
+                    print(f"   ❌ Jezioro Wieliszew not found in waters")
+                    return False, response
+                
+                return True, response
+            else:
+                print(f"   ❌ Missing waters field or success flag in response")
+                return False, response
+        
+        return success, response
+
+    def test_get_water_tariffs(self):
+        """Test getting tariffs for Jezioro Wieliszew - should return 3 Pro tariffs"""
+        if not hasattr(self, 'wieliszew_water_id') or not self.wieliszew_water_id:
+            print("❌ No water ID available for tariff test")
+            return False, {}
+        
+        success, response = self.run_test(
+            "Get Water Tariffs", 
+            "GET", 
+            f"pro/waters/{self.wieliszew_water_id}/tariffs", 
+            200
+        )
+        
+        if success and response:
+            if 'tariffs' in response and response.get('success'):
+                tariffs = response['tariffs']
+                print(f"   ✅ Found {len(tariffs)} tariffs")
+                
+                # Expected Pro tariffs: 20, 60, 300 PLN
+                expected_prices = [20, 60, 300]
+                found_prices = []
+                
+                for tariff in tariffs:
+                    price_pln = tariff.get('price_pln')
+                    price_grosze = tariff.get('price_grosze')
+                    name = tariff.get('name')
+                    validity_hours = tariff.get('validity_hours')
+                    
+                    print(f"   ✅ {name}: {price_pln} PLN ({price_grosze} grosze), {validity_hours}h")
+                    found_prices.append(price_pln)
+                    
+                    # Store tariff IDs for purchase tests
+                    if price_pln == 20:
+                        self.pro_daily_tariff_id = tariff.get('id')
+                    elif price_pln == 60:
+                        self.pro_monthly_tariff_id = tariff.get('id')
+                    elif price_pln == 300:
+                        self.pro_yearly_tariff_id = tariff.get('id')
+                
+                # Check if all expected prices are found
+                for expected_price in expected_prices:
+                    if expected_price not in found_prices:
+                        print(f"   ❌ Missing expected tariff: {expected_price} PLN")
+                        return False, response
+                
+                print(f"   ✅ All expected Pro tariffs found: {sorted(found_prices)} PLN")
+                return True, response
+            else:
+                print(f"   ❌ Missing tariffs field or success flag in response")
+                return False, response
+        
+        return success, response
+
+    def test_purchase_pro_ticket_unauthorized(self):
+        """Test purchasing Pro ticket without authentication"""
+        test_data = {
+            "water_id": "test-water-id",
+            "tariff_id": "test-tariff-id",
+            "regulations_accepted": True,
+            "data_processing_accepted": True
+        }
+        
+        success, response = self.run_test(
+            "Purchase Pro Ticket Without Auth", 
+            "POST", 
+            "pro/tickets/purchase", 
+            401, 
+            data=test_data
+        )
+        
+        return success, response
+
+    def test_purchase_pro_ticket_missing_consents(self):
+        """Test purchasing Pro ticket without required consents"""
+        if not self.client_token:
+            print("❌ No client token available for Pro consent test")
+            return False, {}
+        
+        if not hasattr(self, 'wieliszew_water_id') or not hasattr(self, 'pro_daily_tariff_id'):
+            print("❌ No water/tariff IDs available for Pro consent test")
+            return False, {}
+        
+        test_data = {
+            "water_id": self.wieliszew_water_id,
+            "tariff_id": self.pro_daily_tariff_id,
+            "regulations_accepted": False,
+            "data_processing_accepted": True
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Purchase Pro Ticket Without Consents", 
+            "POST", 
+            "pro/tickets/purchase", 
+            400, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_purchase_pro_ticket_invalid_water(self):
+        """Test purchasing Pro ticket with invalid water ID"""
+        if not self.client_token:
+            print("❌ No client token available for Pro invalid water test")
+            return False, {}
+        
+        test_data = {
+            "water_id": "invalid-water-id",
+            "tariff_id": "invalid-tariff-id",
+            "regulations_accepted": True,
+            "data_processing_accepted": True
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Purchase Pro Ticket Invalid Water", 
+            "POST", 
+            "pro/tickets/purchase", 
+            404, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_purchase_pro_ticket_valid(self):
+        """Test purchasing Pro ticket with valid data"""
+        if not self.client_token:
+            print("❌ No client token available for Pro purchase test")
+            return False, {}
+        
+        if not hasattr(self, 'wieliszew_water_id') or not hasattr(self, 'pro_daily_tariff_id'):
+            print("❌ No water/tariff IDs available for Pro purchase test")
+            return False, {}
+        
+        test_data = {
+            "water_id": self.wieliszew_water_id,
+            "tariff_id": self.pro_daily_tariff_id,
+            "regulations_accepted": True,
+            "data_processing_accepted": True
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Purchase Pro Ticket Valid", 
+            "POST", 
+            "pro/tickets/purchase", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('success') and response.get('payment_url'):
+                print(f"   ✅ Pro ticket purchase initiated")
+                print(f"   ✅ Order ID: {response.get('order_id')}")
+                print(f"   ✅ Session ID: {response.get('session_id')}")
+                print(f"   ✅ Payment URL: {response.get('payment_url')[:50]}...")
+                
+                # Store for webhook test
+                self.pro_order_id = response.get('order_id')
+                self.pro_session_id = response.get('session_id')
+                return True, response
+            else:
+                print(f"   ❌ Pro ticket purchase failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_get_my_pro_tickets_unauthorized(self):
+        """Test getting Pro tickets without authentication"""
+        success, response = self.run_test(
+            "Get My Pro Tickets Without Auth", 
+            "GET", 
+            "pro/tickets/my-tickets", 
+            401
+        )
+        
+        return success, response
+
+    def test_get_my_pro_tickets_authorized(self):
+        """Test getting Pro tickets with authentication"""
+        if not self.client_token:
+            print("❌ No client token available for Pro tickets test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Get My Pro Tickets", 
+            "GET", 
+            "pro/tickets/my-tickets", 
+            200, 
+            headers=headers
+        )
+        
+        if success and response:
+            if 'tickets' in response and response.get('success'):
+                tickets = response['tickets']
+                print(f"   ✅ Found {len(tickets)} Pro tickets")
+                
+                # For now, tickets might be empty since payment hasn't been completed
+                if len(tickets) == 0:
+                    print(f"   ℹ️  No Pro tickets found (expected - payment not completed)")
+                else:
+                    for ticket in tickets:
+                        print(f"   ✅ Ticket: {ticket.get('short_code')} - Status: {ticket.get('status')}")
+                        print(f"   ✅ Water: {ticket.get('water', {}).get('name')}")
+                        print(f"   ✅ Valid until: {ticket.get('valid_until')}")
+                
+                return True, response
+            else:
+                print(f"   ❌ Missing tickets field or success flag in response")
+                return False, response
+        
+        return success, response
+
+    def test_verify_pro_qr_unauthorized(self):
+        """Test Pro QR verification without authentication"""
+        test_data = {
+            "qr_token": "fake-jwt-token"
+        }
+        
+        success, response = self.run_test(
+            "Verify Pro QR Without Auth", 
+            "POST", 
+            "pro/tickets/verify-qr", 
+            401, 
+            data=test_data
+        )
+        
+        return success, response
+
+    def test_verify_pro_qr_client_forbidden(self):
+        """Test that client cannot verify Pro QR codes"""
+        if not self.client_token:
+            print("❌ No client token available for Pro QR forbidden test")
+            return False, {}
+        
+        test_data = {
+            "qr_token": "fake-jwt-token"
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Verify Pro QR as Client (Should Fail)", 
+            "POST", 
+            "pro/tickets/verify-qr", 
+            403, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_verify_pro_qr_invalid_token(self):
+        """Test Pro QR verification with invalid JWT token"""
+        if not self.controller_token:
+            print("❌ No controller token available for Pro QR invalid test")
+            return False, {}
+        
+        test_data = {
+            "qr_token": "invalid-jwt-token"
+        }
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Verify Pro QR Invalid Token", 
+            "POST", 
+            "pro/tickets/verify-qr", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('valid') == False:
+                print(f"   ✅ Invalid JWT token correctly rejected: {response.get('error')}")
+                return True, response
+            else:
+                print(f"   ❌ Invalid JWT token was accepted")
+                return False, response
+        
+        return success, response
+
+    def test_verify_pro_shortcode_unauthorized(self):
+        """Test Pro ShortCode verification without authentication"""
+        test_data = {
+            "short_code": "AB2C4D7E"
+        }
+        
+        success, response = self.run_test(
+            "Verify Pro ShortCode Without Auth", 
+            "POST", 
+            "pro/tickets/verify-shortcode", 
+            401, 
+            data=test_data
+        )
+        
+        return success, response
+
+    def test_verify_pro_shortcode_client_forbidden(self):
+        """Test that client cannot verify Pro ShortCodes"""
+        if not self.client_token:
+            print("❌ No client token available for Pro ShortCode forbidden test")
+            return False, {}
+        
+        test_data = {
+            "short_code": "AB2C4D7E"
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Verify Pro ShortCode as Client (Should Fail)", 
+            "POST", 
+            "pro/tickets/verify-shortcode", 
+            403, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_verify_pro_shortcode_invalid(self):
+        """Test Pro ShortCode verification with invalid code"""
+        if not self.controller_token:
+            print("❌ No controller token available for Pro ShortCode invalid test")
+            return False, {}
+        
+        test_data = {
+            "short_code": "INVALID1"
+        }
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Verify Pro ShortCode Invalid", 
+            "POST", 
+            "pro/tickets/verify-shortcode", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('valid') == False:
+                print(f"   ✅ Invalid ShortCode correctly rejected: {response.get('error')}")
+                return True, response
+            else:
+                print(f"   ❌ Invalid ShortCode was accepted")
+                return False, response
+        
+        return success, response
+
+    def test_get_pro_inspections_history_unauthorized(self):
+        """Test getting Pro inspection history without authentication"""
+        success, response = self.run_test(
+            "Get Pro Inspections History Without Auth", 
+            "GET", 
+            "pro/inspections/history", 
+            401
+        )
+        
+        return success, response
+
+    def test_get_pro_inspections_history_client_forbidden(self):
+        """Test that client cannot get Pro inspection history"""
+        if not self.client_token:
+            print("❌ No client token available for Pro inspections forbidden test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Get Pro Inspections History as Client (Should Fail)", 
+            "GET", 
+            "pro/inspections/history", 
+            403, 
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_get_pro_inspections_history_controller(self):
+        """Test getting Pro inspection history as controller"""
+        if not self.controller_token:
+            print("❌ No controller token available for Pro inspections test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.controller_token)
+        success, response = self.run_test(
+            "Get Pro Inspections History", 
+            "GET", 
+            "pro/inspections/history", 
+            200, 
+            headers=headers
+        )
+        
+        if success and response:
+            if 'inspections' in response and response.get('success'):
+                inspections = response['inspections']
+                print(f"   ✅ Found {len(inspections)} Pro inspections")
+                
+                # For ETAP 2, inspections might be empty since no verifications done yet
+                if len(inspections) == 0:
+                    print(f"   ℹ️  No Pro inspections found (expected for ETAP 2)")
+                else:
+                    for inspection in inspections[:3]:  # Show first 3
+                        print(f"   ✅ Inspection: {inspection.get('method')} - Result: {inspection.get('result')}")
+                        print(f"   ✅ Timestamp: {inspection.get('timestamp')}")
+                
+                return True, response
+            else:
+                print(f"   ❌ Missing inspections field or success flag in response")
+                return False, response
+        
+        return success, response
+
+    def test_pro_payment_webhook_invalid_signature(self):
+        """Test Pro payment webhook with invalid signature"""
+        test_data = {
+            "sessionId": "pro_test123",
+            "orderId": "12345",
+            "amount": "2000",
+            "currency": "PLN",
+            "sign": "invalid_signature"
+        }
+        
+        success, response = self.run_test(
+            "Pro Payment Webhook Invalid Signature", 
+            "POST", 
+            "pro/payment/webhook", 
+            200,  # Webhook should return 200 but with error status
+            data=test_data
+        )
+        
+        if success and response:
+            if response.get('status') == 'error':
+                print(f"   ✅ Invalid signature correctly rejected: {response.get('message')}")
+                return True, response
+            else:
+                print(f"   ❌ Invalid signature was accepted")
+                return False, response
+        
+        return success, response
+
+    def test_pro_system_comprehensive(self):
+        """Comprehensive test of all Pro system endpoints - ETAP 2"""
+        print(f"\n🏆 COMPREHENSIVE PRO SYSTEM TEST - ETAP 2")
+        print(f"=" * 50)
+        
+        # Test sequence for ETAP 2 Pro system
+        tests = [
+            # Pro Waters API (read-only, highest priority)
+            ("Get Pro waters", self.test_get_pro_waters),
+            ("Get water tariffs", self.test_get_water_tariffs),
+            
+            # Pro Purchase API (requires auth)
+            ("Purchase unauthorized", self.test_purchase_pro_ticket_unauthorized),
+            ("Purchase missing consents", self.test_purchase_pro_ticket_missing_consents),
+            ("Purchase invalid water", self.test_purchase_pro_ticket_invalid_water),
+            ("Purchase valid ticket", self.test_purchase_pro_ticket_valid),
+            
+            # Pro Tickets API
+            ("Get tickets unauthorized", self.test_get_my_pro_tickets_unauthorized),
+            ("Get my Pro tickets", self.test_get_my_pro_tickets_authorized),
+            
+            # Pro Verification API (controller role required)
+            ("Verify QR unauthorized", self.test_verify_pro_qr_unauthorized),
+            ("Verify QR client forbidden", self.test_verify_pro_qr_client_forbidden),
+            ("Verify QR invalid token", self.test_verify_pro_qr_invalid_token),
+            
+            ("Verify ShortCode unauthorized", self.test_verify_pro_shortcode_unauthorized),
+            ("Verify ShortCode client forbidden", self.test_verify_pro_shortcode_client_forbidden),
+            ("Verify ShortCode invalid", self.test_verify_pro_shortcode_invalid),
+            
+            # Pro Inspections API
+            ("Inspections unauthorized", self.test_get_pro_inspections_history_unauthorized),
+            ("Inspections client forbidden", self.test_get_pro_inspections_history_client_forbidden),
+            ("Get inspections history", self.test_get_pro_inspections_history_controller),
+            
+            # Pro Payment Integration
+            ("Payment webhook invalid", self.test_pro_payment_webhook_invalid_signature),
+        ]
+        
+        passed = 0
+        total = len(tests)
+        
+        for test_name, test_func in tests:
+            try:
+                success, _ = test_func()
+                if success:
+                    passed += 1
+                    print(f"   ✅ {test_name}: PASSED")
+                else:
+                    print(f"   ❌ {test_name}: FAILED")
+            except Exception as e:
+                print(f"   ❌ {test_name}: ERROR - {str(e)}")
+        
+        print(f"\n🏆 PRO SYSTEM SUMMARY:")
+        print(f"   Passed: {passed}/{total}")
+        print(f"   Success rate: {(passed/total*100):.1f}%")
+        
+        return passed == total, {"passed": passed, "total": total}
+
 def main():
     print("🎣 Starting Fishing Permits API Tests (Role-Based System)")
     print("=" * 60)
