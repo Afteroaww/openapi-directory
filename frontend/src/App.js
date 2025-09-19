@@ -188,12 +188,18 @@ const LoginForm = () => {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="login">Logowanie</TabsTrigger>
-              <TabsTrigger value="register">Rejestracja</TabsTrigger>
-              <TabsTrigger value="admin" className="text-xs">
-                <Shield className="h-3 w-3 mr-1" />
-                Admin
+            <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 h-auto p-2">
+              <TabsTrigger value="login" className="flex items-center gap-2 p-3 text-sm">
+                <Fish className="h-4 w-4" />
+                Logowanie
+              </TabsTrigger>
+              <TabsTrigger value="register" className="flex items-center gap-2 p-3 text-sm">
+                <History className="h-4 w-4" />
+                Rejestracja
+              </TabsTrigger>
+              <TabsTrigger value="admin" className="flex items-center gap-2 p-3 text-sm bg-blue-50 border-blue-200">
+                <Shield className="h-4 w-4" />
+                Panel Admin
               </TabsTrigger>
             </TabsList>
             
