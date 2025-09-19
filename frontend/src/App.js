@@ -536,12 +536,17 @@ const ClientDashboard = () => {
                     <Camera className="h-5 w-5 text-blue-600" />
                     <span className="font-medium text-blue-800">🎉 Nowe funkcje odblokowane!</span>
                   </div>
-                  <p className="text-sm text-blue-700 mb-3">
-                    Odkryj nowe możliwości w menu aplikacji:<br />
-                    🎣 Zawody wędkarskie catch & release<br />
-                    🏆 Miesięczne rankingi z nagrodami<br />
-                    📸 Upload zdjęć ryb (ETAP 1)
-                  </p>
+                  <div className="text-sm text-blue-700 mb-3">
+                    <p className="mb-2">Odkryj nowe możliwości w menu aplikacji:</p>
+                    <div className="space-y-1">
+                      <div>🎣 Zawody wędkarskie catch & release</div>
+                      <div>🏆 Miesięczne rankingi z nagrodami</div>
+                      <div>📸 Upload zdjęć ryb (ETAP 1)</div>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-2 md:hidden">
+                      💡 Sprawdź menu ☰ w lewym górnym rogu
+                    </p>
+                  </div>
                   <Button 
                     onClick={() => {
                       setActiveTab('catches');
