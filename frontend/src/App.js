@@ -281,6 +281,7 @@ const ClientDashboard = () => {
   const [myCatches, setMyCatches] = useState([]);
   const [uploadingCatch, setUploadingCatch] = useState(false);
   const [catchImage, setCatchImage] = useState(null);
+  const [hasActivePermits, setHasActivePermits] = useState(false);
 
   useEffect(() => {
     fetchPermitTypes();
