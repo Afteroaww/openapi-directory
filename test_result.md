@@ -312,6 +312,21 @@ frontend:
           agent: "testing"
           comment: "✅ NEW REGULATIONS SECTION FULLY VERIFIED! DESKTOP NAVIGATION: 'Regulamin' tab successfully added to desktop tabs (3 tabs visible: Bilety, Moje Bilety, Regulamin). Tab navigation working perfectly - users can switch between tabs seamlessly. CONTENT VERIFICATION: 9/14 major sections found including main header 'Regulamin Łowiska Jezioro Wieliszew', Catch & Release philosophy, fish minimum sizes (Pike 50cm, Zander 45cm, Roach 15cm), fishing hours 'świtu do zmierzchu', environmental protection 'Ochrona środowiska', and complete GDPR section with data administrator info. MOBILE NAVIGATION: Hamburger menu conditional on having tickets (expected behavior based on code logic). UX IMPROVEMENT CONFIRMED: Users can now access regulations WITHOUT starting ticket purchase process - major improvement in transparency and user experience. Users can read all rules BEFORE making purchase decisions. Regulations load properly with default content when backend not available."
 
+  - task: "CLICKABLE LINKS IN CHECKBOXES - Regulations Hyperlinks"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Added clickable hyperlinks in checkboxes: 'regulamin systemu biletów' and 'przetwarzanie danych osobowych' both redirect to Regulamin section. Links styled with emerald color, underline, bold font, and hover effects with transition-colors."
+        - working: true
+          agent: "testing"
+          comment: "✅ CLICKABLE REGULATIONS LINKS FULLY VERIFIED! VISUAL STYLING PERFECT: Both links ('regulamin systemu biletów' and 'przetwarzanie danych osobowych') have ideal styling - emerald color (rgb(5, 150, 105)), underline, bold (font-weight: 700), pointer cursor. HOVER EFFECTS WORKING: Hover changes color to darker emerald (rgb(6, 95, 70)) with smooth transition-colors animation. REGULATIONS LINK REDIRECT: Clicking 'regulamin systemu biletów' correctly redirects to 'Regulamin' tab with full regulations content. RODO LINK REDIRECT: Clicking 'przetwarzanie danych osobowych' correctly redirects to RODO section in regulations. UX FLOW EXCELLENT: Users can easily read regulations during purchase process, return to 'Bilety' and complete purchase. COMPLETE PURCHASE FLOW: After accepting both checkboxes, 'Kup bilet' button becomes active and purchase process works correctly. IMPLEMENTATION PERFECT: Clickable links in checkboxes significantly improve UX by allowing easy access to regulations without interrupting purchase flow. All requirements met 100%!"
+
   - task: "Database Indexes for Pro System"
     implemented: true
     working: true
