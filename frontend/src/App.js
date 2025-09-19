@@ -1177,6 +1177,152 @@ const ClientDashboard = () => {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {/* Regulations Section */}
+            <TabsContent value="regulations">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Regulamin Łowiska Jezioro Wieliszew
+                  </CardTitle>
+                  <CardDescription>Zasady i regulamin połowów obowiązujące na naszym łowisku</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {regulationsData ? (
+                    <div className="space-y-6">
+                      {/* Fishing Regulations */}
+                      {regulationsData.fishing_regulations && (
+                        <div>
+                          <h3 className="text-lg font-semibold text-emerald-800 mb-4 flex items-center gap-2">
+                            <Fish className="h-5 w-5" />
+                            Regulamin Połowów
+                          </h3>
+                          <div className="prose prose-sm max-w-none text-gray-700">
+                            <div dangerouslySetInnerHTML={{ __html: regulationsData.fishing_regulations.content }} />
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Default regulations if no content from backend */}
+                      {!regulationsData.fishing_regulations?.content && (
+                        <div>
+                          <h3 className="text-lg font-semibold text-emerald-800 mb-4 flex items-center gap-2">
+                            <Fish className="h-5 w-5" />
+                            Regulamin Połowów
+                          </h3>
+                          <div className="space-y-4 text-gray-700">
+                            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                              <h4 className="font-semibold text-emerald-800 mb-2">🎣 Główna zasada: Catch & Release</h4>
+                              <p className="text-sm">
+                                Nasze łowisko działa w oparciu o filozofię <strong>łowisz, fotografujesz, wypuszczasz</strong>. 
+                                Celem jest zachowanie ekosystemu jeziora i zapewnienie wspaniałych połowów dla przyszłych pokoleń.
+                              </p>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-gray-800 mb-3">📏 Minimalne rozmiary ryb:</h4>
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div className="bg-gray-50 p-3 rounded">
+                                  <strong>Szczupak:</strong> 50 cm
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded">
+                                  <strong>Sandacz:</strong> 45 cm
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded">
+                                  <strong>Okoń:</strong> 20 cm
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded">
+                                  <strong>Płoć:</strong> 15 cm
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-gray-800 mb-3">🎣 Zasady połowów:</h4>
+                              <ul className="list-disc pl-5 space-y-2 text-sm">
+                                <li><strong>Godziny połowów:</strong> od świtu do zmierzchu</li>
+                                <li><strong>Maksymalnie 2 wędki</strong> na osobę</li>
+                                <li><strong>Dozwolone przynęty:</strong> sztuczne i naturalne</li>
+                                <li><strong>Obowiązkowe zdjęcia</strong> złowionych ryb przed wypuszczeniem</li>
+                                <li><strong>Zakaz wędkowania</strong> w okresie ochronnym (zgodnie z prawem)</li>
+                              </ul>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-gray-800 mb-3">🌿 Ochrona środowiska:</h4>
+                              <ul className="list-disc pl-5 space-y-2 text-sm">
+                                <li>Zabieramy wszystkie śmieci ze sobą</li>
+                                <li>Szanujemy roślinność nadbrzeżną</li>
+                                <li>Nie hałasujemy - szanujemy naturę i innych wędkarzy</li>
+                                <li>Parkujemy tylko w wyznaczonych miejscach</li>
+                              </ul>
+                            </div>
+                            
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                              <h4 className="font-semibold text-blue-800 mb-2">📱 EcoFishing Challenge</h4>
+                              <p className="text-sm text-blue-700">
+                                Po zakupie biletu możesz uczestniczyć w miesięcznych wyzwaniach! 
+                                Przesyłaj zdjęcia złowionych i wypuszczonych ryb, zbieraj punkty i wygrywaj nagrody.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Data Processing Agreement */}
+                      <div className="border-t pt-6">
+                        <h3 className="text-lg font-semibold text-blue-800 mb-4 flex items-center gap-2">
+                          <Shield className="h-5 w-5" />
+                          Informacja o przetwarzaniu danych osobowych (RODO)
+                        </h3>
+                        <div className="space-y-4 text-sm text-gray-700">
+                          <div>
+                            <h4 className="font-medium text-gray-800 mb-2">Administrator danych:</h4>
+                            <p>Łowisko Jezioro Wieliszew</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-gray-800 mb-2">Cel przetwarzania:</h4>
+                            <ul className="list-disc pl-5 space-y-1">
+                              <li>Obsługa biletów wędkarskich</li>
+                              <li>Weryfikacja tożsamości podczas kontroli</li>
+                              <li>Prowadzenie statystyk połowów</li>
+                              <li>Komunikacja dotycząca zawodów i wydarzeń</li>
+                            </ul>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-gray-800 mb-2">Podstawa prawna:</h4>
+                            <p>Zgoda (art. 6 ust. 1 lit. a RODO)</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium text-gray-800 mb-2">Twoje prawa:</h4>
+                            <ul className="list-disc pl-5 space-y-1">
+                              <li>Dostęp do danych</li>
+                              <li>Sprostowanie danych</li>
+                              <li>Usunięcie danych</li>
+                              <li>Ograniczenie przetwarzania</li>
+                              <li>Przenoszenie danych</li>
+                              <li>Odwołanie zgody w dowolnym momencie</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
+                      <p className="text-gray-500 mt-4">Ładowanie regulaminu...</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* EcoFishing Challenge */}
+            <TabsContent value="catches">
           </Tabs>
         </div>
       </div>
