@@ -2703,7 +2703,7 @@ async def create_sub_admin(
             "id": new_admin_id,
             "email": admin_data.email.lower(),
             "full_name": admin_data.full_name.strip(),
-            "password": hashed_password.decode('utf-8'),
+            "hashed_password": hashed_password,
             "role": "admin",
             "created_at": datetime.now(timezone.utc).isoformat(),
             "created_by": admin_user["id"],
