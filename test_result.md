@@ -232,6 +232,18 @@ frontend:
           agent: "testing"
           comment: "✅ COMPREHENSIVE FRONTEND TESTING COMPLETED: All major functionality verified after ETAP 1 implementation. Homepage loads correctly with proper branding (Pozwolenia na Połów Ryb, Jezioro Wieliszew). User registration/login working for both clients and controllers. Dashboard displays all permit types (20 PLN dzienny, 60 PLN miesięczny, 300 PLN roczny). Custom checkboxes and permit selection functional. Owner code WLASCICIELWIELISZEW discount system working. Regulations and RODO acceptance modals operational. Purchase process generates QR codes successfully. EcoFishing Challenge unlocked with photo upload (ETAP 1). My Permits section displays QR codes. Controller panel with QR/Order verification methods working. Mobile responsiveness confirmed. API connectivity stable. Legacy system maintains full compatibility while Pro models run in parallel."
 
+  - task: "Hamburger Menu Fix in QR Code Section"
+    implemented: true
+    working: "NA"
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Fixed hamburger menu accessibility in QR code section. Changed condition from hasActivePermits to hasActivePermits || myPermits.length > 0. Added additional hamburger menu button in top-right corner of QR section (.bg-gray-50 .absolute button). Should improve UX by making menu more accessible than just bottom button."
+
   - task: "Frontend User Registration and Authentication"
     implemented: true
     working: true
