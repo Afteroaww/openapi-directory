@@ -593,6 +593,8 @@ backend:
 agent_communication:
     - agent: "main"
       message: "ETAP 1 wydaje się być ukończony. Wszystkie modele Pro są zdefiniowane, indeksy utworzone, inicjalizacja danych zaimplementowana. Teraz potrzeba przetestować czy backend startuje poprawnie i czy wszystkie kolekcje są tworzone prawidłowo."
+    - agent: "main"
+      message: "✅ MOBILE LAYOUT TESTING COMPLETED: Przywróciłem poprzedni układ logowania (grid-cols-1 md:grid-cols-3) zgodnie z sugestią użytkownika. Przeprowadziłem kompleksowe testowanie mobile i desktop. WYNIKI: ✅ Mobile (390x844): Zakładki przełączają się poprawnie (Logowanie → Rejestracja → Panel Admin), wszystkie formularze działają, pola są wypełniane, responsywność zachowana. ✅ Desktop (1920x1080): Zakładki w układzie poziomym, logowanie admin działa (admin/admin), przekierowanie do panelu administratora, zarządzanie łowiskami, logout. ✅ Funkcjonalność: Wszystkie API endpointy responsywne, formularze walidowane, navigacja płynna. Layout działa poprawnie na obu urządzeniach - mobile i desktop. Aplikacja jest w pełni funkcjonalna."
     - agent: "testing" 
       message: "✅ ETAP 1 TESTING COMPLETE: Backend uruchamia się poprawnie bez błędów. Wszystkie wymagane kolekcje MongoDB utworzone (waters: 1, tariffs: 3, plus legacy collections). Indeksy bazy danych prawidłowo utworzone. Domyślne dane (Jezioro Wieliszew i 3 taryfy Pro) zainicjalizowane. Stary system FishingPermit działa równolegle (26 permits, 22 orders). Podstawowe endpointy API odpowiadają poprawnie (92.3% success rate). Funkcje startup: ensure_admin_user(), ensure_default_water_and_tariffs(), create_database_indexes() działają bez błędów. ETAP 1 zakończony pomyślnie - modele i baza danych prawidłowo skonfigurowane."
     - agent: "main"
