@@ -2055,6 +2055,8 @@ const AdminDashboard = () => {
       fetchAdminDashboard();
     } else if (activeAdminTab === 'waters') {
       fetchWaters();
+    } else if (activeAdminTab === 'admins') {
+      fetchAdmins();
     }
   }, [activeAdminTab]);
 
