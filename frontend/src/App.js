@@ -179,8 +179,8 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50 flex items-center justify-center p-2 sm:p-4">
+      <Card className="w-full max-w-sm sm:max-w-lg shadow-lg">
         <CardHeader className="text-center pb-4">
           <Fish className="h-12 w-12 text-emerald-600 mx-auto mb-4" />
           <CardTitle className="text-xl md:text-2xl">Pozwolenia na Połów Ryb</CardTitle>
