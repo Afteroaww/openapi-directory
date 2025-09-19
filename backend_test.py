@@ -1748,6 +1748,412 @@ class FishingPermitsAPITester:
         
         return passed == total, {"passed": passed, "total": total}
 
+    # ===== ADMIN MANAGEMENT API TESTS - NEW ENDPOINTS =====
+    
+    def test_admin_login(self):
+        """Test admin login with main admin credentials"""
+        # Test main admin login
+        main_admin_data = {
+            "email": "jacek.oktaba@gmail.com",
+            "password": "admin123!@#"
+        }
+        
+        success, response = self.run_test(
+            "Admin Login (Main Admin)", 
+            "POST", 
+            "auth/login", 
+            200, 
+            data=main_admin_data
+        )
+        
+        if success and response:
+            if response.get('access_token') and response.get('user', {}).get('role') == 'admin':
+                self.admin_token = response['access_token']
+                self.admin_user = response.get('user', {})
+                print(f"   ✅ Main admin login successful - Email: {self.admin_user.get('email')}")
+                return True, response
+            else:
+                print(f"   ❌ Admin login failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_admin_login_legacy(self):
+        """Test admin login with legacy admin credentials"""
+        # Test legacy admin login for backward compatibility
+        legacy_admin_data = {
+            "email": "admin@jezioro-wieliszew.pl",
+            "password": "admin123!@#"
+        }
+        
+        success, response = self.run_test(
+            "Admin Login (Legacy Admin)", 
+            "POST", 
+            "auth/login", 
+            200, 
+            data=legacy_admin_data
+        )
+        
+        if success and response:
+            if response.get('access_token') and response.get('user', {}).get('role') == 'admin':
+                print(f"   ✅ Legacy admin login successful - Email: {response.get('user', {}).get('email')}")
+                return True, response
+            else:
+                print(f"   ❌ Legacy admin login failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_get_admins_unauthorized(self):
+        """Test getting admin list without authentication"""
+        success, response = self.run_test(
+            "Get Admins Without Auth", 
+            "GET", 
+            "admin/admins", 
+            401
+        )
+        
+        return success, response
+
+    def test_get_admins_client_forbidden(self):
+        """Test that client cannot get admin list"""
+        if not self.client_token:
+            print("❌ No client token available for admin forbidden test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Get Admins as Client (Should Fail)", 
+            "GET", 
+            "admin/admins", 
+            403, 
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_get_admins_authorized(self):
+        """Test getting admin list with admin authentication"""
+        if not self.admin_token:
+            print("❌ No admin token available for get admins test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.admin_token)
+        success, response = self.run_test(
+            "Get Admins List", 
+            "GET", 
+            "admin/admins", 
+            200, 
+            headers=headers
+        )
+        
+        if success and response:
+            if 'admins' in response and response.get('success'):
+                admins = response['admins']
+                print(f"   ✅ Found {len(admins)} administrators")
+                
+                # Check for main admin
+                main_admin_found = False
+                legacy_admin_found = False
+                
+                for admin in admins:
+                    email = admin.get('email')
+                    is_main = admin.get('is_main_admin', False)
+                    is_sub = admin.get('is_sub_admin', False)
+                    
+                    print(f"   ✅ Admin: {email} - Main: {is_main}, Sub: {is_sub}")
+                    
+                    if email == "jacek.oktaba@gmail.com":
+                        main_admin_found = True
+                        if not is_main:
+                            print(f"   ❌ Main admin not marked as is_main_admin")
+                            return False, response
+                    elif email == "admin@jezioro-wieliszew.pl":
+                        legacy_admin_found = True
+                        if not is_sub:
+                            print(f"   ❌ Legacy admin not marked as is_sub_admin")
+                            return False, response
+                
+                if not main_admin_found:
+                    print(f"   ❌ Main admin (jacek.oktaba@gmail.com) not found")
+                    return False, response
+                
+                print(f"   ✅ Main admin found and properly marked")
+                if legacy_admin_found:
+                    print(f"   ✅ Legacy admin found and properly marked")
+                
+                return True, response
+            else:
+                print(f"   ❌ Missing admins field or success flag in response")
+                return False, response
+        
+        return success, response
+
+    def test_update_admin_profile_unauthorized(self):
+        """Test updating admin profile without authentication"""
+        test_data = {
+            "full_name": "Updated Admin Name"
+        }
+        
+        success, response = self.run_test(
+            "Update Admin Profile Without Auth", 
+            "PUT", 
+            "admin/profile", 
+            401, 
+            data=test_data
+        )
+        
+        return success, response
+
+    def test_update_admin_profile_client_forbidden(self):
+        """Test that client cannot update admin profile"""
+        if not self.client_token:
+            print("❌ No client token available for admin profile forbidden test")
+            return False, {}
+        
+        test_data = {
+            "full_name": "Hacker Attempt"
+        }
+        
+        headers = self.get_auth_headers(self.client_token)
+        success, response = self.run_test(
+            "Update Admin Profile as Client (Should Fail)", 
+            "PUT", 
+            "admin/profile", 
+            403, 
+            data=test_data,
+            headers=headers
+        )
+        
+        return success, response
+
+    def test_update_admin_profile_authorized(self):
+        """Test updating admin profile with admin authentication"""
+        if not self.admin_token:
+            print("❌ No admin token available for update profile test")
+            return False, {}
+        
+        test_data = {
+            "full_name": "Administrator Jezioro Wieliszew - Updated"
+        }
+        
+        headers = self.get_auth_headers(self.admin_token)
+        success, response = self.run_test(
+            "Update Admin Profile", 
+            "PUT", 
+            "admin/profile", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('success') and response.get('message'):
+                print(f"   ✅ Admin profile updated successfully")
+                print(f"   ✅ Message: {response.get('message')}")
+                return True, response
+            else:
+                print(f"   ❌ Admin profile update failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_create_sub_admin_authorized(self):
+        """Test creating sub-admin with admin authentication"""
+        if not self.admin_token:
+            print("❌ No admin token available for create sub-admin test")
+            return False, {}
+        
+        timestamp = int(datetime.now().timestamp())
+        test_data = {
+            "email": f"subadmin{timestamp}@test.com",
+            "full_name": "Sub Administrator Test",
+            "password": "subAdminPass123!"
+        }
+        
+        headers = self.get_auth_headers(self.admin_token)
+        success, response = self.run_test(
+            "Create Sub-Admin", 
+            "POST", 
+            "admin/admins", 
+            200, 
+            data=test_data,
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('success') and response.get('admin_id'):
+                print(f"   ✅ Sub-admin created successfully")
+                print(f"   ✅ Admin ID: {response.get('admin_id')}")
+                print(f"   ✅ Email: {test_data['email']}")
+                
+                # Store sub-admin info for deletion test
+                self.created_sub_admin_id = response.get('admin_id')
+                self.created_sub_admin_email = test_data['email']
+                
+                return True, response
+            else:
+                print(f"   ❌ Sub-admin creation failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_delete_main_admin_protection(self):
+        """Test that main admin cannot be deleted"""
+        if not self.admin_token:
+            print("❌ No admin token available for main admin protection test")
+            return False, {}
+        
+        # First get the main admin ID
+        headers = self.get_auth_headers(self.admin_token)
+        get_success, get_response = self.run_test(
+            "Get Admins for Main Admin ID", 
+            "GET", 
+            "admin/admins", 
+            200, 
+            headers=headers
+        )
+        
+        if not get_success or not get_response.get('admins'):
+            print("❌ Could not get admin list for protection test")
+            return False, {}
+        
+        main_admin_id = None
+        for admin in get_response['admins']:
+            if admin.get('email') == 'jacek.oktaba@gmail.com':
+                main_admin_id = admin.get('id')
+                break
+        
+        if not main_admin_id:
+            print("❌ Could not find main admin ID")
+            return False, {}
+        
+        # Try to delete main admin
+        success, response = self.run_test(
+            "Delete Main Admin (Should Fail)", 
+            "DELETE", 
+            f"admin/admins/{main_admin_id}", 
+            400, 
+            headers=headers
+        )
+        
+        if success and response:
+            if 'cannot be deleted' in response.get('detail', '').lower():
+                print(f"   ✅ Main admin correctly protected from deletion")
+                return True, response
+            else:
+                print(f"   ❌ Wrong error message for main admin deletion")
+                return False, response
+        
+        return success, response
+
+    def test_delete_sub_admin_authorized(self):
+        """Test deleting sub-admin with admin authentication"""
+        if not self.admin_token:
+            print("❌ No admin token available for delete sub-admin test")
+            return False, {}
+        
+        if not hasattr(self, 'created_sub_admin_id') or not self.created_sub_admin_id:
+            print("❌ No sub-admin ID available for deletion test")
+            return False, {}
+        
+        headers = self.get_auth_headers(self.admin_token)
+        success, response = self.run_test(
+            "Delete Sub-Admin", 
+            "DELETE", 
+            f"admin/admins/{self.created_sub_admin_id}", 
+            200, 
+            headers=headers
+        )
+        
+        if success and response:
+            if response.get('success') and response.get('message'):
+                print(f"   ✅ Sub-admin deleted successfully")
+                print(f"   ✅ Message: {response.get('message')}")
+                return True, response
+            else:
+                print(f"   ❌ Sub-admin deletion failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_password_reset_request(self):
+        """Test password reset request"""
+        test_data = {
+            "email": "jacek.oktaba@gmail.com"
+        }
+        
+        success, response = self.run_test(
+            "Password Reset Request", 
+            "POST", 
+            "admin/reset-password", 
+            200, 
+            data=test_data
+        )
+        
+        if success and response:
+            if response.get('success') and response.get('message'):
+                print(f"   ✅ Password reset request successful")
+                print(f"   ✅ Message: {response.get('message')}")
+                return True, response
+            else:
+                print(f"   ❌ Password reset request failed: {response}")
+                return False, response
+        
+        return success, response
+
+    def test_admin_management_comprehensive(self):
+        """Comprehensive test of all admin management endpoints"""
+        print(f"\n🔐 COMPREHENSIVE ADMIN MANAGEMENT TEST - NEW ENDPOINTS")
+        print(f"=" * 60)
+        
+        # Test sequence for admin management
+        tests = [
+            # Authentication tests
+            ("Admin login (main)", self.test_admin_login),
+            ("Admin login (legacy)", self.test_admin_login_legacy),
+            
+            # Get admins tests
+            ("Get admins unauthorized", self.test_get_admins_unauthorized),
+            ("Get admins client forbidden", self.test_get_admins_client_forbidden),
+            ("Get admins authorized", self.test_get_admins_authorized),
+            
+            # Profile update tests
+            ("Update profile unauthorized", self.test_update_admin_profile_unauthorized),
+            ("Update profile client forbidden", self.test_update_admin_profile_client_forbidden),
+            ("Update admin profile", self.test_update_admin_profile_authorized),
+            
+            # Sub-admin creation tests
+            ("Create sub-admin authorized", self.test_create_sub_admin_authorized),
+            
+            # Sub-admin deletion tests
+            ("Delete main admin protection", self.test_delete_main_admin_protection),
+            ("Delete sub-admin authorized", self.test_delete_sub_admin_authorized),
+            
+            # Password reset tests
+            ("Password reset request", self.test_password_reset_request),
+        ]
+        
+        passed = 0
+        total = len(tests)
+        
+        for test_name, test_func in tests:
+            try:
+                success, _ = test_func()
+                if success:
+                    passed += 1
+                    print(f"   ✅ {test_name}: PASSED")
+                else:
+                    print(f"   ❌ {test_name}: FAILED")
+            except Exception as e:
+                print(f"   ❌ {test_name}: ERROR - {str(e)}")
+        
+        print(f"\n🔐 ADMIN MANAGEMENT SUMMARY:")
+        print(f"   Passed: {passed}/{total}")
+        print(f"   Success rate: {(passed/total*100):.1f}%")
+        
+        return passed == total, {"passed": passed, "total": total}
+
 def main():
     print("🎣 Starting Fishing Permits API Tests (Role-Based System + Pro System)")
     print("=" * 70)
