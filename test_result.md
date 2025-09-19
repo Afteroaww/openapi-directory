@@ -429,8 +429,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "ETAP 3A: Controller Pro Verification"
-    - "ETAP 3A: Hamburger Menu Pro Integration"
+    - "TRANSITION: Dual System to Single Pro System"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
