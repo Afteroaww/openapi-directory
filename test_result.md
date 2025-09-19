@@ -479,6 +479,53 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+frontend:
+  - task: "ETAP 3B-A: Admin Dashboard Frontend"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement AdminDashboard component with professional interface showing statistics, top waters/tariffs, recent tickets, and next steps information for ETAP 3B"
+        - working: true
+          agent: "testing"
+          comment: "✅ ADMIN DASHBOARD FRONTEND VERIFIED: AdminDashboard component successfully implemented with professional gradient background. All 4 main statistics cards working: 'Łączna liczba biletów' (7), 'Przychody ogółem' (140 PLN), 'Aktywni użytkownicy' (4), 'Łowiska i taryfy' (1). Sections properly displayed: 'Najpopularniejsze łowiska' shows Jezioro Wieliszew with 7 tickets, 'Najpopularniejsze taryfy' shows Pro Dzienny with 7 tickets, 'Ostatnio zakupione bilety' displays recent tickets with ShortCode. 'Następne kroki ETAP 3B' section shows all 3 planned stages: 3B-B (Zarządzanie Łowiskami), 3B-C (Zarządzanie Taryfami), 3B-D/E/F (Płatności, Bilety, Inspektorzy). UI responsive and professional."
+
+backend:
+  - task: "ETAP 3B-A: Admin Dashboard API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement GET /api/admin/dashboard endpoint with admin role checking and comprehensive statistics including total tickets, revenue, active users, top waters/tariffs, recent tickets"
+        - working: true
+          agent: "testing"
+          comment: "✅ ADMIN DASHBOARD API VERIFIED: GET /api/admin/dashboard endpoint working perfectly with proper admin role authorization. API returns comprehensive statistics: total_tickets: 7, active_tickets: 7, total_revenue_pln: 140, active_users: 4, waters_count: 1, tariffs_count: 3. Top waters shows Jezioro Wieliszew with 7 tickets. Top tariffs shows Pro Dzienny with 7 tickets. Recent tickets section displays 7 entries with user names, ShortCodes, and status. Unauthorized access properly blocked with 401 status. UI-API data consistency verified - all values match perfectly between frontend display and API response."
+
+  - task: "ETAP 3B-A: Admin Role Access Control"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement check_admin_role() function and ensure only users with admin role can access admin dashboard endpoint"
+        - working: true
+          agent: "testing"
+          comment: "✅ ADMIN ACCESS CONTROL VERIFIED: check_admin_role() function properly implemented and working. Admin user (admin@jezioro-wieliszew.pl) successfully logs in and gets redirected to admin dashboard. Regular users get redirected to client dashboard (correct behavior). Unauthorized API access with invalid token returns 401 status (proper security). Admin credentials from .env working: ADMIN_EMAIL and ADMIN_PASSWORD properly configured. Role-based routing working perfectly in frontend App component."
+
 agent_communication:
     - agent: "main"
       message: "ETAP 1 wydaje się być ukończony. Wszystkie modele Pro są zdefiniowane, indeksy utworzone, inicjalizacja danych zaimplementowana. Teraz potrzeba przetestować czy backend startuje poprawnie i czy wszystkie kolekcje są tworzone prawidłowo."
@@ -518,3 +565,7 @@ agent_communication:
       message: "🍔 HAMBURGER MENU MAJOR FIX: Naprawiłem krytyczny problem z hamburger menu! PROBLEM: Menu pokazywało się tylko gdy `myProTickets.length > 0` (gdy użytkownik miał bilety Pro) - nowi użytkownicy bez biletów nie widzieli hamburger menu wcale! ROZWIĄZANIE: Zmieniłem warunek na `user && (` żeby hamburger był dostępny dla WSZYSTKICH zalogowanych użytkowników, nie tylko tych z biletami. To znacząca poprawa UX - teraz nowi użytkownicy mają dostęp do menu od razu po zalogowaniu."
     - agent: "testing"
       message: "🎯 HAMBURGER MENU MAJOR FIX TESTING COMPLETED! Przeprowadziłem kompleksowe testowanie naprawki hamburger menu zgodnie z żądaniem użytkownika. WYNIKI KLUCZOWE: ✅ PROBLEM ROZWIĄZANY: Hamburger menu jest teraz widoczne dla WSZYSTKICH zalogowanych użytkowników, nie tylko tych z biletami! ✅ NOWY UŻYTKOWNIK BEZ BILETÓW: Zarejestrowano nowego użytkownika (user_ryu6@test.com) i potwierdzono że hamburger menu (☰) jest widoczne na mobile od razu po zalogowaniu. ✅ WSZYSTKIE OPCJE DOSTĘPNE: W hamburger menu dla nowego użytkownika dostępne są WSZYSTKIE opcje: Bilety ✅, Moje Bilety ✅, Regulamin ✅, Moje połowy ✅, Wyloguj się ✅. ✅ RESPONSIVE BEHAVIOR: Hamburger menu widoczne na mobile (390x844), ukryte na desktop (1920x1080) - poprawne zachowanie responsive. ✅ NAVIGATION WORKING: Wszystkie opcje menu działają poprawnie - użytkownik może nawigować między sekcjami. ✅ PRZED vs PO NAPRAWIE: PRZED - warunek `myProTickets.length > 0` blokował dostęp nowym użytkownikom, PO - warunek `user &&` daje dostęp wszystkim zalogowanym. PODSUMOWANIE: NAPRAWKA W 100% UDANA! Nowi użytkownicy mają teraz pełny dostęp do hamburger menu od momentu rejestracji. Znacząca poprawa UX - użytkownicy nie muszą kupować biletu żeby uzyskać dostęp do menu aplikacji. Problem całkowicie rozwiązany!"
+    - agent: "main"
+      message: "🎯 ETAP 3B-A: ADMIN DASHBOARD IMPLEMENTATION COMPLETED! Zaimplementowałem kompletny panel administratora z profesjonalnym interfejsem. BACKEND: Dodałem GET /api/admin/dashboard endpoint z pełnymi statystykami (total_tickets, revenue, active_users, waters_count, tariffs_count), check_admin_role() dla autoryzacji, top waters/tariffs analytics, recent tickets z ShortCode. FRONTEND: Utworzyłem AdminDashboard komponent z 4 kartami statystyk, sekcjami najpopularniejszych łowisk/taryf, listą ostatnich biletów, informacjami o następnych etapach (3B-B, 3B-C, 3B-D/E/F). Gradient background, responsive design, logout button. Role-based routing: admin → AdminDashboard, client → ClientDashboard, controller → ControllerDashboard. Gotowy do testowania!"
+    - agent: "testing"
+      message: "🏆 ETAP 3B-A: ADMIN DASHBOARD TESTING COMPLETED SUCCESSFULLY! Przeprowadziłem kompleksowe testowanie nowego panelu administratora. WYNIKI GŁÓWNE: ✅ ADMIN LOGIN & ACCESS CONTROL: Admin (admin@jezioro-wieliszew.pl) loguje się poprawnie i jest przekierowywany do panelu administratora. Regular users przekierowywani do client dashboard (poprawne). ✅ ADMIN DASHBOARD UI: Wszystkie 4 karty statystyk działają: 'Łączna liczba biletów' (7), 'Przychody ogółem' (140 PLN), 'Aktywni użytkownicy' (4), 'Łowiska i taryfy' (1). ✅ DASHBOARD SECTIONS: 'Najpopularniejsze łowiska' pokazuje Jezioro Wieliszew (7 biletów), 'Najpopularniejsze taryfy' pokazuje Pro Dzienny (7 biletów), 'Ostatnio zakupione bilety' wyświetla listę z ShortCode. ✅ NEXT STEPS SECTION: Sekcja 'Następne kroki ETAP 3B' z wszystkimi 3 planowanymi etapami (3B-B, 3B-C, 3B-D/E/F). ✅ API INTEGRATION: GET /api/admin/dashboard zwraca pełne dane, unauthorized access blokowany (401). ✅ UI-API CONSISTENCY: Wszystkie wartości UI idealnie pasują do danych z API. ✅ PROFESSIONAL DESIGN: Gradient background, responsive layout, logout button. ETAP 3B-A W 100% UKOŃCZONY!"
