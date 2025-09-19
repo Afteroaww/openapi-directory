@@ -2075,10 +2075,29 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {adminDashboard ? (
-          <div className="space-y-8">
-            {/* Overview Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Admin Navigation Tabs */}
+        <Tabs value={activeAdminTab} onValueChange={setActiveAdminTab}>
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <QrCode className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="waters" className="flex items-center gap-2">
+              <Fish className="h-4 w-4" />
+              Łowiska
+            </TabsTrigger>
+            <TabsTrigger value="tariffs" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Taryfy
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Dashboard Tab */}
+          <TabsContent value="dashboard">
+            {adminDashboard ? (
+              <div className="space-y-8">
+                {/* Overview Statistics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card className="shadow-lg border-blue-200">
                 <CardContent className="p-6">
                   <div className="flex items-center">
