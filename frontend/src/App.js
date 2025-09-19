@@ -646,7 +646,8 @@ const ClientDashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className={`grid w-full ${hasActivePermits ? 'grid-cols-3' : 'grid-cols-2'} mb-8`}>
+            {/* Desktop Tabs - hidden on mobile when has permits (uses hamburger menu) */}
+            <TabsList className={`grid w-full ${hasActivePermits ? 'grid-cols-3 hidden md:grid' : 'grid-cols-2'} mb-8`}>
               <TabsTrigger value="buy" className="flex items-center gap-2">
                 <Fish className="h-4 w-4" />
                 Kup pozwolenia
