@@ -107,11 +107,11 @@ user_problem_statement: "ETAP 2: IMPLEMENTACJA API PRO SYSTEM - implementacja en
 backend:
   - task: "ETAP 2: Pro Waters API"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
@@ -119,14 +119,17 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "✅ IMPLEMENTED: Added GET /api/pro/waters and GET /api/pro/waters/{water_id}/tariffs endpoints. Returns active waters and their tariffs with price conversion from grosze to PLN."
+        - working: true
+          agent: "testing"
+          comment: "✅ PRO WATERS API VERIFIED: GET /api/pro/waters returns 1 water (Jezioro Wieliszew) with correct location and description. GET /api/pro/waters/{water_id}/tariffs returns 3 Pro tariffs: Pro Dzienny (20 PLN/2000 grosze/24h), Pro Miesięczny (60 PLN/6000 grosze/720h), Pro Roczny (300 PLN/30000 grosze/8760h). Price conversion from grosze to PLN working correctly. All expected data from ETAP 1 properly accessible via Pro API."
           
   - task: "ETAP 2: Pro Purchase API"
     implemented: true
-    working: "NA"
+    working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
@@ -134,14 +137,17 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "✅ IMPLEMENTED: Added POST /api/pro/tickets/purchase (creates Payment + P24 redirect) and GET /api/pro/tickets/my-tickets endpoints. Integrated with existing Przelewy24 flow, generates ShortCode and JWT QR tokens."
+        - working: false
+          agent: "testing"
+          comment: "❌ PRO PURCHASE API CRITICAL ISSUE: POST /api/pro/tickets/purchase fails with 500 error 'invalid literal for int() with base 10: YOUR_MERCHANT_ID'. Pro system lacks fallback mechanism for unconfigured P24 (unlike legacy system). GET /api/pro/tickets/my-tickets works correctly (returns empty list as expected). Authorization working correctly (403 for unauthorized, 400 for missing consents, 404 for invalid water/tariff)."
           
   - task: "ETAP 2: Pro Verification API"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
@@ -149,14 +155,17 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "✅ IMPLEMENTED: Added POST /api/pro/tickets/verify-qr (JWT verification), POST /api/pro/tickets/verify-shortcode (ShortCode validation), GET /api/pro/inspections/history endpoints. Full verification system with inspection logging."
+        - working: true
+          agent: "testing"
+          comment: "✅ PRO VERIFICATION API VERIFIED: All endpoints properly implemented with controller role authorization. POST /api/pro/tickets/verify-qr correctly rejects invalid JWT tokens with proper error messages. POST /api/pro/tickets/verify-shortcode validates ShortCode format and rejects invalid codes. GET /api/pro/inspections/history returns empty list (expected for ETAP 2). Authorization working: 403 for non-controllers, proper error handling. Minor: Response format uses 'success: false' instead of 'valid: false' but functionality correct."
 
   - task: "ETAP 2: Pro Payment Integration"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
@@ -164,6 +173,9 @@ backend:
         - working: "NA"
           agent: "main"
           comment: "✅ IMPLEMENTED: Added POST /api/pro/payment/webhook for Pro payments. Integrated with existing P24 flow, creates Ticket with ShortCode and JWT after successful payment via create_ticket_from_payment() helper function."
+        - working: true
+          agent: "testing"
+          comment: "✅ PRO PAYMENT INTEGRATION VERIFIED: POST /api/pro/payment/webhook endpoint implemented and responding correctly. Webhook properly handles invalid signatures and missing payments with appropriate error responses. Integration with P24 flow structure in place. Minor: Webhook returns 'Payment not found' for test data (expected behavior)."
 
   - task: "ETAP 1: Pro Models Implementation"
     implemented: true
