@@ -2253,6 +2253,274 @@ async def get_admin_dashboard(credentials: HTTPAuthorizationCredentials = Depend
         logger.error(f"Error fetching admin dashboard: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch dashboard data")
 
+# ===== ADMIN WATERS MANAGEMENT =====
+
+@api_router.get("/admin/waters")
+async def get_all_waters_admin(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get all waters for admin management"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        
+        # Get all waters (including inactive)
+        waters = await db.waters.find({}).to_list(length=100)
+        
+        result = []
+        for water in waters:
+            # Get tickets count for each water
+            tickets_count = await db.tickets.count_documents({"water_id": water["id"]})
+            active_tickets_count = await db.tickets.count_documents({"water_id": water["id"], "status": "valid"})
+            
+            # Get tariffs count for each water
+            tariffs_count = await db.tariffs.count_documents({"water_id": water["id"], "active": True})
+            
+            water_data = Water(**water)
+            result.append({
+                "id": water_data.id,
+                "name": water_data.name,
+                "location": water_data.location,
+                "description": water_data.description,
+                "regulations": water_data.regulations,
+                "active": water_data.active,
+                "created_at": water_data.created_at.isoformat() if hasattr(water_data.created_at, 'isoformat') else str(water_data.created_at),
+                "updated_at": water_data.updated_at.isoformat() if hasattr(water_data.updated_at, 'isoformat') else str(water_data.updated_at),
+                "statistics": {
+                    "total_tickets": tickets_count,
+                    "active_tickets": active_tickets_count,
+                    "tariffs_count": tariffs_count
+                }
+            })
+        
+        return {"success": True, "waters": result}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching waters for admin: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch waters")
+
+class WaterCreateRequest(BaseModel):
+    name: str
+    location: str
+    description: str
+    regulations: Optional[str] = None
+
+class WaterUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    location: Optional[str] = None
+    description: Optional[str] = None
+    regulations: Optional[str] = None
+    active: Optional[bool] = None
+
+@api_router.post("/admin/waters")
+async def create_water(
+    request: WaterCreateRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create new water for admin"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        
+        # Validate required fields
+        if not request.name.strip():
+            raise HTTPException(status_code=400, detail="Nazwa łowiska jest wymagana")
+        if not request.location.strip():
+            raise HTTPException(status_code=400, detail="Lokalizacja łowiska jest wymagana")
+        if not request.description.strip():
+            raise HTTPException(status_code=400, detail="Opis łowiska jest wymagany")
+        
+        # Check if water with same name already exists
+        existing_water = await db.waters.find_one({"name": request.name.strip()})
+        if existing_water:
+            raise HTTPException(status_code=400, detail="Łowisko o tej nazwie już istnieje")
+        
+        # Create new water
+        new_water = Water(
+            name=request.name.strip(),
+            location=request.location.strip(),
+            description=request.description.strip(),
+            regulations=request.regulations.strip() if request.regulations else None
+        )
+        
+        water_dict = new_water.dict()
+        water_dict['created_at'] = water_dict['created_at'].isoformat()
+        water_dict['updated_at'] = water_dict['updated_at'].isoformat()
+        
+        await db.waters.insert_one(water_dict)
+        
+        logger.info(f"New water created by admin {admin_user['email']}: {new_water.name}")
+        
+        return {
+            "success": True,
+            "message": f"Łowisko '{new_water.name}' zostało utworzone pomyślnie",
+            "water": {
+                "id": new_water.id,
+                "name": new_water.name,
+                "location": new_water.location,
+                "description": new_water.description,
+                "active": new_water.active
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating water: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create water")
+
+@api_router.put("/admin/waters/{water_id}")
+async def update_water(
+    water_id: str,
+    request: WaterUpdateRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update existing water"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        
+        # Find existing water
+        existing_water = await db.waters.find_one({"id": water_id})
+        if not existing_water:
+            raise HTTPException(status_code=404, detail="Łowisko nie zostało znalezione")
+        
+        # Prepare update data
+        update_data = {}
+        if request.name is not None:
+            if not request.name.strip():
+                raise HTTPException(status_code=400, detail="Nazwa łowiska nie może być pusta")
+            
+            # Check if another water with same name exists
+            other_water = await db.waters.find_one({"name": request.name.strip(), "id": {"$ne": water_id}})
+            if other_water:
+                raise HTTPException(status_code=400, detail="Łowisko o tej nazwie już istnieje")
+            
+            update_data["name"] = request.name.strip()
+        
+        if request.location is not None:
+            if not request.location.strip():
+                raise HTTPException(status_code=400, detail="Lokalizacja łowiska nie może być pusta")
+            update_data["location"] = request.location.strip()
+        
+        if request.description is not None:
+            if not request.description.strip():
+                raise HTTPException(status_code=400, detail="Opis łowiska nie może być pusty")
+            update_data["description"] = request.description.strip()
+        
+        if request.regulations is not None:
+            update_data["regulations"] = request.regulations.strip() if request.regulations.strip() else None
+        
+        if request.active is not None:
+            update_data["active"] = request.active
+            
+            # If deactivating, check if water has active tickets
+            if not request.active:
+                active_tickets = await db.tickets.count_documents({"water_id": water_id, "status": "valid"})
+                if active_tickets > 0:
+                    raise HTTPException(
+                        status_code=400, 
+                        detail=f"Nie można dezaktywować łowiska. Ma {active_tickets} aktywnych biletów."
+                    )
+        
+        # Update timestamp
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        # Perform update
+        result = await db.waters.update_one(
+            {"id": water_id},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=400, detail="Nie wprowadzono żadnych zmian")
+        
+        # Get updated water
+        updated_water = await db.waters.find_one({"id": water_id})
+        
+        logger.info(f"Water updated by admin {admin_user['email']}: {water_id} - {list(update_data.keys())}")
+        
+        return {
+            "success": True,
+            "message": f"Łowisko '{updated_water['name']}' zostało zaktualizowane pomyślnie",
+            "water": {
+                "id": updated_water["id"],
+                "name": updated_water["name"],
+                "location": updated_water["location"],
+                "description": updated_water["description"],
+                "active": updated_water["active"]
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating water {water_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update water")
+
+@api_router.delete("/admin/waters/{water_id}")
+async def delete_water(
+    water_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete (deactivate) water - soft delete"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        
+        # Find existing water
+        existing_water = await db.waters.find_one({"id": water_id})
+        if not existing_water:
+            raise HTTPException(status_code=404, detail="Łowisko nie zostało znalezione")
+        
+        # Check if water has any tickets
+        total_tickets = await db.tickets.count_documents({"water_id": water_id})
+        active_tickets = await db.tickets.count_documents({"water_id": water_id, "status": "valid"})
+        
+        if active_tickets > 0:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Nie można usunąć łowiska. Ma {active_tickets} aktywnych biletów. Dezaktywuj łowisko zamiast tego."
+            )
+        
+        if total_tickets > 0:
+            # Soft delete - deactivate instead of removing
+            result = await db.waters.update_one(
+                {"id": water_id},
+                {"$set": {
+                    "active": False,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            logger.info(f"Water soft-deleted (deactivated) by admin {admin_user['email']}: {water_id}")
+            
+            return {
+                "success": True,
+                "message": f"Łowisko '{existing_water['name']}' zostało dezaktywowane (ma historię biletów)",
+                "action": "deactivated"
+            }
+        else:
+            # Hard delete - no tickets associated
+            result = await db.waters.delete_one({"id": water_id})
+            
+            # Also delete associated tariffs
+            await db.tariffs.delete_many({"water_id": water_id})
+            
+            logger.info(f"Water hard-deleted by admin {admin_user['email']}: {water_id}")
+            
+            return {
+                "success": True,
+                "message": f"Łowisko '{existing_water['name']}' zostało całkowicie usunięte",
+                "action": "deleted"
+            }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting water {water_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete water")
+
 # Root endpoint
 @api_router.get("/")
 async def root():
