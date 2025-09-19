@@ -285,6 +285,10 @@ const ClientDashboard = () => {
   const [proDataProcessingAccepted, setProDataProcessingAccepted] = useState(false);
   const [purchasingProTicket, setPurchasingProTicket] = useState(false);
   const [regulationsData, setRegulationsData] = useState(null);
+  
+  // Admin Panel State
+  const [adminDashboard, setAdminDashboard] = useState(null);
+  const [loadingAdminDashboard, setLoadingAdminDashboard] = useState(false);
 
   useEffect(() => {
     if (activeTab === 'catches') {
