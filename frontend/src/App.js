@@ -267,22 +267,12 @@ const LoginForm = () => {
 
 const ClientDashboard = () => {
   const { user, token, logout } = useAuth();
-  const [permitTypes, setPermitTypes] = useState([]);
-  const [selectedPermits, setSelectedPermits] = useState([]);
   const [loading, setLoading] = useState(false);
   const [purchaseResult, setPurchaseResult] = useState(null);
-  const [myPermits, setMyPermits] = useState([]);
   const [activeTab, setActiveTab] = useState('pro-buy');
-  const [ownerCode, setOwnerCode] = useState('');
-  const [regulationsAccepted, setRegulationsAccepted] = useState(false);
-  const [dataProcessingAccepted, setDataProcessingAccepted] = useState(false);
-  const [showRegulations, setShowRegulations] = useState(false);
-  const [showDataAgreement, setShowDataAgreement] = useState(false);
-  const [regulationsData, setRegulationsData] = useState(null);
   const [myCatches, setMyCatches] = useState([]);
   const [uploadingCatch, setUploadingCatch] = useState(false);
   const [catchImage, setCatchImage] = useState(null);
-  const [hasActivePermits, setHasActivePermits] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Pro System State
