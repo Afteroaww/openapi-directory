@@ -2132,6 +2132,127 @@ async def create_ticket_from_payment(payment_id: str):
     except Exception as e:
         logger.error(f"Error creating ticket from payment {payment_id}: {str(e)}")
 
+# ===== ADMIN PANEL API ENDPOINTS =====
+
+# Helper function to check admin role
+async def check_admin_role(credentials: HTTPAuthorizationCredentials):
+    """Check if user has admin role"""
+    current_user = await get_current_user(credentials)
+    if not current_user or current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+@api_router.get("/admin/dashboard")
+async def get_admin_dashboard(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get admin dashboard statistics"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        
+        # Get total tickets count
+        total_tickets = await db.tickets.count_documents({})
+        active_tickets = await db.tickets.count_documents({"status": "valid"})
+        expired_tickets = await db.tickets.count_documents({"status": "expired"})
+        
+        # Get total revenue from payments
+        payments = await db.payments.find({"status": "paid"}).to_list(length=None)
+        total_revenue_grosze = sum(payment.get("amount_grosze", 0) for payment in payments)
+        total_revenue_pln = total_revenue_grosze / 100
+        
+        # Get active users count (users who bought tickets)
+        user_ids_with_tickets = await db.tickets.distinct("user_id")
+        active_users_count = len(user_ids_with_tickets)
+        
+        # Get total users count
+        total_users = await db.users.count_documents({})
+        
+        # Get waters statistics
+        waters = await db.waters.find({"active": True}).to_list(length=None)
+        waters_count = len(waters)
+        
+        # Get tariffs statistics
+        tariffs = await db.tariffs.find({"active": True}).to_list(length=None)
+        tariffs_count = len(tariffs)
+        
+        # Get tickets by water (top waters)
+        pipeline = [
+            {"$group": {"_id": "$water_id", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 5}
+        ]
+        tickets_by_water = await db.tickets.aggregate(pipeline).to_list(length=5)
+        
+        # Enrich with water names
+        top_waters = []
+        for item in tickets_by_water:
+            water = await db.waters.find_one({"id": item["_id"]})
+            top_waters.append({
+                "water_name": water["name"] if water else "Unknown",
+                "tickets_count": item["count"]
+            })
+        
+        # Get tickets by tariff (top tariffs)
+        pipeline = [
+            {"$group": {"_id": "$tariff_id", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 5}
+        ]
+        tickets_by_tariff = await db.tickets.aggregate(pipeline).to_list(length=5)
+        
+        # Enrich with tariff names
+        top_tariffs = []
+        for item in tickets_by_tariff:
+            tariff = await db.tariffs.find_one({"id": item["_id"]})
+            top_tariffs.append({
+                "tariff_name": tariff["name"] if tariff else "Unknown",
+                "tickets_count": item["count"]
+            })
+        
+        # Get recent tickets (last 10)
+        recent_tickets = await db.tickets.find({}).sort("created_at", -1).limit(10).to_list(length=10)
+        
+        # Enrich recent tickets with user and water info
+        recent_tickets_info = []
+        for ticket in recent_tickets:
+            user = await db.users.find_one({"id": ticket["user_id"]})
+            water = await db.waters.find_one({"id": ticket["water_id"]})
+            tariff = await db.tariffs.find_one({"id": ticket["tariff_id"]})
+            
+            recent_tickets_info.append({
+                "id": ticket["id"],
+                "short_code": ticket["short_code"],
+                "status": ticket["status"],
+                "created_at": ticket.get("created_at", "Unknown"),
+                "user_name": user["full_name"] if user else "Unknown",
+                "water_name": water["name"] if water else "Unknown",
+                "tariff_name": tariff["name"] if tariff else "Unknown"
+            })
+        
+        return {
+            "success": True,
+            "dashboard": {
+                "overview": {
+                    "total_tickets": total_tickets,
+                    "active_tickets": active_tickets,
+                    "expired_tickets": expired_tickets,
+                    "total_revenue_pln": round(total_revenue_pln, 2),
+                    "active_users": active_users_count,
+                    "total_users": total_users,
+                    "waters_count": waters_count,
+                    "tariffs_count": tariffs_count
+                },
+                "top_waters": top_waters,
+                "top_tariffs": top_tariffs,
+                "recent_tickets": recent_tickets_info
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching admin dashboard: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch dashboard data")
+
 # Root endpoint
 @api_router.get("/")
 async def root():
