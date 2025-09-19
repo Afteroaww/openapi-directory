@@ -292,6 +292,21 @@ frontend:
           agent: "testing"
           comment: "✅ MOBILE RESPONSIVENESS CONFIRMED: Application adapts to mobile viewport (390x844). Touch-friendly form inputs. Hamburger menu available for users with active permits. Mobile layout maintains functionality. Desktop view shows proper tab grid layout. Responsive design working across different screen sizes."
 
+  - task: "ETAP 2: Frontend Regression Testing"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to test frontend after ETAP 2 Pro API implementation to ensure legacy system compatibility and no conflicts with new Pro endpoints"
+        - working: true
+          agent: "testing"
+          comment: "✅ ETAP 2 FRONTEND REGRESSION TESTING COMPLETED: Comprehensive testing confirms legacy system works perfectly after Pro API implementation. Homepage loads correctly with proper branding. User/controller registration and authentication fully functional. Legacy permit system (20/60/300 PLN) working without issues. Complete purchase flow with QR code generation successful. Owner code WLASCICIELWIELISZEW discount system operational. Regulations/RODO acceptance working. Controller verification panel (QR/Order ID) functional. EcoFishing Challenge (ETAP 1) unlocks properly after permit purchase with photo upload capability. Mobile responsiveness maintained with hamburger menu. CRITICAL: Frontend makes 0 Pro API calls (as expected) - only uses legacy endpoints. No conflicts between legacy and Pro API systems. No console errors detected. API connectivity stable. CONCLUSION: Legacy system maintains 100% compatibility after ETAP 2 Pro API backend changes. Frontend ready for future Pro system integration."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
