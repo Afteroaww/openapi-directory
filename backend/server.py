@@ -161,6 +161,85 @@ class FishCatch(BaseModel):
     month_year: str = Field(default_factory=lambda: datetime.now().strftime('%Y-%m'))
     notes: Optional[str] = None
 
+# ===== PRO MODELS (Tickets System) =====
+
+class Water(BaseModel):
+    """Łowisko/akwen"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str  # "Jezioro Wieliszew"
+    location: str  # "Wieliszew, mazowieckie"
+    description: Optional[str] = None
+    regulations: Optional[str] = None  # Regulamin łowiska
+    active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Tariff(BaseModel):
+    """Taryfa cenowa dla łowiska"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    water_id: str  # FK to Water
+    name: str  # "Dzienny", "Tygodniowy", "Miesięczny"
+    description: str  # "Pozwolenie na połów przez jeden dzień"
+    price_grosze: int  # Cena w groszach (2000 = 20 PLN)
+    validity_hours: int  # Ważność w godzinach (24, 168, 720)
+    active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Payment(BaseModel):
+    """Płatność P24"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    order_id: str  # P24 orderId - unique
+    session_id: str  # P24 sessionId
+    user_id: str  # FK to User
+    water_id: str  # FK to Water
+    tariff_id: str  # FK to Tariff
+    amount_grosze: int  # Kwota w groszach
+    currency: str = "PLN"
+    status: str = "pending"  # pending, paid, failed, cancelled, refunded
+    p24_order_id: Optional[str] = None  # P24 response orderId
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    paid_at: Optional[datetime] = None
+    webhook_data: Optional[dict] = None
+
+class Ticket(BaseModel):
+    """Bilet/pozwolenie (powstaje po payment=paid)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    payment_id: str  # FK to Payment
+    user_id: str  # FK to User  
+    water_id: str  # FK to Water
+    tariff_id: str  # FK to Tariff
+    short_code: str  # 8-char Base32 + checksum (AB2C4D7E)
+    qr_token: str  # JWT token with payload
+    status: str = "valid"  # valid, expired, cancelled, used
+    valid_from: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    valid_until: datetime  # calculated from tariff.validity_hours
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    used_at: Optional[datetime] = None
+
+class Inspector(BaseModel):
+    """Kontroler/inspektor"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str  # FK to User (role=controller)
+    water_ids: List[str] = []  # Lista łowisk gdzie może kontrolować
+    active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Inspection(BaseModel):
+    """Log kontroli biletu"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    ticket_id: str  # FK to Ticket
+    inspector_id: str  # FK to Inspector
+    user_id: str  # FK to User (posiadacz biletu)
+    water_id: str  # FK to Water
+    method: str  # "qr_scan", "short_code", "manual"
+    result: str  # "valid", "expired", "invalid", "already_used"
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    location: Optional[str] = "Jezioro Wieliszew"
+    notes: Optional[str] = None
+    anti_replay_warning: bool = False  # True if scanned too frequently
+
 class PaymentRequest(BaseModel):
     order_id: str
     amount: int  # Amount in grosze (Polish cents)
