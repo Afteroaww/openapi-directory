@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "PRZEJŚCIE Z DUAL SYSTEM NA ONLY PRO SYSTEM - Wielka zmiana: usunięto cały legacy system pozwoleń, zachowano tylko Pro system przemianowany na główny system. Zmieniono nazwy: 'Pro Bilety' → 'Bilety', 'Moje Pro Bilety' → 'Moje Bilety'. Uproszono menu: tylko 3 zakładki zamiast 5. Aplikacja ma teraz jeden nowoczesny system oparty na Pro API."
+user_problem_statement: "ETAP 3B: ADMIN PANEL PRO SYSTEM - implementacja panelu administratora do zarządzania Pro systemem: CRUD dla Waters (łowiska), Tariffs (taryfy), Payments (płatności), Tickets (bilety), Inspectors (inspektorzy), dashboard z statystykami Pro"
 
 frontend:
   - task: "ETAP 3A: Pro Waters Frontend Integration"
