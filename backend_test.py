@@ -1796,6 +1796,9 @@ class FishingPermitsAPITester:
         
         if success and response:
             if response.get('access_token') and response.get('user', {}).get('role') == 'admin':
+                # Store admin token for other tests
+                self.admin_token = response['access_token']
+                self.admin_user = response.get('user', {})
                 print(f"   ✅ Legacy admin login successful - Email: {response.get('user', {}).get('email')}")
                 return True, response
             else:
