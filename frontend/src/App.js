@@ -547,17 +547,102 @@ const ClientDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-teal-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-2 md:py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Panel Klienta</h1>
-              <p className="text-gray-600">Witaj, {user?.full_name}</p>
+          {/* Mobile Header with Hamburger Menu */}
+          <div className="flex justify-between items-center mb-6 md:mb-8">
+            <div className="flex items-center gap-4">
+              {hasActivePermits && (
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="md:hidden">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-72">
+                    <SheetHeader>
+                      <SheetTitle className="flex items-center gap-2">
+                        <Fish className="h-5 w-5 text-emerald-600" />
+                        Jezioro Wieliszew
+                      </SheetTitle>
+                      <SheetDescription>
+                        Panel wędkarza - {user?.full_name}
+                      </SheetDescription>
+                    </SheetHeader>
+                    
+                    <div className="mt-8 space-y-4">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-left"
+                        onClick={() => {
+                          setActiveTab('buy');
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <Fish className="h-4 w-4 mr-3" />
+                        Kup pozwolenia
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-left"
+                        onClick={() => {
+                          setActiveTab('history');
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <History className="h-4 w-4 mr-3" />
+                        Moje pozwolenia
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-left"
+                        onClick={() => {
+                          setActiveTab('catches');
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <Camera className="h-4 w-4 mr-3" />
+                        Moje połowy
+                      </Button>
+                      
+                      <div className="border-t pt-4 mt-6">
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start text-left text-red-600"
+                          onClick={() => {
+                            logout();
+                            setMobileMenuOpen(false);
+                          }}
+                        >
+                          <LogOut className="h-4 w-4 mr-3" />
+                          Wyloguj się
+                        </Button>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              )}
+              
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Panel Wędkarza</h1>
+                <p className="text-gray-600 text-sm md:text-base">Witaj, {user?.full_name}</p>
+              </div>
             </div>
-            <Button onClick={logout} variant="outline" className="flex items-center gap-2">
+            
+            {/* Desktop logout button */}
+            <Button onClick={logout} variant="outline" className="hidden md:flex items-center gap-2">
               <LogOut className="h-4 w-4" />
               Wyloguj
             </Button>
+            
+            {/* Mobile logout button (when no permits) */}
+            {!hasActivePermits && (
+              <Button onClick={logout} variant="outline" size="sm" className="md:hidden">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            )}
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
