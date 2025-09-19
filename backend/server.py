@@ -2695,7 +2695,7 @@ async def create_sub_admin(
             raise HTTPException(status_code=400, detail="Użytkownik z tym adresem email już istnieje")
         
         # Hash password
-        hashed_password = bcrypt.hashpw(admin_data.password.encode('utf-8'), bcrypt.gensalt())
+        hashed_password = get_password_hash(admin_data.password)
         
         # Create new sub-admin
         new_admin_id = str(uuid.uuid4())
