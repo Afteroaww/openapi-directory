@@ -285,7 +285,7 @@ const LoginForm = () => {
               </form>
             </TabsContent>
 
-            <TabsContent value="admin" className="mt-6">
+            <TabsContent value="admin" className="mt-4 sm:mt-6">
               <div className="space-y-6">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-3">
