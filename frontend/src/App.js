@@ -396,6 +396,103 @@ const ClientDashboard = () => {
     }
   };
 
+  // Pro System Functions
+  const fetchProWaters = async () => {
+    try {
+      const response = await axios.get(`${API}/pro/waters`);
+      if (response.data.success) {
+        setProWaters(response.data.waters);
+        // Automatically select first water (Jezioro Wieliszew)
+        if (response.data.waters.length > 0) {
+          const firstWater = response.data.waters[0];
+          setSelectedProWater(firstWater);
+          fetchProTariffs(firstWater.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching Pro waters:', error);
+    }
+  };
+
+  const fetchProTariffs = async (waterId) => {
+    try {
+      const response = await axios.get(`${API}/pro/waters/${waterId}/tariffs`);
+      if (response.data.success) {
+        setProTariffs(response.data.tariffs);
+      }
+    } catch (error) {
+      console.error('Error fetching Pro tariffs:', error);
+    }
+  };
+
+  const fetchMyProTickets = async () => {
+    try {
+      const response = await axios.get(`${API}/pro/tickets/my-tickets`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setMyProTickets(response.data.tickets);
+      }
+    } catch (error) {
+      console.error('Error fetching Pro tickets:', error);
+    }
+  };
+
+  const handleProTariffSelection = (tariff) => {
+    setSelectedProTariff(tariff);
+  };
+
+  const purchaseProTicket = async () => {
+    if (!selectedProWater || !selectedProTariff) {
+      alert('Proszę wybrać łowisko i taryfę');
+      return;
+    }
+
+    if (!proRegulationsAccepted || !proDataProcessingAccepted) {
+      alert('Proszę zaakceptować regulamin i zgodę na przetwarzanie danych');
+      return;
+    }
+
+    setPurchasingProTicket(true);
+
+    try {
+      const response = await axios.post(`${API}/pro/tickets/purchase`, {
+        water_id: selectedProWater.id,
+        tariff_id: selectedProTariff.id,
+        regulations_accepted: proRegulationsAccepted,
+        data_processing_accepted: proDataProcessingAccepted
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success) {
+        if (response.data.requires_payment) {
+          // Redirect to P24 payment
+          window.location.href = response.data.payment_url;
+        } else {
+          // Mock payment success - show success message and refresh tickets
+          alert(response.data.message);
+          setActiveTab('pro-history');
+          fetchMyProTickets();
+          
+          // Reset form
+          setSelectedProTariff(null);
+          setProRegulationsAccepted(false);
+          setProDataProcessingAccepted(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error purchasing Pro ticket:', error);
+      if (error.response?.data?.detail) {
+        alert(error.response.data.detail);
+      } else {
+        alert('Błąd podczas zakupu biletu Pro');
+      }
+    } finally {
+      setPurchasingProTicket(false);
+    }
+  };
+
   const handlePermitSelection = (permitType, checked) => {
     console.log('Permit selection:', permitType, checked); // Debug log
     if (checked) {
