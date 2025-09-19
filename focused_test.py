@@ -101,7 +101,7 @@ class FocusedAPITester:
         # Login admin
         admin_data = {
             "email": "admin@jezioro-wieliszew.pl",
-            "password": "admin"
+            "password": "admin123!@#"
         }
         
         success, response = self.run_test("Admin Login", "POST", "auth/login", 200, data=admin_data)
