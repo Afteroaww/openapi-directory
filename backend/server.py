@@ -1711,7 +1711,7 @@ async def purchase_pro_ticket(
             "order_id": order_id,
             "session_id": session_id,
             "requires_payment": False,
-            "message": f"Pro bilet zakupiony pomyślnie! {tariff['name']} - {water['name']} (Tryb deweloperski - brak P24)",
+            "message": f"Bilet zakupiony pomyślnie! {tariff['name']} - {water['name']} (Tryb deweloperski - brak P24)",
             "tariff": {
                 "name": tariff["name"],
                 "price_pln": tariff["price_grosze"] / 100
