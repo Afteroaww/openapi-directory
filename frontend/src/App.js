@@ -2274,17 +2274,212 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Nie udało się załadować danych dashboard</p>
-            <Button 
-              onClick={fetchAdminDashboard}
-              className="mt-4"
-            >
-              Spróbuj ponownie
-            </Button>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">Nie udało się załadować danych dashboard</p>
+                <Button 
+                  onClick={fetchAdminDashboard}
+                  className="mt-4"
+                >
+                  Spróbuj ponownie
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Waters Management Tab */}
+          <TabsContent value="waters">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Zarządzanie Łowiskami</h2>
+                  <p className="text-gray-600">Dodawaj, edytuj i zarządzaj łowiskami w systemie</p>
+                </div>
+                <Button 
+                  onClick={handleCreateWater}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Fish className="h-4 w-4 mr-2" />
+                  Dodaj łowisko
+                </Button>
+              </div>
+
+              {loadingWaters ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
+                  <p className="text-gray-500 mt-4">Ładowanie łowisk...</p>
+                </div>
+              ) : (
+                <div className="grid gap-6">
+                  {waters.map((water) => (
+                    <Card key={water.id} className="shadow-lg">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="flex items-center gap-2">
+                              <Fish className="h-5 w-5 text-emerald-600" />
+                              {water.name}
+                              {!water.active && (
+                                <Badge className="bg-red-100 text-red-800">Nieaktywne</Badge>
+                              )}
+                            </CardTitle>
+                            <CardDescription>{water.location}</CardDescription>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditWater(water)}
+                            >
+                              ✏️ Edytuj
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:text-red-800"
+                              onClick={() => deleteWater(water)}
+                            >
+                              🗑️ Usuń
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-700 mb-4">{water.description}</p>
+                        
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div className="p-3 bg-blue-50 rounded-lg">
+                            <p className="text-xl font-bold text-blue-600">{water.statistics.total_tickets}</p>
+                            <p className="text-xs text-blue-800">Łączne bilety</p>
+                          </div>
+                          <div className="p-3 bg-emerald-50 rounded-lg">
+                            <p className="text-xl font-bold text-emerald-600">{water.statistics.active_tickets}</p>
+                            <p className="text-xs text-emerald-800">Aktywne bilety</p>
+                          </div>
+                          <div className="p-3 bg-purple-50 rounded-lg">
+                            <p className="text-xl font-bold text-purple-600">{water.statistics.tariffs_count}</p>
+                            <p className="text-xs text-purple-800">Aktywne taryfy</p>
+                          </div>
+                        </div>
+                        
+                        {water.regulations && (
+                          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-600">
+                              <strong>Regulamin:</strong> {water.regulations.substring(0, 100)}...
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                  
+                  {waters.length === 0 && (
+                    <div className="text-center py-12">
+                      <Fish className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-4">Brak łowisk w systemie</p>
+                      <Button 
+                        onClick={handleCreateWater}
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                      >
+                        Dodaj pierwsze łowisko
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Tariffs Tab (placeholder for next phase) */}
+          <TabsContent value="tariffs">
+            <div className="text-center py-12">
+              <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">ETAP 3B-C: Zarządzanie Taryfami</h3>
+              <p className="text-gray-500">Wkrótce - CRUD dla taryf biletów</p>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Water Create/Edit Dialog */}
+        {showWaterDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <h3 className="text-lg font-semibold mb-4">
+                {editingWater ? 'Edytuj łowisko' : 'Dodaj nowe łowisko'}
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nazwa łowiska *
+                  </label>
+                  <input
+                    type="text"
+                    value={waterForm.name}
+                    onChange={(e) => setWaterForm({...waterForm, name: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="np. Jezioro Wieliszew"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Lokalizacja *
+                  </label>
+                  <input
+                    type="text"
+                    value={waterForm.location}
+                    onChange={(e) => setWaterForm({...waterForm, location: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="np. Wieliszew, Legionowo"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Opis *
+                  </label>
+                  <textarea
+                    value={waterForm.description}
+                    onChange={(e) => setWaterForm({...waterForm, description: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Opis łowiska..."
+                    rows="3"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Regulamin (opcjonalnie)
+                  </label>
+                  <textarea
+                    value={waterForm.regulations}
+                    onChange={(e) => setWaterForm({...waterForm, regulations: e.target.value})}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Dodatkowe zasady dla tego łowiska..."
+                    rows="3"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <Button
+                  onClick={() => setShowWaterDialog(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Anuluj
+                </Button>
+                <Button
+                  onClick={saveWater}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                >
+                  {editingWater ? 'Zapisz zmiany' : 'Dodaj łowisko'}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
