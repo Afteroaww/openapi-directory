@@ -1374,7 +1374,7 @@ const ClientDashboard = () => {
                           ) : (
                             <div className="flex items-center gap-2">
                               <Shield className="h-5 w-5" />
-                              Kup bilet Pro {selectedProTariff ? `- ${selectedProTariff.price_pln} PLN` : ''}
+                              Kup bilet {selectedProTariff ? `- ${selectedProTariff.price_pln} PLN` : ''}
                             </div>
                           )}
                         </Button>
