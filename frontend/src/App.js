@@ -770,16 +770,20 @@ const ClientDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   {myPermits.length === 0 ? (
-                    <p className="text-center text-gray-500 py-8">
-                      Nie masz jeszcze żadnych pozwoleń. <br />
+                    <div className="text-center py-8">
+                      <Fish className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-4">
+                        Nie masz jeszcze żadnych pozwoleń. <br />
+                        Kup pozwolenie, aby uzyskać dostęp do zawodów wędkarskich!
+                      </p>
                       <Button 
                         onClick={() => setActiveTab('buy')} 
-                        className="mt-4"
-                        variant="outline"
+                        className="mt-4 bg-emerald-600 hover:bg-emerald-700"
                       >
+                        <Fish className="h-4 w-4 mr-2" />
                         Kup pierwsze pozwolenie
                       </Button>
-                    </p>
+                    </div>
                   ) : (
                     <div className="grid gap-4">
                       {myPermits.map((permit, index) => (
