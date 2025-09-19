@@ -1907,10 +1907,27 @@ const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const [adminDashboard, setAdminDashboard] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
+  const [activeAdminTab, setActiveAdminTab] = useState('dashboard');
+  
+  // Waters management state
+  const [waters, setWaters] = useState([]);
+  const [loadingWaters, setLoadingWaters] = useState(false);
+  const [editingWater, setEditingWater] = useState(null);
+  const [showWaterDialog, setShowWaterDialog] = useState(false);
+  const [waterForm, setWaterForm] = useState({
+    name: '',
+    location: '',
+    description: '',
+    regulations: ''
+  });
 
   useEffect(() => {
-    fetchAdminDashboard();
-  }, []);
+    if (activeAdminTab === 'dashboard') {
+      fetchAdminDashboard();
+    } else if (activeAdminTab === 'waters') {
+      fetchWaters();
+    }
+  }, [activeAdminTab]);
 
   const fetchAdminDashboard = async () => {
     setLoadingDashboard(true);
