@@ -191,18 +191,18 @@ const LoginForm = () => {
             <TabsList className="grid w-full grid-cols-3 gap-1 sm:gap-2 h-auto p-1 sm:p-2">
               <TabsTrigger value="login" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
                 <Fish className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">Logowanie</span>
-                <span className="xs:hidden">Login</span>
+                <span className="hidden sm:inline">Logowanie</span>
+                <span className="sm:hidden">Login</span>
               </TabsTrigger>
               <TabsTrigger value="register" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
                 <History className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">Rejestracja</span>
-                <span className="xs:hidden">Rej.</span>
+                <span className="hidden sm:inline">Rejestracja</span>
+                <span className="sm:hidden">Rej.</span>
               </TabsTrigger>
               <TabsTrigger value="admin" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm bg-blue-50 border-blue-200">
                 <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">Panel Admin</span>
-                <span className="xs:hidden">Admin</span>
+                <span className="hidden sm:inline">Panel Admin</span>
+                <span className="sm:hidden">Admin</span>
               </TabsTrigger>
             </TabsList>
             
