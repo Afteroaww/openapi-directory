@@ -1386,8 +1386,8 @@ const ClientDashboard = () => {
                 {/* Pro System Features */}
                 <Card className="shadow-lg border-emerald-200">
                   <CardHeader className="bg-emerald-50">
-                    <CardTitle className="text-emerald-800">Zalety Pro Systemu</CardTitle>
-                    <CardDescription>Dlaczego warto wybrać Pro?</CardDescription>
+                    <CardTitle className="text-emerald-800">Zalety Naszego Systemu</CardTitle>
+                    <CardDescription>Dlaczego warto wybrać nasze bilety?</CardDescription>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="space-y-4">
