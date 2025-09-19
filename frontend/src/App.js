@@ -1049,7 +1049,7 @@ const ClientDashboard = () => {
                     <QrCode className="h-5 w-5" />
                     Moje Bilety
                   </CardTitle>
-                  <CardDescription>Historia zakupionych biletów z ShortCode i QR tokenami</CardDescription>
+                  <CardDescription>Historia zakupionych biletów z Kodami Weryfikacyjnymi i tokenami QR</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {myProTickets.length === 0 ? (
