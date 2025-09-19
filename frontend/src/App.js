@@ -986,7 +986,15 @@ const ClientDashboard = () => {
                               className="mt-1"
                             />
                             <Label htmlFor="pro-regulations" className="text-sm leading-relaxed">
-                              Akceptuję <strong>regulamin systemu biletów</strong> i zasady zaawansowanego systemu biletów
+                              Akceptuję{' '}
+                              <button
+                                type="button"
+                                onClick={() => setActiveTab('regulations')}
+                                className="font-bold text-emerald-600 hover:text-emerald-800 underline hover:no-underline transition-colors"
+                              >
+                                regulamin systemu biletów
+                              </button>
+                              {' '}i zasady zaawansowanego systemu biletów
                             </Label>
                           </div>
                           
