@@ -105,6 +105,54 @@
 user_problem_statement: "ETAP 2: IMPLEMENTACJA API PRO SYSTEM - implementacja endpointów API dla nowego systemu Tickets z wykorzystaniem zdefiniowanych modeli Pro (Waters, Tariffs, Tickets, Payments, Inspections, Inspectors) oraz funkcji ShortCode i JWT"
 
 backend:
+  - task: "ETAP 2: Pro Waters API"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement GET /api/pro/waters and GET /api/pro/waters/{water_id}/tariffs endpoints"
+          
+  - task: "ETAP 2: Pro Purchase API"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement POST /api/pro/tickets/purchase and GET /api/pro/tickets/my-tickets endpoints with ShortCode and JWT QR generation"
+          
+  - task: "ETAP 2: Pro Verification API"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to implement POST /api/pro/tickets/verify-qr, POST /api/pro/tickets/verify-shortcode and GET /api/pro/inspections/history endpoints"
+
+  - task: "ETAP 2: Pro Payment Integration"
+    implemented: false
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Need to integrate Pro system with existing Przelewy24 payment flow and webhook handling"
+
   - task: "ETAP 1: Pro Models Implementation"
     implemented: true
     working: true
