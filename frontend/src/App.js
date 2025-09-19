@@ -537,6 +537,7 @@ const ClientDashboard = () => {
                     <span className="font-medium text-blue-800">🎉 Nowe funkcje odblokowane!</span>
                   </div>
                   <p className="text-sm text-blue-700 mb-3">
+                    Odkryj nowe możliwości w menu aplikacji:<br />
                     🎣 Zawody wędkarskie catch & release<br />
                     🏆 Miesięczne rankingi z nagrodami<br />
                     📸 Upload zdjęć ryb (ETAP 1)
