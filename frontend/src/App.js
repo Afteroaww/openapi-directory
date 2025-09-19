@@ -542,15 +542,18 @@ const ClientDashboard = () => {
                   <Button 
                     onClick={() => {
                       setActiveTab('catches');
-                      // On mobile, show tutorial or highlight hamburger menu
+                      // On mobile, highlight hamburger menu to show new features
                       if (window.innerWidth <= 768) {
                         setTimeout(() => {
-                          const hamburgerButton = document.querySelector('[data-state]');
+                          const hamburgerButton = document.querySelector('button[data-state]');
                           if (hamburgerButton) {
-                            hamburgerButton.style.animation = 'pulse 2s infinite';
-                            hamburgerButton.style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.3)';
+                            hamburgerButton.classList.add('hamburger-tutorial-highlight');
+                            // Remove highlight after 6 seconds
+                            setTimeout(() => {
+                              hamburgerButton.classList.remove('hamburger-tutorial-highlight');
+                            }, 6000);
                           }
-                        }, 1000);
+                        }, 500);
                       }
                     }}
                     className="bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white"
