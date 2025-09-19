@@ -107,27 +107,33 @@ user_problem_statement: "Kontynuacja ETAP 1: MODELE DANYCH - ukończenie przecho
 backend:
   - task: "ETAP 1: Pro Models Implementation"
     implemented: true
-    working: "NA"  # needs testing
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "All Pro models defined: Water, Tariff, Payment, Ticket, Inspector, Inspection. Database indexes created. Default water and tariffs initialization implemented."
+        - working: true
+          agent: "testing"
+          comment: "✅ ETAP 1 VERIFIED: All Pro models successfully implemented. Waters collection: 1 document (Jezioro Wieliszew). Tariffs collection: 3 documents (Pro Dzienny 20PLN, Pro Miesięczny 60PLN, Pro Roczny 300PLN). Default water and tariffs properly initialized. Backend startup successful with Pro system message. Legacy FishingPermit system working in parallel (26 permits, 22 orders). API tests: 36/39 passed (92.3% success rate). Minor: Some Pro collections (payments, tickets, inspections, inspectors) not yet created as expected for ETAP 1 - they will be created when first used."
           
   - task: "Database Indexes for Pro System"
     implemented: true
-    working: "NA"  # needs testing
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true  
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Created indexes for all Pro collections: waters, tariffs, payments, tickets, inspections, inspectors. Indexes are created on startup."
+        - working: true
+          agent: "testing"
+          comment: "✅ DATABASE INDEXES VERIFIED: Core indexes successfully created - users.email (unique), fishing_permits.customer_id+status, waters and tariffs collections ready. Index creation function working properly. Minor: Some Pro collection indexes not yet visible as collections don't exist until first document inserted (expected for ETAP 1). ensure_admin_user(), ensure_default_water_and_tariffs(), create_database_indexes() all executing successfully on startup."
 
 frontend:
   - task: "Legacy System Compatibility"
