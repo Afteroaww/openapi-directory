@@ -529,15 +529,38 @@ const ClientDashboard = () => {
               </CardContent>
             </Card>
             
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Camera className="h-5 w-5 text-blue-600" />
-                <span className="font-medium text-blue-800">🎉 Zawody wędkarskie odblokowane!</span>
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Camera className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium text-blue-800">🎉 Nowe funkcje odblokowane!</span>
+                  </div>
+                  <p className="text-sm text-blue-700 mb-3">
+                    Zawody wędkarskie, rankingi miesięczne i wiele więcej!
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      setActiveTab('catches');
+                      // On mobile, show tutorial or highlight hamburger menu
+                      if (window.innerWidth <= 768) {
+                        setTimeout(() => {
+                          const hamburgerButton = document.querySelector('[data-state]');
+                          if (hamburgerButton) {
+                            hamburgerButton.style.animation = 'pulse 2s infinite';
+                            hamburgerButton.style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.3)';
+                          }
+                        }, 1000);
+                      }
+                    }}
+                    className="bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white"
+                    size="sm"
+                  >
+                    <Menu className="h-4 w-4 mr-2" />
+                    Poznaj aplikację
+                  </Button>
+                </div>
               </div>
-              <p className="text-sm text-blue-700">
-                Teraz możesz uczestniczyć w miesięcznych zawodach catch & release! 
-                Sprawdź nową zakładkę "Moje połowy".
-              </p>
             </div>
           </div>
         </div>
