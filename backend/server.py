@@ -472,8 +472,8 @@ async def create_p24_payment(order_id: str, amount_pln: float, description: str,
         "email": email,
         "country": "PL",
         "language": "pl",
-        "urlReturn": f"https://fishing-fees.preview.emergentagent.com/payment-success?orderId={order_id}",
-        "urlStatus": f"https://fishing-fees.preview.emergentagent.com/api/payment/webhook",
+        "urlReturn": f"https://lakeside-permits.preview.emergentagent.com/payment-success?orderId={order_id}",
+        "urlStatus": f"https://lakeside-permits.preview.emergentagent.com/api/payment/webhook",
         "encoding": "UTF-8"
     }
     
