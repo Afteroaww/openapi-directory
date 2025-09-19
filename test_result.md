@@ -125,7 +125,7 @@ backend:
           
   - task: "ETAP 2: Pro Purchase API"
     implemented: true
-    working: false
+    working: true
     file: "server.py"
     stuck_count: 1
     priority: "high"
@@ -143,6 +143,9 @@ backend:
         - working: false
           agent: "testing"
           comment: "❌ PRO PURCHASE API CRITICAL ISSUE: POST /api/pro/tickets/purchase fails with 500 error 'invalid literal for int() with base 10: YOUR_MERCHANT_ID'. Pro system lacks fallback mechanism for unconfigured P24 (unlike legacy system). GET /api/pro/tickets/my-tickets works correctly (returns empty list as expected). Authorization working correctly (403 for unauthorized, 400 for missing consents, 404 for invalid water/tariff)."
+        - working: true
+          agent: "testing"
+          comment: "✅ PRO PURCHASE API FIXED! POST /api/pro/tickets/purchase now works without P24 errors. Mock payment fallback successfully implemented - creates Pro ticket automatically in dev mode with ShortCode (e.g., FJQE4MEN) and JWT token. GET /api/pro/tickets/my-tickets returns created tickets correctly. All authorization checks working: 403 for unauthorized, 400 for missing consents, 404 for invalid water/tariff. Message confirms dev mode: 'Pro bilet zakupiony pomyślnie! Pro Dzienny - Jezioro Wieliszew (Tryb deweloperski - brak P24)'. Critical P24 fallback mechanism now matches legacy system behavior."
           
   - task: "ETAP 2: Pro Verification API"
     implemented: true
