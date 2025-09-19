@@ -1749,8 +1749,8 @@ class FishingPermitsAPITester:
         return passed == total, {"passed": passed, "total": total}
 
 def main():
-    print("🎣 Starting Fishing Permits API Tests (Role-Based System)")
-    print("=" * 60)
+    print("🎣 Starting Fishing Permits API Tests (Role-Based System + Pro System)")
+    print("=" * 70)
     
     tester = FishingPermitsAPITester()
     
@@ -1805,6 +1805,9 @@ def main():
         
         # NEW: ETAP 1 - Fishing catch & release endpoints
         tester.test_fishing_endpoints_comprehensive,
+        
+        # NEW: ETAP 2 - Pro System comprehensive test
+        tester.test_pro_system_comprehensive,
     ]
     
     for test in tests:
@@ -1814,7 +1817,7 @@ def main():
             print(f"❌ Test {test.__name__} failed with exception: {str(e)}")
     
     # Print final results
-    print("\n" + "=" * 60)
+    print("\n" + "=" * 70)
     print(f"📊 FINAL RESULTS")
     print(f"Tests run: {tester.tests_run}")
     print(f"Tests passed: {tester.tests_passed}")
