@@ -2173,6 +2173,128 @@ const AdminDashboard = () => {
     }
   };
 
+  // Admin management functions
+  const fetchAdmins = async () => {
+    setLoadingAdmins(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/admin/admins`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        setAdmins(response.data.admins);
+      }
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+      alert(error.response?.data?.detail || 'Błąd podczas pobierania listy administratorów');
+    } finally {
+      setLoadingAdmins(false);
+    }
+  };
+
+  const createSubAdmin = async () => {
+    if (!adminForm.email || !adminForm.full_name || !adminForm.password) {
+      alert('Wszystkie pola są wymagane');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API}/admin/admins`, adminForm, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        alert(response.data.message);
+        setAdminForm({ email: '', full_name: '', password: '' });
+        setShowAdminDialog(false);
+        fetchAdmins();
+      }
+    } catch (error) {
+      console.error('Error creating admin:', error);
+      alert(error.response?.data?.detail || 'Błąd podczas tworzenia administratora');
+    }
+  };
+
+  const deleteSubAdmin = async (admin) => {
+    if (!confirm(`Czy na pewno chcesz usunąć administratora "${admin.email}"?`)) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.delete(`${API}/admin/admins/${admin.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        alert(response.data.message);
+        fetchAdmins();
+      }
+    } catch (error) {
+      console.error('Error deleting admin:', error);
+      alert(error.response?.data?.detail || 'Błąd podczas usuwania administratora');
+    }
+  };
+
+  const updateProfile = async () => {
+    if (profileForm.new_password && profileForm.new_password !== profileForm.confirm_password) {
+      alert('Nowe hasła nie pasują do siebie');
+      return;
+    }
+
+    const updateData = {};
+    if (profileForm.full_name) updateData.full_name = profileForm.full_name;
+    if (profileForm.email) updateData.email = profileForm.email;
+    if (profileForm.new_password) {
+      updateData.current_password = profileForm.current_password;
+      updateData.new_password = profileForm.new_password;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      alert('Brak zmian do zapisania');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`${API}/admin/profile`, updateData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        alert(response.data.message);
+        setProfileForm({
+          full_name: '',
+          email: '',
+          current_password: '',
+          new_password: '',
+          confirm_password: ''
+        });
+        setShowProfileDialog(false);
+        // Refresh user data if email was changed
+        if (updateData.email) {
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert(error.response?.data?.detail || 'Błąd podczas aktualizacji profilu');
+    }
+  };
+
+  const requestPasswordReset = async (email) => {
+    try {
+      const response = await axios.post(`${API}/admin/reset-password`, { email });
+      
+      if (response.data.success) {
+        alert(`${response.data.message}\n\nInstrukcje:\n${response.data.instructions?.join('\n') || ''}`);
+      }
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      alert('Błąd podczas żądania resetowania hasła');
+    }
+  };
+
   if (loadingDashboard) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-emerald-50 flex items-center justify-center">
