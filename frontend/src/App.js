@@ -186,7 +186,7 @@ const LoginForm = () => {
           <CardTitle className="text-xl md:text-2xl">Pozwolenia na Połów Ryb</CardTitle>
           <CardDescription className="text-sm">Jezioro Wieliszew</CardDescription>
         </CardHeader>
-        <CardContent className="p-4 md:p-6">
+        <CardContent className="p-3 sm:p-4 md:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3 gap-1 sm:gap-2 h-auto p-1 sm:p-2">
               <TabsTrigger value="login" className="flex items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm">
