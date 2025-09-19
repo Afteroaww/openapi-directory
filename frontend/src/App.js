@@ -1272,9 +1272,9 @@ const ClientDashboard = () => {
                   <CardHeader className="bg-blue-50">
                     <CardTitle className="text-blue-800 flex items-center gap-2">
                       <Shield className="h-5 w-5" />
-                      Pro Bilety - Zaawansowany System
+                      Bilety Wędkarskie - System Zaawansowany
                     </CardTitle>
-                    <CardDescription>Kup bilet Pro z ShortCode i QR tokenem</CardDescription>
+                    <CardDescription>Kup bilet z ShortCode i QR tokenem</CardDescription>
                   </CardHeader>
                   <CardContent className="p-6">
                     {proWaters.length === 0 ? (
