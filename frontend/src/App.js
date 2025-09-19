@@ -997,7 +997,7 @@ const ClientDashboard = () => {
                       <div className="flex items-start gap-3">
                         <QrCode className="h-6 w-6 text-emerald-600 mt-1" />
                         <div>
-                          <h4 className="font-medium text-emerald-800">ShortCode + QR Token</h4>
+                          <h4 className="font-medium text-emerald-800">Kod Weryfikacyjny + Token QR</h4>
                           <p className="text-sm text-gray-600">Bezpieczna weryfikacja przez kod 8-znakowy lub QR</p>
                         </div>
                       </div>
@@ -1005,15 +1005,15 @@ const ClientDashboard = () => {
                       <div className="flex items-start gap-3">
                         <Shield className="h-6 w-6 text-emerald-600 mt-1" />
                         <div>
-                          <h4 className="font-medium text-emerald-800">JWT Security</h4>
-                          <p className="text-sm text-gray-600">Zaawansowane zabezpieczenia z tokenami JWT</p>
+                          <h4 className="font-medium text-emerald-800">Bezpieczeństwo Zaawansowane</h4>
+                          <p className="text-sm text-gray-600">Zaawansowane zabezpieczenia z tokenami bezpieczeństwa</p>
                         </div>
                       </div>
                       
                       <div className="flex items-start gap-3">
                         <CheckCircle className="h-6 w-6 text-emerald-600 mt-1" />
                         <div>
-                          <h4 className="font-medium text-emerald-800">Offline Mode</h4>
+                          <h4 className="font-medium text-emerald-800">Tryb Offline</h4>
                           <p className="text-sm text-gray-600">Weryfikacja przez kontrolerów bez internetu</p>
                         </div>
                       </div>
@@ -1021,7 +1021,7 @@ const ClientDashboard = () => {
                       <div className="flex items-start gap-3">
                         <Fish className="h-6 w-6 text-emerald-600 mt-1" />
                         <div>
-                          <h4 className="font-medium text-emerald-800">Multi-venue</h4>
+                          <h4 className="font-medium text-emerald-800">Wiele Łowisk</h4>
                           <p className="text-sm text-gray-600">Wsparcie dla wielu łowisk i taryf</p>
                         </div>
                       </div>
