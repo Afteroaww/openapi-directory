@@ -169,5 +169,7 @@ test_plan:
 agent_communication:
     - agent: "main"
       message: "ETAP 1 wydaje się być ukończony. Wszystkie modele Pro są zdefiniowane, indeksy utworzone, inicjalizacja danych zaimplementowana. Teraz potrzeba przetestować czy backend startuje poprawnie i czy wszystkie kolekcje są tworzone prawidłowo."
-    - agent: "testing"
+    - agent: "testing" 
       message: "✅ ETAP 1 TESTING COMPLETE: Backend uruchamia się poprawnie bez błędów. Wszystkie wymagane kolekcje MongoDB utworzone (waters: 1, tariffs: 3, plus legacy collections). Indeksy bazy danych prawidłowo utworzone. Domyślne dane (Jezioro Wieliszew i 3 taryfy Pro) zainicjalizowane. Stary system FishingPermit działa równolegle (26 permits, 22 orders). Podstawowe endpointy API odpowiadają poprawnie (92.3% success rate). Funkcje startup: ensure_admin_user(), ensure_default_water_and_tariffs(), create_database_indexes() działają bez błędów. ETAP 1 zakończony pomyślnie - modele i baza danych prawidłowo skonfigurowane."
+    - agent: "main"
+      message: "Backend ETAP 1 zakończony pomyślnie. Teraz testuję frontend żeby upewnić się, że kompatybilność wsteczna działa poprawnie i użytkownicy mogą nadal korzystać z aplikacji podczas gdy nowe modele Pro są gotowe w tle."
