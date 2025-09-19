@@ -2515,6 +2515,11 @@ const AdminDashboard = () => {
               <p className="text-gray-500">Wkrótce - CRUD dla taryf biletów</p>
             </div>
           </TabsContent>
+
+          {/* Administrators Tab */}
+          <TabsContent value="admins">
+            <AdminManagementSection />
+          </TabsContent>
         </Tabs>
 
         {/* Water Create/Edit Dialog */}
