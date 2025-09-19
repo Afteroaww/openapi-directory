@@ -2214,6 +2214,9 @@ def main():
         
         # NEW: ETAP 2 - Pro System comprehensive test
         tester.test_pro_system_comprehensive,
+        
+        # NEW: Admin Management comprehensive test
+        tester.test_admin_management_comprehensive,
     ]
     
     for test in tests:
