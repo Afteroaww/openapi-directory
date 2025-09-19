@@ -2838,6 +2838,155 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+
+        {/* Admin Create Dialog */}
+        {showAdminDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <h3 className="text-lg font-semibold mb-4">Dodaj nowego administratora</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="adminEmail">Email</Label>
+                  <Input
+                    id="adminEmail"
+                    type="email"
+                    value={adminForm.email}
+                    onChange={(e) => setAdminForm(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="admin@example.com"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="adminFullName">Imię i nazwisko</Label>
+                  <Input
+                    id="adminFullName"
+                    value={adminForm.full_name}
+                    onChange={(e) => setAdminForm(prev => ({ ...prev, full_name: e.target.value }))}
+                    placeholder="Jan Kowalski"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="adminPassword">Hasło</Label>
+                  <Input
+                    id="adminPassword"
+                    type="password"
+                    value={adminForm.password}
+                    onChange={(e) => setAdminForm(prev => ({ ...prev, password: e.target.value }))}
+                    placeholder="Silne hasło"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <Button
+                  onClick={() => setShowAdminDialog(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Anuluj
+                </Button>
+                <Button
+                  onClick={createSubAdmin}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  Dodaj administratora
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Update Dialog */}
+        {showProfileDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <h3 className="text-lg font-semibold mb-4">Aktualizuj profil</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="profileFullName">Imię i nazwisko</Label>
+                  <Input
+                    id="profileFullName"
+                    value={profileForm.full_name}
+                    onChange={(e) => setProfileForm(prev => ({ ...prev, full_name: e.target.value }))}
+                    placeholder={user?.full_name || "Pozostaw puste bez zmian"}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="profileEmail">Email</Label>
+                  <Input
+                    id="profileEmail"
+                    type="email"
+                    value={profileForm.email}
+                    onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder={user?.email || "Pozostaw puste bez zmian"}
+                  />
+                </div>
+                
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-3">Zmiana hasła (opcjonalnie)</h4>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="currentPassword">Aktualne hasło</Label>
+                      <Input
+                        id="currentPassword"
+                        type="password"
+                        value={profileForm.current_password}
+                        onChange={(e) => setProfileForm(prev => ({ ...prev, current_password: e.target.value }))}
+                        placeholder="Wymagane do zmiany hasła"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="newPassword">Nowe hasło</Label>
+                      <Input
+                        id="newPassword"
+                        type="password"
+                        value={profileForm.new_password}
+                        onChange={(e) => setProfileForm(prev => ({ ...prev, new_password: e.target.value }))}
+                        placeholder="Nowe hasło"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="confirmPassword">Potwierdź nowe hasło</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={profileForm.confirm_password}
+                        onChange={(e) => setProfileForm(prev => ({ ...prev, confirm_password: e.target.value }))}
+                        placeholder="Potwierdź nowe hasło"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <Button
+                  onClick={() => setShowProfileDialog(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Anuluj
+                </Button>
+                <Button
+                  onClick={updateProfile}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  Zapisz zmiany
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
