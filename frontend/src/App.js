@@ -570,9 +570,9 @@ const ClientDashboard = () => {
                       </SheetDescription>
                     </SheetHeader>
                     
-                    <div className="mt-8 space-y-4">
+                    <div className="mt-8 space-y-2">
                       <Button
-                        variant="ghost"
+                        variant={activeTab === 'buy' ? 'default' : 'ghost'}
                         className="w-full justify-start text-left"
                         onClick={() => {
                           setActiveTab('buy');
@@ -584,7 +584,7 @@ const ClientDashboard = () => {
                       </Button>
                       
                       <Button
-                        variant="ghost"
+                        variant={activeTab === 'history' ? 'default' : 'ghost'}
                         className="w-full justify-start text-left"
                         onClick={() => {
                           setActiveTab('history');
@@ -596,7 +596,7 @@ const ClientDashboard = () => {
                       </Button>
                       
                       <Button
-                        variant="ghost"
+                        variant={activeTab === 'catches' ? 'default' : 'ghost'}
                         className="w-full justify-start text-left"
                         onClick={() => {
                           setActiveTab('catches');
