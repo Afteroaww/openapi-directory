@@ -2521,6 +2521,286 @@ async def delete_water(
         logger.error(f"Error deleting water {water_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to delete water")
 
+# ================================
+# ADMIN MANAGEMENT ENDPOINTS
+# ================================
+
+class AdminProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
+
+class CreateSubAdmin(BaseModel):
+    email: EmailStr
+    full_name: str
+    password: str
+    
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+@api_router.get("/admin/admins")
+async def get_admins(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get list of all administrators"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        
+        # Get all admin users
+        admins = await db.users.find({"role": "admin"}).to_list(length=None)
+        
+        # Remove sensitive data and add metadata
+        admin_list = []
+        for admin in admins:
+            is_main_admin = admin.get("email") == "jacek.oktaba@gmail.com"
+            admin_info = {
+                "id": admin["id"],
+                "email": admin["email"],
+                "full_name": admin["full_name"],
+                "created_at": admin.get("created_at", "Unknown"),
+                "last_login": admin.get("last_login", "Never"),
+                "is_main_admin": is_main_admin,
+                "is_deletable": not is_main_admin
+            }
+            admin_list.append(admin_info)
+        
+        # Sort so main admin is first
+        admin_list.sort(key=lambda x: (not x["is_main_admin"], x["email"]))
+        
+        return {
+            "success": True,
+            "admins": admin_list,
+            "total_count": len(admin_list)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching admins: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch administrators")
+
+@api_router.put("/admin/profile")
+async def update_admin_profile(
+    profile_data: AdminProfileUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update admin profile and/or password"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        current_admin_id = admin_user["id"]
+        
+        update_data = {}
+        
+        # Update basic profile info
+        if profile_data.full_name:
+            update_data["full_name"] = profile_data.full_name.strip()
+            
+        if profile_data.email:
+            # Check if email is already taken by another user
+            existing_user = await db.users.find_one({
+                "email": profile_data.email.lower(),
+                "id": {"$ne": current_admin_id}
+            })
+            if existing_user:
+                raise HTTPException(status_code=400, detail="Email już jest używany przez innego użytkownika")
+            
+            update_data["email"] = profile_data.email.lower()
+        
+        # Handle password change
+        if profile_data.new_password:
+            if not profile_data.current_password:
+                raise HTTPException(status_code=400, detail="Aktualne hasło jest wymagane do zmiany hasła")
+            
+            # Verify current password
+            if not bcrypt.checkpw(profile_data.current_password.encode('utf-8'), admin_user["password"].encode('utf-8')):
+                raise HTTPException(status_code=400, detail="Nieprawidłowe aktualne hasło")
+            
+            # Hash new password
+            hashed_password = bcrypt.hashpw(profile_data.new_password.encode('utf-8'), bcrypt.gensalt())
+            update_data["password"] = hashed_password.decode('utf-8')
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="Brak danych do aktualizacji")
+        
+        # Add update timestamp
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        # Update admin profile
+        result = await db.users.update_one(
+            {"id": current_admin_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Administrator nie został znaleziony")
+        
+        logger.info(f"Admin profile updated: {admin_user['email']}")
+        
+        # Get updated admin data (without password)
+        updated_admin = await db.users.find_one({"id": current_admin_id})
+        admin_response = {
+            "id": updated_admin["id"],
+            "email": updated_admin["email"],
+            "full_name": updated_admin["full_name"],
+            "role": updated_admin["role"],
+            "updated_at": updated_admin.get("updated_at")
+        }
+        
+        return {
+            "success": True,
+            "message": "Profil administratora został zaktualizowany pomyślnie",
+            "admin": admin_response
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating admin profile: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update admin profile")
+
+@api_router.post("/admin/admins")
+async def create_sub_admin(
+    admin_data: CreateSubAdmin,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new sub-administrator"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        
+        # Check if email already exists
+        existing_user = await db.users.find_one({"email": admin_data.email.lower()})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Użytkownik z tym adresem email już istnieje")
+        
+        # Hash password
+        hashed_password = bcrypt.hashpw(admin_data.password.encode('utf-8'), bcrypt.gensalt())
+        
+        # Create new sub-admin
+        new_admin_id = str(uuid.uuid4())
+        new_admin = {
+            "id": new_admin_id,
+            "email": admin_data.email.lower(),
+            "full_name": admin_data.full_name.strip(),
+            "password": hashed_password.decode('utf-8'),
+            "role": "admin",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": admin_user["id"],
+            "is_sub_admin": True
+        }
+        
+        await db.users.insert_one(new_admin)
+        
+        logger.info(f"Sub-admin created by {admin_user['email']}: {admin_data.email}")
+        
+        # Return admin data without password
+        admin_response = {
+            "id": new_admin["id"],
+            "email": new_admin["email"],
+            "full_name": new_admin["full_name"],
+            "role": new_admin["role"],
+            "created_at": new_admin["created_at"],
+            "is_sub_admin": True,
+            "is_deletable": True
+        }
+        
+        return {
+            "success": True,
+            "message": f"Sub-administrator {admin_data.email} został utworzony pomyślnie",
+            "admin": admin_response
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating sub-admin: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create sub-administrator")
+
+@api_router.delete("/admin/admins/{admin_id}")
+async def delete_sub_admin(
+    admin_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a sub-administrator (main admin cannot be deleted)"""
+    try:
+        # Check admin permissions
+        admin_user = await check_admin_role(credentials)
+        
+        # Find admin to delete
+        admin_to_delete = await db.users.find_one({"id": admin_id, "role": "admin"})
+        if not admin_to_delete:
+            raise HTTPException(status_code=404, detail="Administrator nie został znaleziony")
+        
+        # Protect main admin from deletion
+        if admin_to_delete.get("email") == "jacek.oktaba@gmail.com":
+            raise HTTPException(status_code=400, detail="Główny administrator nie może być usunięty")
+        
+        # Prevent self-deletion
+        if admin_id == admin_user["id"]:
+            raise HTTPException(status_code=400, detail="Nie możesz usunąć swojego własnego konta")
+        
+        # Delete the sub-admin
+        result = await db.users.delete_one({"id": admin_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Administrator nie został znaleziony")
+        
+        logger.info(f"Sub-admin deleted by {admin_user['email']}: {admin_to_delete['email']}")
+        
+        return {
+            "success": True,
+            "message": f"Sub-administrator {admin_to_delete['email']} został usunięty pomyślnie"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting sub-admin: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete sub-administrator")
+
+@api_router.post("/admin/reset-password")
+async def request_password_reset(reset_data: PasswordResetRequest):
+    """Request password reset for admin (currently returns instructions)"""
+    try:
+        # Check if user exists and is admin
+        admin_user = await db.users.find_one({
+            "email": reset_data.email.lower(),
+            "role": "admin"
+        })
+        
+        if not admin_user:
+            # Don't reveal if email exists or not for security
+            return {
+                "success": True,
+                "message": "Jeśli podany adres email należy do administratora, instrukcje odzyskiwania hasła zostały wysłane"
+            }
+        
+        # For now, return recovery instructions
+        # TODO: Implement actual email sending
+        recovery_email = "jacek.oktaba@gmail.com"
+        
+        logger.info(f"Password reset requested for admin: {reset_data.email}")
+        
+        return {
+            "success": True,
+            "message": f"Instrukcje odzyskiwania hasła: Skontaktuj się z głównym administratorem na adres {recovery_email}",
+            "recovery_contact": recovery_email,
+            "instructions": [
+                "1. Skontaktuj się z głównym administratorem",
+                "2. Potwierdź swoją tożsamość",
+                "3. Otrzymasz nowe hasło tymczasowe",
+                "4. Zmień hasło po pierwszym logowaniu"
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in password reset request: {str(e)}")
+        return {
+            "success": True,
+            "message": "Jeśli podany adres email należy do administratora, instrukcje odzyskiwania hasła zostały wysłane"
+        }
+
 # Root endpoint
 @api_router.get("/")
 async def root():
