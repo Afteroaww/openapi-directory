@@ -445,6 +445,8 @@ const ClientDashboard = () => {
           setOwnerCode('');
           setRegulationsAccepted(false);
           setDataProcessingAccepted(false);
+          // Refresh permits to unlock catches tab
+          fetchMyPermits();
         }
       }
     } catch (error) {
