@@ -1631,7 +1631,7 @@ async def purchase_pro_ticket(
                     "posId": int(P24_POS_ID),
                     "amount": tariff["price_grosze"],
                     "currency": "PLN",
-                    "description": f"Pro Ticket: {tariff['name']} - {water['name']}",
+                    "description": f"Bilet: {tariff['name']} - {water['name']}",
                     "email": current_user["email"],
                     "country": "PL",
                     "language": "pl",
