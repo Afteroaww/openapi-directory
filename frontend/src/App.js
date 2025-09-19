@@ -1946,6 +1946,102 @@ const AdminDashboard = () => {
     }
   };
 
+  // Waters management functions
+  const fetchWaters = async () => {
+    setLoadingWaters(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API}/admin/waters`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setWaters(response.data.waters);
+      }
+    } catch (error) {
+      console.error('Error fetching waters:', error);
+    } finally {
+      setLoadingWaters(false);
+    }
+  };
+
+  const handleCreateWater = () => {
+    setEditingWater(null);
+    setWaterForm({
+      name: '',
+      location: '',
+      description: '',
+      regulations: ''
+    });
+    setShowWaterDialog(true);
+  };
+
+  const handleEditWater = (water) => {
+    setEditingWater(water);
+    setWaterForm({
+      name: water.name,
+      location: water.location,
+      description: water.description,
+      regulations: water.regulations || ''
+    });
+    setShowWaterDialog(true);
+  };
+
+  const saveWater = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (editingWater) {
+        // Update existing water
+        const response = await axios.put(
+          `${API}/admin/waters/${editingWater.id}`,
+          waterForm,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (response.data.success) {
+          alert(response.data.message);
+          fetchWaters();
+          setShowWaterDialog(false);
+        }
+      } else {
+        // Create new water
+        const response = await axios.post(
+          `${API}/admin/waters`,
+          waterForm,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (response.data.success) {
+          alert(response.data.message);
+          fetchWaters();
+          setShowWaterDialog(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving water:', error);
+      alert(error.response?.data?.detail || 'Błąd podczas zapisywania łowiska');
+    }
+  };
+
+  const deleteWater = async (water) => {
+    if (!confirm(`Czy na pewno chcesz usunąć łowisko "${water.name}"?`)) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.delete(`${API}/admin/waters/${water.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        alert(response.data.message);
+        fetchWaters();
+      }
+    } catch (error) {
+      console.error('Error deleting water:', error);
+      alert(error.response?.data?.detail || 'Błąd podczas usuwania łowiska');
+    }
+  };
+
   if (loadingDashboard) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-emerald-50 flex items-center justify-center">
