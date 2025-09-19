@@ -1342,7 +1342,7 @@ const ClientDashboard = () => {
                               className="mt-1"
                             />
                             <Label htmlFor="pro-regulations" className="text-sm leading-relaxed">
-                              Akceptuję <strong>regulamin Pro systemu</strong> i zasady zaawansowanego systemu biletów
+                              Akceptuję <strong>regulamin systemu biletów</strong> i zasady zaawansowanego systemu biletów
                             </Label>
                           </div>
                           
