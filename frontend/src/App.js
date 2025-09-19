@@ -1094,11 +1094,11 @@ const ClientDashboard = () => {
                             </Badge>
                           </div>
 
-                          {/* ShortCode */}
+                          {/* Kod Weryfikacyjny */}
                           <div className="mb-4 p-3 bg-white border rounded-lg">
                             <div className="flex items-center gap-2 mb-2">
                               <Shield className="h-4 w-4 text-blue-600" />
-                              <span className="text-sm font-medium">ShortCode do weryfikacji</span>
+                              <span className="text-sm font-medium">Kod Weryfikacyjny</span>
                             </div>
                             <div className="text-center">
                               <p className="text-2xl font-mono font-bold text-blue-600 tracking-wider">
@@ -1110,12 +1110,12 @@ const ClientDashboard = () => {
                             </div>
                           </div>
 
-                          {/* QR Code */}
+                          {/* Token QR */}
                           {ticket.qr_token && (
                             <div className="p-3 bg-white border rounded-lg">
                               <div className="flex items-center gap-2 mb-2">
                                 <QrCode className="h-4 w-4 text-emerald-600" />
-                                <span className="text-sm font-medium">QR Token do skanowania</span>
+                                <span className="text-sm font-medium">Token QR do skanowania</span>
                               </div>
                               <div className="text-center">
                                 <div className="inline-block p-2 bg-white border rounded">
