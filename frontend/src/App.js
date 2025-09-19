@@ -533,6 +533,18 @@ const ClientDashboard = () => {
                                   </Button>
                                   
                                   <Button
+                                    variant={activeTab === 'regulations' ? 'default' : 'ghost'}
+                                    className="w-full justify-start text-left"
+                                    onClick={() => {
+                                      setActiveTab('regulations');
+                                      setMobileMenuOpen(false);
+                                    }}
+                                  >
+                                    <FileText className="h-4 w-4 mr-3" />
+                                    Regulamin
+                                  </Button>
+                                  
+                                  <Button
                                     variant={activeTab === 'catches' ? 'default' : 'ghost'}
                                     className="w-full justify-start text-left"
                                     onClick={() => {
